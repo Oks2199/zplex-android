@@ -6,9 +6,9 @@ Dernière mise à jour : 11 septembre 2026
 
 - L’APK `Movynex-1.0.0.apk` est installé et fonctionne sur le téléphone.
 - La connexion à Google Drive fonctionne.
-- Les films présents sur Google Drive sont indexés et se lancent correctement.
+- Les films présents sur Google Drive sont indexés ; la correction de l’écran noir à la lecture est prête à tester.
 - Le plantage provoqué par la locale française lors de l’ouverture d’un film est corrigé.
-- La future mise à jour est préparée avec `versionCode = 2` et `versionName = 1.0.1`.
+- La future mise à jour est préparée avec `versionCode = 3` et `versionName = 1.0.1`.
 - Aucun APK 1.0.1 final ne doit être construit tant que le nettoyage visuel n’est pas terminé et validé par l’utilisateur.
 
 ## Identité Movynex terminée
@@ -52,7 +52,8 @@ Dernière mise à jour : 11 septembre 2026
 - `progress.md` sert de journal d’avancement et doit rester à jour après chaque étape importante.
 - Le dossier `dist/` reste volontairement hors de Git.
 - Un point de sauvegarde antérieur à la migration existe dans le commit local `ceea2ac`.
-- La migration sans OAuth a été compilée avec succès par GitHub Actions et reste à tester sur le téléphone.
+- La sélection des dossiers et l’indexation sans OAuth ont été validées sur le téléphone.
+- Le lecteur MPV conserve désormais le descripteur Google Drive ouvert pendant toute la lecture et ne charge chaque URI qu’une seule fois.
 
 ## Construction et vérification
 
@@ -62,8 +63,9 @@ Dernière mise à jour : 11 septembre 2026
 - La compilation locale n’a pas pu être utilisée comme validation finale à cause des restrictions de connexion locale de Gradle dans l’environnement Codex.
 - La prochaine validation complète devra donc être effectuée par GitHub Actions après accord explicite de l’utilisateur.
 - Le workflow GitHub Actions n°6 a réussi sur le commit `bd3e304` : tests debug, APK debug et release ARM64 signée.
-- L’APK de test vérifiée est disponible dans `H:\Downloads\Movynex-1.0.1-SAF-test.apk`.
-- Package vérifié : `com.cursedcrew.movynex`, version `1.0.1`, architecture `arm64-v8a`, signature identique à la 1.0.0.
+- Le workflow GitHub Actions n°7 a réussi sur le commit `eb4d3a0` : tests debug, APK debug et release ARM64 signée avec la correction vidéo.
+- L’APK de test corrigée est disponible dans `H:\Downloads\Movynex-1.0.1-SAF-test.apk` ; l’essai précédent est sauvegardé sous `Movynex-1.0.1-SAF-test-before-video-fix.apk`.
+- Package vérifié : `com.cursedcrew.movynex`, version `1.0.1` (code 3), architecture `arm64-v8a`, signature identique à la 1.0.0.
 
 ## À faire avant la version 1.0.1
 
