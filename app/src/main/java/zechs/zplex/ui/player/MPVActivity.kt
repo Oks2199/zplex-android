@@ -99,8 +99,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         const val TAG = "MPVActivity"
 
         // Notification channel constants
-        private const val PLAYER_CHANNEL_ID = "zplex_video_player"
-        private const val MEDIA_SESSION_ID = "zplex_session"
+        private const val PLAYER_CHANNEL_ID = "movynex_video_player"
+        private const val MEDIA_SESSION_ID = "movynex_session"
         private const val PLAYER_NOTIFICATION_ID = 100002
 
         // fraction to which audio volume is ducked on loss of audio focus

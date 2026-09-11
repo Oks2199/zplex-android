@@ -35,6 +35,6 @@ class NotificationButtonReceiver : BroadcastReceiver() {
         }
 
         private const val TAG = "NotificationButtonReceiver"
-        private const val PREFIX = "zechs.zplex"
+        private const val PREFIX = "com.cursedcrew.movynex"
     }
 }

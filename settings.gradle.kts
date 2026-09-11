@@ -14,6 +14,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ZPlex"
+rootProject.name = "Movynex"
 include(":app")
 include(":mpv")

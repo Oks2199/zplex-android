@@ -69,7 +69,7 @@ class DownloadWorker @AssistedInject constructor(
     ) as NotificationManager
 
     companion object {
-        const val DOWNLOADS_FOLDER_NAME = "zplex-downloads"
+        const val DOWNLOADS_FOLDER_NAME = "movynex-downloads"
         const val TAG = "FileDownloadWorker"
         const val FILE_PATH = "filePath"
         const val NOTIFICATION_ID = "notificationId"
