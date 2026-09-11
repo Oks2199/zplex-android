@@ -95,13 +95,15 @@ class SessionManager @Inject constructor(
 
     fun isLoggedIn(): Flow<Boolean> {
         return sessionStore.data.map { preferences ->
-            val value = preferences[stringPreferencesKey(ACCESS_TOKEN)]
-            return@map value != null
+            val movieFolder = preferences[stringPreferencesKey(SAF_MOVIE_FOLDER)]
+            val showsFolder = preferences[stringPreferencesKey(SAF_SHOWS_FOLDER)]
+            return@map movieFolder?.startsWith("content://") == true ||
+                    showsFolder?.startsWith("content://") == true
         }
     }
 
     suspend fun saveMovieFolder(movieFolderId: String) {
-        val dataStoreKey = stringPreferencesKey(MOVIE_FOLDER)
+        val dataStoreKey = stringPreferencesKey(SAF_MOVIE_FOLDER)
         sessionStore.edit { settings ->
             settings[dataStoreKey] = movieFolderId
         }
@@ -109,7 +111,7 @@ class SessionManager @Inject constructor(
     }
 
     suspend fun fetchMovieFolder(): String? {
-        val dataStoreKey = stringPreferencesKey(MOVIE_FOLDER)
+        val dataStoreKey = stringPreferencesKey(SAF_MOVIE_FOLDER)
         val preferences = sessionStore.data.first()
         val value = preferences[dataStoreKey]
         Log.d(TAG, "fetchMovieFolder: $value")
@@ -117,7 +119,7 @@ class SessionManager @Inject constructor(
     }
 
     suspend fun saveShowsFolder(showsFolderId: String) {
-        val dataStoreKey = stringPreferencesKey(SHOWS_FOLDER)
+        val dataStoreKey = stringPreferencesKey(SAF_SHOWS_FOLDER)
         sessionStore.edit { settings ->
             settings[dataStoreKey] = showsFolderId
         }
@@ -125,7 +127,7 @@ class SessionManager @Inject constructor(
     }
 
     suspend fun fetchShowsFolder(): String? {
-        val dataStoreKey = stringPreferencesKey(SHOWS_FOLDER)
+        val dataStoreKey = stringPreferencesKey(SAF_SHOWS_FOLDER)
         val preferences = sessionStore.data.first()
         val value = preferences[dataStoreKey]
         Log.d(TAG, "fetchShowsFolder: $value")
@@ -134,13 +136,20 @@ class SessionManager @Inject constructor(
 
     fun fetchMovieFolderFlow(): Flow<String?> {
         return sessionStore.data.map { preferences ->
-            preferences[stringPreferencesKey(MOVIE_FOLDER)]
+            preferences[stringPreferencesKey(SAF_MOVIE_FOLDER)]
         }
     }
 
     fun fetchShowsFolderFlow(): Flow<String?> {
         return sessionStore.data.map { preferences ->
-            preferences[stringPreferencesKey(SHOWS_FOLDER)]
+            preferences[stringPreferencesKey(SAF_SHOWS_FOLDER)]
+        }
+    }
+
+    suspend fun clearSelectedFolders() {
+        sessionStore.edit { settings ->
+            settings.remove(stringPreferencesKey(SAF_MOVIE_FOLDER))
+            settings.remove(stringPreferencesKey(SAF_SHOWS_FOLDER))
         }
     }
 
@@ -158,6 +167,8 @@ class SessionManager @Inject constructor(
         const val REFRESH_TOKEN = "REFRESH_TOKEN"
         const val MOVIE_FOLDER = "MOVIE_FOLDER"
         const val SHOWS_FOLDER = "SHOWS_FOLDER"
+        const val SAF_MOVIE_FOLDER = "SAF_MOVIE_FOLDER"
+        const val SAF_SHOWS_FOLDER = "SAF_SHOWS_FOLDER"
     }
 
 }

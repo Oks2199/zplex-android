@@ -58,6 +58,7 @@
                 android:id="@+id/settingConfigureClient"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:background="?selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"

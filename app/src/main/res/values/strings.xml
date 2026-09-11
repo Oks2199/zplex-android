@@ -89,7 +89,7 @@
     <string name="client_configuration">Client configuration</string>
     <string name="configure_drive_client">Configure your client id, client secret and redirect uri</string>
     <string name="go_to_settings">Go to settings</string>
-    <string name="login_to_google_drive">Please login to your Google Drive account</string>
+    <string name="login_to_google_drive">Select your Google Drive media folder in settings</string>
     <string name="select_movies_folder">Select movies folder</string>
     <string name="select_movies">Select the folder where your movies are stored</string>
     <string name="select_shows_folder">Select shows folder</string>
@@ -99,9 +99,12 @@
     <string name="remove_movies_message">This will remove all movies from the library.</string>
     <string name="change_shows_folder_title">Do you want to change the shows folder?</string>
     <string name="remove_shows_message">This will remove all shows from the library.</string>
-    <string name="log_out">Log out</string>
-    <string name="revoke_credentials_and_clear_indexing">Revoke the Google Drive login credentials and clear the indexing for all media files</string>
-    <string name="logout_title">Are you sure you want to log out?</string>
+    <string name="log_out">Disconnect media folders</string>
+    <string name="revoke_credentials_and_clear_indexing">Remove folder access and clear the indexed media files</string>
+    <string name="logout_title">Disconnect the selected media folders?</string>
+    <string name="folder_access_failed">Movynex could not keep access to this folder. Please select it again.</string>
+    <string name="unable_to_open_media">Movynex could not open this media file.</string>
+    <string name="select_media_folders_again">Select your media folders again in settings.</string>
     <string name="please_wait">Please wait…</string>
     <string name="scan_for_media">Scan for media</string>
     <string name="scanning">Scanning…</string>

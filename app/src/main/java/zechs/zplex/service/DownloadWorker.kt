@@ -24,17 +24,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.ResponseBody
-import okio.use
 import zechs.zplex.R
 import zechs.zplex.data.model.MediaType
-import zechs.zplex.data.model.drive.DriveClient
-import zechs.zplex.data.model.drive.FileResponse
-import zechs.zplex.data.repository.DriveRepository
-import zechs.zplex.utils.SessionManager
-import zechs.zplex.utils.state.Resource
+import zechs.zplex.data.repository.DocumentTreeRepository
 import java.io.File
-import java.io.FileInputStream
+import java.io.InputStream
 import java.security.MessageDigest
 import java.util.Locale
 import javax.inject.Inject
@@ -43,8 +37,7 @@ import kotlin.math.pow
 import kotlin.random.Random
 
 class DownloadWorkerFactory @Inject constructor(
-    private val driveRepository: DriveRepository,
-    private val sessionManager: SessionManager
+    private val documentTreeRepository: DocumentTreeRepository
 ) : WorkerFactory() {
 
     override fun createWorker(
@@ -52,7 +45,7 @@ class DownloadWorkerFactory @Inject constructor(
         workerClassName: String,
         workerParameters: WorkerParameters
     ): ListenableWorker =
-        DownloadWorker(appContext, workerParameters, driveRepository, sessionManager)
+        DownloadWorker(appContext, workerParameters, documentTreeRepository)
 }
 
 
@@ -60,8 +53,7 @@ class DownloadWorkerFactory @Inject constructor(
 class DownloadWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val driveRepository: DriveRepository,
-    private val sessionManager: SessionManager
+    private val documentTreeRepository: DocumentTreeRepository
 ) : CoroutineWorker(context, workerParams) {
 
     private val notificationManager = applicationContext.getSystemService(
@@ -89,9 +81,6 @@ class DownloadWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        val client = sessionManager.fetchClient()
-            ?: return fail("Drive Client is required.")
-
         val fileId = inputData.getString(FILE_ID)
             ?: return fail("Download fileId is required.")
 
@@ -133,7 +122,7 @@ class DownloadWorker @AssistedInject constructor(
         val notificationId = Random.nextInt(1, Int.MAX_VALUE)
 
         val file = try {
-            downloadFile(client = client, title = title, fileId = fileId, notificationId = notificationId)
+            downloadFile(title = title, fileId = fileId, notificationId = notificationId)
         } catch (e: Exception) {
             return fail("Download failed: ${e.message ?: "Unknown error"}")
         }
@@ -166,99 +155,31 @@ class DownloadWorker @AssistedInject constructor(
         }
     }
 
-    private fun calculateMD5(filePath: String): String {
-        val md = MessageDigest.getInstance("MD5")
-        val fileInputStream = FileInputStream(filePath)
-        val buffer = ByteArray(1024)
-        var bytesRead: Int
-        while (fileInputStream.read(buffer).also { bytesRead = it } != -1) {
-            md.update(buffer, 0, bytesRead)
-        }
-        fileInputStream.close()
-        return md.digest().joinToString("") { "%02x".format(it) }
-    }
-
     private suspend fun downloadFile(
-        client: DriveClient,
         title: String,
         fileId: String,
         notificationId: Int,
     ): File? {
         try {
             if (getFilePath(fileId).exists()) {
-                val remoteFile = getRemoteFile(fileId, client)
-                if (remoteFile != null) {
-                    val localFile = getFilePath(fileId)
-                    val localChecksum = calculateMD5(localFile.absolutePath)
-                    val remoteChecksum = remoteFile.md5Checksum
-                    if (localChecksum == remoteChecksum) {
-                        Log.d(TAG, "File already downloaded...")
-                        return localFile
-                    } else {
-                        localFile.delete()
-                    }
-                }
-//                Log.d(TAG, "Already exists. (File=$fileId, title=$title)")
-//                showDownloadErrorNotification(notificationId, "Already exists", title)
-//                return null
+                Log.d(TAG, "File already downloaded...")
+                return getFilePath(fileId)
             }
 
-            when (val token = driveRepository.fetchAccessToken(client)) {
-                is Resource.Error -> {
-                    Log.d(TAG, "Unable to fetch Access token")
-                    return null
-                }
-
-                is Resource.Success -> {
-                    val accessToken = token.data!!.accessToken
-                    val response: ResponseBody = driveRepository.downloadFile(
+            return withContext(Dispatchers.IO) {
+                documentTreeRepository.openInputStream(fileId).use { inputStream ->
+                    writeDownload(
+                        inputStream = inputStream,
                         fileId = fileId,
-                        accessToken = accessToken
+                        notificationId = notificationId,
+                        title = title
                     )
-                    return withContext(Dispatchers.IO) {
-                        writeDownload(
-                            responseBody = response,
-                            fileId = fileId,
-                            notificationId = notificationId,
-                            title = title
-                        )
-                    }
-                }
-
-                else -> {
-                    Log.d(TAG, "Regression broke Download Worker")
-                    return null
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Something went wrong!", e)
             showDownloadErrorNotification(notificationId, "Download Failed", title)
             return null
-        }
-    }
-
-    private suspend fun getRemoteFile(
-        fileId: String,
-        client: DriveClient
-    ): FileResponse? {
-        when (val token = driveRepository.fetchAccessToken(client)) {
-            is Resource.Error -> {
-                Log.d(TAG, "Unable to fetch Access token")
-                return null
-            }
-
-            is Resource.Success -> {
-                val accessToken = token.data!!.accessToken
-                return driveRepository.getFile(
-                    fileId = fileId,
-                    accessToken = accessToken
-                )
-            }
-
-            else -> {
-                Log.d(TAG, "Regression broke Download Worker")
-                return null
-            }
         }
     }
 
@@ -284,7 +205,7 @@ class DownloadWorker @AssistedInject constructor(
     }
 
     private fun writeDownload(
-        responseBody: ResponseBody,
+        inputStream: InputStream,
         fileId: String,
         notificationId: Int,
         title: String
@@ -294,7 +215,10 @@ class DownloadWorker @AssistedInject constructor(
         var isRunning = true
         var progressBytes = 0L
         var previousBytes = 0L
-        val totalBytes = responseBody.contentLength()
+        val totalBytes = runCatching {
+            context.contentResolver.openAssetFileDescriptor(android.net.Uri.parse(fileId), "r")
+                ?.use { it.length }
+        }.getOrNull()?.takeIf { it > 0 } ?: -1L
         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
         val cancelIntent = Intent(applicationContext, DownloadActionReceiver::class.java)
             .apply {
@@ -314,9 +238,11 @@ class DownloadWorker @AssistedInject constructor(
             override fun run() {
                 if (isRunning) {
                     val bytesChangedInInterval = progressBytes - previousBytes
-                    val progress = ((progressBytes * 100) / totalBytes).toInt()
+                    val progress = if (totalBytes > 0) {
+                        ((progressBytes * 100) / totalBytes).toInt()
+                    } else 0
                     val remainingBytes = totalBytes - progressBytes
-                    val remainingTimeInSeconds = if (bytesChangedInInterval > 0) {
+                    val remainingTimeInSeconds = if (totalBytes > 0 && bytesChangedInInterval > 0) {
                         (remainingBytes / bytesChangedInInterval).toInt()
                     } else -1
 
@@ -331,7 +257,7 @@ class DownloadWorker @AssistedInject constructor(
                         cancelIntent = cancelPendingIntent,
                         title = title,
                         downloaded = humanReadableSize(progressBytes),
-                        total = humanReadableSize(totalBytes),
+                        total = if (totalBytes > 0) humanReadableSize(totalBytes) else "Unknown",
                         remainingTime = remainingTimeFormatted,
                         speed = humanReadableSpeed(bytesChangedInInterval),
                         progress = progress
@@ -343,27 +269,25 @@ class DownloadWorker @AssistedInject constructor(
         }
 
         try {
-            responseBody.byteStream().use { inputStream ->
-                file.outputStream().use { outputStream ->
-                    handler.post(updateRunnable)
+            file.outputStream().use { outputStream ->
+                handler.post(updateRunnable)
 
-                    var bytes = inputStream.read(buffer)
-                    while (bytes >= 0) {
-                        outputStream.write(buffer, 0, bytes)
-                        progressBytes += bytes
-                        bytes = inputStream.read(buffer)
-                        if (isStopped) {
-                            throw DownloadCancelled()
-                        }
+                var bytes = inputStream.read(buffer)
+                while (bytes >= 0) {
+                    outputStream.write(buffer, 0, bytes)
+                    progressBytes += bytes
+                    bytes = inputStream.read(buffer)
+                    if (isStopped) {
+                        throw DownloadCancelled()
                     }
-                    isRunning = false
-                    handler.removeCallbacks(updateRunnable)
                 }
+                isRunning = false
+                handler.removeCallbacks(updateRunnable)
             }
 
             // Rename temp file to final file
-            val destinationFile = File(file.parentFile, fileId)
-            file.renameTo(destinationFile)
+            val destinationFile = getFilePath(fileId)
+            check(file.renameTo(destinationFile)) { "Unable to finish the download" }
 
             Log.d(TAG, "Write download completed (fileId=$fileId)")
             return destinationFile
@@ -434,8 +358,11 @@ class DownloadWorker @AssistedInject constructor(
         return true
     }
 
-    private fun getFilePath(fileName: String): File {
-        return File(getDownloadsFolderPath(context), fileName)
+    private fun getFilePath(fileUri: String): File {
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(fileUri.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+        return File(getDownloadsFolderPath(context), "$digest.media")
     }
 
     private fun ensureDownloadsFolder() {

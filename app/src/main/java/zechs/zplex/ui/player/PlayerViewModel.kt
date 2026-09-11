@@ -13,10 +13,8 @@ import kotlinx.coroutines.launch
 import zechs.zplex.data.model.entities.WatchedMovie
 import zechs.zplex.data.model.entities.WatchedShow
 import zechs.zplex.data.model.tmdb.entities.Episode
-import zechs.zplex.data.repository.DriveRepository
 import zechs.zplex.data.repository.WatchedRepository
 import zechs.zplex.ui.player.MPVActivity.Companion.TAG
-import zechs.zplex.utils.SessionManager
 import zechs.zplex.utils.state.Resource
 import java.util.Calendar
 import javax.inject.Inject
@@ -24,8 +22,6 @@ import javax.inject.Inject
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val watchedRepository: WatchedRepository,
-    private val sessionManager: SessionManager,
-    private val driveRepository: DriveRepository,
     private val gson: Gson,
 ) : ViewModel() {
 
@@ -124,8 +120,7 @@ class PlayerViewModel @Inject constructor(
 
 
     data class Playback(
-        val item: PlaybackItem?,
-        val token: String
+        val item: PlaybackItem?
     )
 
     var head: PlaybackItem? = null
@@ -173,53 +168,31 @@ class PlayerViewModel @Inject constructor(
     private fun setPlaylist(playlist: List<PlaybackItem>, startIndex: Int = 0) {
         if (playlist.isEmpty()) {
             head = null
-            updateWithToken()
+            updatePlayback()
         } else {
             for (i in 0 until playlist.size - 1) {
                 playlist[i].next = playlist[i + 1]
                 playlist[i + 1].prev = playlist[i]
             }
             head = playlist[startIndex]
-            updateWithToken()
+            updatePlayback()
         }
     }
 
     fun next() {
         if (head?.next == null) return
         head = head?.next
-        updateWithToken()
+        updatePlayback()
     }
 
     fun previous() {
         if (head?.prev == null) return
         head = head?.prev
-        updateWithToken()
+        updatePlayback()
     }
 
-    private fun updateWithToken() = viewModelScope.launch(Dispatchers.IO) {
-        if (head != null) {
-            if (head!!.offline) {
-                Log.d(TAG, "Offline : ${head!!.title} (${head!!.fileId})")
-                _current.send(Resource.Success(Playback(head, "")))
-                return@launch
-            }
-        }
-
-        val client = sessionManager.fetchClient() ?: run {
-            _current.send(Resource.Error("Client not found"))
-            return@launch
-        }
-        when (val tokenResponse = driveRepository.fetchAccessToken(client)) {
-            is Resource.Success -> {
-                _current.send(Resource.Success(Playback(head, tokenResponse.data!!.accessToken)))
-            }
-
-            is Resource.Error -> {
-                _current.send(Resource.Success(Playback(head, tokenResponse.message!!)))
-            }
-
-            else -> {}
-        }
+    private fun updatePlayback() = viewModelScope.launch(Dispatchers.IO) {
+        _current.send(Resource.Success(Playback(head)))
     }
 
     fun saveProgress(

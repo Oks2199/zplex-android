@@ -5,12 +5,14 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.Constraints
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
@@ -31,11 +33,6 @@ import zechs.zplex.databinding.FragmentSettingsBinding
 import zechs.zplex.service.RemoteLibraryIndexingService
 import zechs.zplex.service.ServiceState
 import zechs.zplex.ui.settings.dialog.LoadingDialog
-import zechs.zplex.utils.FolderPickerResultContract
-import zechs.zplex.utils.FolderType
-import zechs.zplex.utils.SelectedFolder
-import zechs.zplex.utils.StartFolderPicker
-import zechs.zplex.utils.ext.navigateSafe
 
 
 class SettingsFragment : Fragment() {
@@ -50,6 +47,8 @@ class SettingsFragment : Fragment() {
     private val viewModel by activityViewModels<SettingsViewModel>()
 
     private var loadingDialog: LoadingDialog? = null
+    private var selectedMovieFolder: String? = null
+    private var selectedShowsFolder: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,16 +96,13 @@ class SettingsFragment : Fragment() {
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
-        binding.settingConfigureClient.setOnClickListener {
-            findNavController().navigateSafe(R.id.action_settingsFragment_to_signInFragment)
-        }
-
         binding.btnSelectMovies.setOnClickListener {
             showFolderPickerDialog(
                 binding.btnSelectMovies.text.toString(),
                 getString(R.string.change_movies_folder_title),
                 getString(R.string.remove_movies_message),
-                StartFolderPicker(getString(R.string.choose_movies_folder), FolderType.MOVIES)
+                moviesFolderLauncher,
+                selectedMovieFolder?.let(Uri::parse)
             )
         }
 
@@ -115,7 +111,8 @@ class SettingsFragment : Fragment() {
                 binding.btnSelectShows.text.toString(),
                 getString(R.string.change_shows_folder_title),
                 getString(R.string.remove_shows_message),
-                StartFolderPicker(getString(R.string.choose_shows_folder), FolderType.SHOWS)
+                showsFolderLauncher,
+                selectedShowsFolder?.let(Uri::parse)
             )
         }
 
@@ -154,7 +151,8 @@ class SettingsFragment : Fragment() {
         buttonText: String,
         title: String,
         message: String,
-        folderPicker: StartFolderPicker
+        launcher: androidx.activity.result.ActivityResultLauncher<Uri?>,
+        initialUri: Uri?
     ) {
         if (buttonText == getString(R.string.selected)) {
             MaterialAlertDialogBuilder(requireContext())
@@ -163,45 +161,63 @@ class SettingsFragment : Fragment() {
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     // Note: No explicit need to drop the table as the IndexingService will
                     // remove saved entries that are missing in remote folder.
-                    launchPicker.launch(folderPicker)
+                    launcher.launch(initialUri)
                 }
                 .setNegativeButton(getString(R.string.no)) { _, _ -> }
                 .show()
         } else {
-            launchPicker.launch(folderPicker)
+            launcher.launch(initialUri)
         }
     }
 
-    private val launchPicker = registerForActivityResult(FolderPickerResultContract()) {
-        if (it != null) {
-            handleSelectedFolder(it)
+    private val moviesFolderLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let { handleSelectedFolder(it, isMoviesFolder = true) }
+    }
+
+    private val showsFolderLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let { handleSelectedFolder(it, isMoviesFolder = false) }
+    }
+
+    private fun handleSelectedFolder(uri: Uri, isMoviesFolder: Boolean) {
+        try {
+            requireContext().contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            val oldFolder = if (isMoviesFolder) selectedMovieFolder else selectedShowsFolder
+            val otherFolder = if (isMoviesFolder) selectedShowsFolder else selectedMovieFolder
+            if (oldFolder != null && oldFolder != uri.toString() && oldFolder != otherFolder) {
+                runCatching {
+                    requireContext().contentResolver.releasePersistableUriPermission(
+                        Uri.parse(oldFolder),
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                }
+            }
+            if (isMoviesFolder) {
+                viewModel.saveMoviesFolder(uri.toString())
+            } else {
+                viewModel.saveShowsFolder(uri.toString())
+            }
+            Log.d(TAG, "Selected media folder: $uri")
+        } catch (exception: SecurityException) {
+            Snackbar.make(
+                binding.root,
+                getString(R.string.folder_access_failed),
+                Snackbar.LENGTH_LONG
+            ).show()
         }
-    }
-
-    private fun handleSelectedFolder(folder: SelectedFolder) {
-        Log.d(TAG, "handleSelectedFolder: $folder")
-        when (folder.type) {
-            FolderType.MOVIES -> handleMoviesFolder(folder.name, folder.id)
-            FolderType.SHOWS -> handleShowsFolder(folder.name, folder.id)
-        }
-    }
-
-    private fun handleMoviesFolder(name: String, id: String) {
-        binding.btnSelectMovies.text = getString(R.string.selected)
-        viewModel.saveMoviesFolder(id)
-        Log.d(TAG, "handleMoviesFolder: $name, $id")
-    }
-
-    private fun handleShowsFolder(name: String, id: String) {
-        binding.btnSelectShows.text = getString(R.string.selected)
-        viewModel.saveShowsFolder(id)
-        Log.d(TAG, "handleShowsFolder: $name, $id")
     }
 
     private fun observerBothFolders() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.hasMovieFolder.collect { folder ->
+                    selectedMovieFolder = folder
                     binding.btnSelectMovies.apply {
                         text = if (folder == null) {
                             getString(R.string.select)
@@ -217,6 +233,7 @@ class SettingsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.hasShowsFolder.collect { folder ->
+                    selectedShowsFolder = folder
                     binding.btnSelectShows.apply {
                         text = if (folder == null) {
                             getString(R.string.select)
@@ -235,10 +252,23 @@ class SettingsFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.logout_title))
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                releaseFolderPermissions()
                 viewModel.logOut()
             }
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
             .show()
+    }
+
+    private fun releaseFolderPermissions() {
+        val resolver = requireContext().contentResolver
+        setOfNotNull(selectedMovieFolder, selectedShowsFolder).forEach { folder ->
+            runCatching {
+                resolver.releasePersistableUriPermission(
+                    Uri.parse(folder),
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+        }
     }
 
     private fun loadingObserver() {
@@ -280,8 +310,6 @@ class SettingsFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isLoggedIn.collect { loggedIn ->
                     TransitionManager.beginDelayedTransition(binding.root, null)
-                    binding.settingSelectMoviesFolder.isGone = !loggedIn
-                    binding.settingsSelectShowsFolder.isGone = !loggedIn
                     binding.settingLogOut.isGone = !loggedIn
                 }
             }

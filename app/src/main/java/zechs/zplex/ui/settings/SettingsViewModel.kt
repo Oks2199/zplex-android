@@ -58,7 +58,7 @@ class SettingsViewModel @Inject constructor(
         savedMovies.await()
         savedShows.await()
 
-        sessionManager.resetDataStore()
+        sessionManager.clearSelectedFolders()
 
         _loading.value = false
     }

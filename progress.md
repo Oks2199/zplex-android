@@ -21,7 +21,7 @@ Dernière mise à jour : 11 septembre 2026
 - Identifiants internes du lecteur et dossier public de téléchargements renommés pour Movynex.
 - Nom du projet Gradle remplacé par Movynex.
 
-## Google Cloud et OAuth
+## Google Drive
 
 - Projet Google Cloud renommé **Movynex Personal**.
 - Nom affiché sur l’écran de consentement OAuth remplacé par **Movynex**.
@@ -29,9 +29,11 @@ Dernière mise à jour : 11 septembre 2026
 - Client OAuth renommé **Movynex Android**.
 - Le Client ID, le Client Secret et les utilisateurs de test existants ont été conservés.
 - Le scope Google Cloud et le code Android ont été réduits à la lecture seule : `https://www.googleapis.com/auth/drive.readonly`.
-- Le passage du statut OAuth de **Test** à **En production** reste à effectuer pour supprimer l’expiration des autorisations après sept jours.
-- Le logo OAuth doit être conservé selon le choix de l’utilisateur. Sans domaine vérifiable, la publication OAuth en production reste bloquée.
-- Une solution sans domaine a été identifiée : remplacer OAuth/Drive REST par le sélecteur de dossiers Android (`ACTION_OPEN_DOCUMENT_TREE`). Chaque utilisateur sélectionnerait une fois son dossier Google Drive, puis Android conserverait l’accès en lecture aux fichiers et sous-dossiers. Cette migration reste à valider et à implémenter.
+- La publication OAuth en production reste bloquée sans domaine vérifiable ; ce parcours ne sera donc plus utilisé par l’application.
+- La migration vers le sélecteur de dossiers Android (`ACTION_OPEN_DOCUMENT_TREE`) est implémentée sur la branche locale `codex/saf-migration`.
+- L’indexation, la lecture MPV et les téléchargements utilisent désormais les fichiers fournis en lecture seule par Android.
+- Android conservera l’accès aux dossiers après leur sélection ; il n’y aura plus d’autorisation OAuth expirant après sept jours.
+- Les anciens réglages OAuth sont laissés intacts pendant la phase de test pour permettre un retour à la sauvegarde antérieure.
 - URI de redirection utilisée : `http://127.0.0.1:53682/`.
 
 ## Corrections déjà enregistrées dans Git
@@ -49,6 +51,8 @@ Dernière mise à jour : 11 septembre 2026
 - `AGENTS.md` a été ajouté pour protéger l’identité, la signature, les secrets et la procédure de livraison.
 - `progress.md` sert de journal d’avancement et doit rester à jour après chaque étape importante.
 - Le dossier `dist/` reste volontairement hors de Git.
+- Un point de sauvegarde antérieur à la migration existe dans le commit local `ceea2ac`.
+- La migration sans OAuth est en attente de compilation distante et de test sur le téléphone.
 
 ## Construction et vérification
 
@@ -60,19 +64,19 @@ Dernière mise à jour : 11 septembre 2026
 
 ## À faire avant la version 1.0.1
 
-1. Terminer l’audit visuel de l’application et relever toute autre référence visible à l’ancien nom.
-2. Vérifier la taille et l’alignement du logo dans la barre supérieure de l’accueil.
-3. Regrouper et relire les modifications locales.
-4. Demander l’accord explicite de l’utilisateur avant tout push déclenchant la construction finale.
-5. Laisser GitHub Actions exécuter les tests et générer l’APK release ARM64 signé.
-6. Vérifier le package, la version, le nom, l’architecture, les clés API et la signature de l’APK.
-7. Copier l’APK final vérifié dans `H:\Downloads` pour installation comme mise à jour.
+1. Regrouper et relire la migration vers le sélecteur de dossiers Android.
+2. Demander l’accord explicite de l’utilisateur avant tout push déclenchant la construction de test.
+3. Laisser GitHub Actions exécuter les tests et générer l’APK release ARM64 signé.
+4. Installer l’APK comme mise à jour, puis sélectionner une fois les dossiers Films et Séries dans Google Drive.
+5. Lancer une indexation et tester la lecture, la navigation dans les saisons et un téléchargement hors ligne.
+6. Après validation, révoquer l’accès de l’ancienne application OAuth depuis le compte Google et supprimer les anciens identifiants locaux dans une version suivante.
+7. Terminer l’audit visuel avant de déclarer la version 1.0.1 finale.
 
 ## Points à préserver
 
 - Ne pas modifier `com.cursedcrew.movynex`.
 - Ne pas changer la clé de signature Cursed Crew.
 - Ne pas exposer les mots de passe, secrets OAuth ou clés API.
-- Ne pas forcer l’utilisateur à reconfigurer Google Drive lors d’une mise à jour.
+- Après la migration, ne pas forcer l’utilisateur à resélectionner ses dossiers Google Drive lors des mises à jour suivantes.
 - Ne pas renommer les stockages persistants sans prévoir une migration compatible.
 - Conserver la licence et les crédits nécessaires du projet open source d’origine.

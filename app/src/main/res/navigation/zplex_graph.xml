@@ -178,20 +178,10 @@
             app:destination="@id/fragmentMedia" />
     </fragment>
     <fragment
-        android:id="@+id/signInFragment"
-        android:name="zechs.zplex.ui.signin.SignInFragment"
-        android:label="SignInFragment"
-        tools:layout="@layout/fragment_sign_in" />
-
-    <fragment
         android:id="@+id/settingsFragment"
         android:name="zechs.zplex.ui.settings.SettingsFragment"
         android:label="SettingsFragment"
-        tools:layout="@layout/fragment_settings">
-        <action
-            android:id="@+id/action_settingsFragment_to_signInFragment"
-            app:destination="@id/signInFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_settings" />
     <dialog
         android:id="@+id/seasonsBottomSheetFragment"
         android:name="zechs.zplex.ui.episodes.SeasonsBottomSheetFragment"

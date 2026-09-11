@@ -15,10 +15,14 @@ data class DriveFile(
 ) {
     val humanSize = size?.let { Converter.toHumanSize(it) }
 
-    val isVideoFile = mimeType.startsWith("video/")
+    val isVideoFile = mimeType.startsWith("video/") ||
+            name.substringAfterLast('.', "").lowercase() in setOf(
+                "mkv", "mp4", "avi", "mov", "webm", "m4v", "ts", "m2ts"
+            )
 
     val isFolder = mimeType == "application/vnd.google-apps.folder"
             || mimeType == "drive#drive"
+            || mimeType == "vnd.android.document/directory"
 
     val isShortcut = mimeType == "application/vnd.google-apps.shortcut"
 

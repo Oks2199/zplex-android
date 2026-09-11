@@ -17,12 +17,11 @@ import zechs.zplex.service.RemoteLibraryIndexingService.Companion.INDEXING_SERVI
 import zechs.zplex.utils.BuildNotificationUtils
 import zechs.zplex.utils.SessionManager
 import zechs.zplex.utils.state.Resource
-import zechs.zplex.utils.util.DriveApiQueryBuilder
 import javax.inject.Inject
 
 class RemoteLibraryRepository @Inject constructor(
     private val notificationManager: NotificationManager,
-    private val driveRepository: DriveRepository,
+    private val documentTreeRepository: DocumentTreeRepository,
     private val tmdbRepository: TmdbRepository,
     private val sessionManager: SessionManager,
     private val applicationContext: Context
@@ -51,15 +50,12 @@ class RemoteLibraryRepository @Inject constructor(
 
         val driveFiles = mutableListOf<DriveFile>()
 
-        val driveFilesResult = driveRepository.getAllFilesInFolder(
-            queryBuilder = DriveApiQueryBuilder()
-                .inParents(sessionManager.fetchMovieFolder()!!)
-                .mimeTypeNotEquals("application/vnd.google-apps.folder")
-                .trashed(false)
+        val driveFilesResult = documentTreeRepository.listChildren(
+            sessionManager.fetchMovieFolder()!!
         )
 
         if (driveFilesResult is Resource.Success) {
-            driveFilesResult.data!!.map { it.toDriveFile() }
+            driveFilesResult.data!!
                 .filter { it.isVideoFile }
                 .toTypedArray()
                 .let { driveFiles.addAll(it) }
@@ -190,15 +186,12 @@ class RemoteLibraryRepository @Inject constructor(
 
         val driveFiles = mutableListOf<DriveFile>()
 
-        val driveFilesResult = driveRepository.getAllFilesInFolder(
-            queryBuilder = DriveApiQueryBuilder()
-                .inParents(sessionManager.fetchShowsFolder()!!)
-                .mimeTypeEquals("application/vnd.google-apps.folder")
-                .trashed(false)
+        val driveFilesResult = documentTreeRepository.listChildren(
+            sessionManager.fetchShowsFolder()!!
         )
 
         if (driveFilesResult is Resource.Success) {
-            driveFilesResult.data!!.map { it.toDriveFile() }
+            driveFilesResult.data!!
                 .filter { it.isFolder }
                 .toTypedArray()
                 .let { driveFiles.addAll(it) }
@@ -326,10 +319,10 @@ class RemoteLibraryRepository @Inject constructor(
     }
 
     private suspend fun doesMoviesFolderExist(): Boolean {
-        return sessionManager.fetchMovieFolder() != null
+        return DocumentTreeRepository.isDocumentUri(sessionManager.fetchMovieFolder())
     }
 
     private suspend fun doesShowsFolderExist(): Boolean {
-        return sessionManager.fetchShowsFolder() != null
+        return DocumentTreeRepository.isDocumentUri(sessionManager.fetchShowsFolder())
     }
 }

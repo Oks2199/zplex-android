@@ -27,6 +27,7 @@ import zechs.zplex.data.model.tmdb.media.MovieResponse
 import zechs.zplex.data.model.tmdb.media.TvResponse
 import zechs.zplex.data.model.tmdb.search.SearchResponse
 import zechs.zplex.data.repository.TmdbRepository
+import zechs.zplex.data.repository.DocumentTreeRepository
 import zechs.zplex.data.repository.WatchedRepository
 import zechs.zplex.service.DownloadWorker
 import zechs.zplex.service.OfflineDatabaseWorker
@@ -539,9 +540,9 @@ class MediaViewModel @Inject constructor(
     }
 
     private suspend fun getLoginStatus(): Boolean {
-        sessionManager.fetchClient() ?: return false
-        sessionManager.fetchRefreshToken() ?: return false
-        return true
+        return DocumentTreeRepository.isDocumentUri(
+            sessionManager.fetchMovieFolder()
+        )
     }
 
     private val _movieFile = MutableLiveData<Event<Resource<zechs.zplex.ui.player.Movie>>>()

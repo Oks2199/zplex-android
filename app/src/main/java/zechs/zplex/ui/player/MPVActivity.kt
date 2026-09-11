@@ -38,7 +38,6 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -81,7 +80,6 @@ import zechs.zplex.databinding.ActivityMpvBinding
 import zechs.zplex.databinding.PlayerControlViewBinding
 import zechs.zplex.databinding.SideSheetEpisodesBinding
 import zechs.zplex.ui.player.sidesheet.episodes.adapter.SideSheetEpisodesAdapter
-import zechs.zplex.utils.Constants.DRIVE_API
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.SpenRemoteHelper
 import zechs.zplex.utils.state.Resource
@@ -395,7 +393,6 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             }
 
             is Resource.Success -> {
-                val accessToken = resource.data!!.token
                 val playbackItem = resource.data.item
                 if (playbackItem != null) {
                     val playlistButton = binding.controller.playerToolbar.menu
@@ -430,18 +427,17 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                         playlistButton.isVisible = false
                         viewModel.getWatch(playbackItem.tmdbId, false, null, null)
                     }
-                    val playUri = if (playbackItem.offline) {
-                        Uri.fromFile(File(playbackItem.fileId)).toString()
-                    } else getStreamUrl(playbackItem.fileId)
+                    val playUri = try {
+                        resolvePlaybackUri(playbackItem)
+                    } catch (exception: Exception) {
+                        showErrorDialog(
+                            exception.message ?: getString(R.string.unable_to_open_media)
+                        )
+                        return
+                    }
 
                     Log.d(TAG, "playUri: $playUri")
 
-                    if (!playbackItem.offline) {
-                        MPVLib.setOptionString(
-                            "http-header-fields",
-                            "Authorization: Bearer $accessToken"
-                        )
-                    }
                     if (player.vo != null && player.vo!!) {
                         MPVLib.command(arrayOf("loadfile", playUri))
                     }
@@ -490,10 +486,21 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         }
     }
 
-    private fun getStreamUrl(fileId: String): String {
-        val uri = "${DRIVE_API}/files/${fileId}?supportsAllDrives=True&alt=media".toUri()
-        Log.d(TAG, "STREAM_URL=$uri")
-        return uri.toString()
+    private fun resolvePlaybackUri(playbackItem: PlaybackItem): String {
+        if (playbackItem.offline) {
+            return Uri.fromFile(File(playbackItem.fileId)).toString()
+        }
+
+        val uri = Uri.parse(playbackItem.fileId)
+        require(uri.scheme == "content") {
+            getString(R.string.select_media_folders_again)
+        }
+        val descriptor = contentResolver.openFileDescriptor(uri, "r")
+            ?: throw IllegalStateException(getString(R.string.unable_to_open_media))
+
+        // Ownership of the descriptor is transferred to mpv. fdclose:// makes mpv
+        // close it after playback, including when moving to another playlist item.
+        return "fdclose://${descriptor.detachFd()}"
     }
 
     private fun hideSystemUI() {

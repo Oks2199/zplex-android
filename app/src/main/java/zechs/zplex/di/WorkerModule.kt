@@ -15,13 +15,12 @@ import zechs.zplex.data.local.offline.OfflineEpisodeDao
 import zechs.zplex.data.local.offline.OfflineMovieDao
 import zechs.zplex.data.local.offline.OfflineSeasonDao
 import zechs.zplex.data.local.offline.OfflineShowDao
-import zechs.zplex.data.repository.DriveRepository
+import zechs.zplex.data.repository.DocumentTreeRepository
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.service.CacheCleanupWorkerFactory
 import zechs.zplex.service.DelegatingWorkerFactory
 import zechs.zplex.service.DownloadWorkerFactory
 import zechs.zplex.service.OfflineDatabaseWorkerFactory
-import zechs.zplex.utils.SessionManager
 import javax.inject.Singleton
 
 @Module
@@ -58,10 +57,9 @@ object WorkerModule {
     @Singleton
     @Provides
     fun provideDownloadWorkerFactory(
-        driveRepository: DriveRepository,
-        sessionManager: SessionManager
+        documentTreeRepository: DocumentTreeRepository
     ): DownloadWorkerFactory {
-        return DownloadWorkerFactory(driveRepository, sessionManager)
+        return DownloadWorkerFactory(documentTreeRepository)
     }
 
     @Singleton

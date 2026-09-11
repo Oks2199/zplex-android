@@ -31,12 +31,11 @@ import zechs.zplex.data.local.offline.OfflineSeasonDao
 import zechs.zplex.data.local.offline.OfflineShowDao
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.drive.DriveFile
-import zechs.zplex.data.model.drive.File
 import zechs.zplex.data.model.entities.WatchedShow
 import zechs.zplex.data.model.offline.OfflineEpisode
 import zechs.zplex.data.model.tmdb.entities.Episode
 import zechs.zplex.data.model.tmdb.season.SeasonResponse
-import zechs.zplex.data.repository.DriveRepository
+import zechs.zplex.data.repository.DocumentTreeRepository
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.data.repository.WatchedRepository
 import zechs.zplex.service.DownloadWorker
@@ -50,7 +49,6 @@ import zechs.zplex.utils.ext.deleteIfExistsSafely
 import zechs.zplex.utils.ext.ifNullOrEmpty
 import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Converter
-import zechs.zplex.utils.util.DriveApiQueryBuilder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -62,7 +60,7 @@ class EpisodesViewModel @Inject constructor(
     app: Application,
     private val tmdbRepository: TmdbRepository,
     private val watchedRepository: WatchedRepository,
-    private val driveRepository: DriveRepository,
+    private val documentTreeRepository: DocumentTreeRepository,
     private val sessionManager: SessionManager,
     private val offlineShowDao: OfflineShowDao,
     private val offlineSeasonDao: OfflineSeasonDao,
@@ -96,9 +94,7 @@ class EpisodesViewModel @Inject constructor(
     }
 
     private suspend fun getLoginStatus(): Boolean {
-        sessionManager.fetchClient() ?: return false
-        sessionManager.fetchRefreshToken() ?: return false
-        return true
+        return DocumentTreeRepository.isDocumentUri(sessionManager.fetchShowsFolder())
     }
 
     private val _playlist = mutableListOf<PlaybackItem>()
@@ -315,17 +311,11 @@ class EpisodesViewModel @Inject constructor(
         showFolderId: String,
         seasonFolderName: String
     ): DriveFile? {
-        val filesInShowFolder = driveRepository.getAllFilesInFolder(
-            queryBuilder = DriveApiQueryBuilder()
-                .inParents(showFolderId)
-                .mimeTypeEquals("application/vnd.google-apps.folder")
-                .trashed(false)
-        )
+        val filesInShowFolder = documentTreeRepository.listChildren(showFolderId)
 
         if (filesInShowFolder is Resource.Success && filesInShowFolder.data != null) {
             return filesInShowFolder.data
                 .firstOrNull { it.name.equals(seasonFolderName, true) }
-                ?.toDriveFile()
         }
         return null
     }
@@ -335,12 +325,7 @@ class EpisodesViewModel @Inject constructor(
         seasonFolderId: String,
         seasonDataModel: MutableList<Episode>
     ) {
-        val episodesInFolder = driveRepository.getAllFilesInFolder(
-            queryBuilder = DriveApiQueryBuilder()
-                .inParents(seasonFolderId)
-                .mimeTypeNotEquals("application/vnd.google-apps.folder")
-                .trashed(false)
-        )
+        val episodesInFolder = documentTreeRepository.listChildren(seasonFolderId)
 
         if (episodesInFolder is Resource.Success && episodesInFolder.data != null) {
             processMatchingEpisodes(episodes, episodesInFolder.data, seasonDataModel)
@@ -352,11 +337,11 @@ class EpisodesViewModel @Inject constructor(
 
     private fun processMatchingEpisodes(
         episodes: List<Episode>,
-        filesInFolder: List<File>,
+        filesInFolder: List<DriveFile>,
         seasonDataModel: MutableList<Episode>
     ) {
         val episodeMap = buildEpisodeMap(
-            filesInFolder.map { it.toDriveFile() }.filter { it.isVideoFile }
+            filesInFolder.filter { it.isVideoFile }
         )
 
         var match = 0

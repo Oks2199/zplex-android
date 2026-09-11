@@ -19,18 +19,16 @@
 
 - Incrémenter `versionCode` à chaque APK destinée à remplacer une version déjà installée.
 - Utiliser un `versionName` clair suivant le format `MAJEUR.MINEUR.CORRECTIF`.
-- Préserver les réglages locaux, la connexion Google Drive, l’indexation, l’historique et les téléchargements lors des mises à jour.
+- Préserver les réglages locaux, l’accès aux dossiers Google Drive, l’indexation, l’historique et les téléchargements lors des mises à jour.
 - Ne pas renommer une base de données, une clé de préférences ou un stockage persistant sans migration compatible.
 
-## Google Drive et OAuth
+## Google Drive et accès aux fichiers
 
-- Projet Google Cloud : **Movynex Personal**.
-- Nom public OAuth : **Movynex**.
-- Client OAuth : **Movynex Android**.
-- Scope Drive attendu : `https://www.googleapis.com/auth/drive`.
-- URI de redirection attendue : `http://127.0.0.1:53682/`.
-- Ne jamais recréer ou remplacer le Client ID, le Client Secret, les scopes ou les utilisateurs de test sans demande explicite.
-- Ne jamais écrire les identifiants OAuth ou les clés d’API dans Git.
+- Movynex utilise le sélecteur de dossiers Android (`ACTION_OPEN_DOCUMENT_TREE`) et non OAuth pour accéder à Google Drive.
+- L’accès doit rester strictement en lecture seule et limité aux dossiers Films et Séries choisis par l’utilisateur.
+- Conserver les autorisations de lecture persistantes afin d’éviter toute reconnexion périodique.
+- Ne pas réintroduire de Client ID, Client Secret, URI de redirection ou scope Google Drive sans demande explicite.
+- Les anciennes données OAuth sont conservées seulement pour permettre un retour à la sauvegarde antérieure pendant la validation de la migration. Elles ne doivent plus être utilisées par le parcours normal.
 
 ## Clés API et signature
 

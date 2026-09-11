@@ -10,7 +10,7 @@ import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import zechs.zplex.data.remote.RemoteLibrary
-import zechs.zplex.data.repository.DriveRepository
+import zechs.zplex.data.repository.DocumentTreeRepository
 import zechs.zplex.data.repository.RemoteLibraryRepository
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.service.RemoteLibraryIndexingService
@@ -44,14 +44,14 @@ object ServiceModule {
     @Provides
     fun provideRemoteLibrary(
         notificationManager: NotificationManager,
-        driveRepository: DriveRepository,
+        documentTreeRepository: DocumentTreeRepository,
         tmdbRepository: TmdbRepository,
         sessionManager: SessionManager,
         @ApplicationContext context: Context
     ): RemoteLibrary {
         return RemoteLibraryRepository(
             notificationManager,
-            driveRepository,
+            documentTreeRepository,
             tmdbRepository,
             sessionManager,
             context
