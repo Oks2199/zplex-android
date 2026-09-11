@@ -18,7 +18,8 @@ Dernière mise à jour : 11 septembre 2026
 - Package Android : `com.cursedcrew.movynex`.
 - Signature release : clé **Cursed Crew**.
 - Nouveau logo Movynex créé en bleu et violet.
-- Icônes Android release et debug remplacées pour toutes les densités.
+- L'icône Android utilise désormais le grand **M** du logo sur fond presque noir, dans un style d'icône simple et lisible comparable à Netflix. Le mot-symbole complet reste réservé à l'intérieur de l'application.
+- Toutes les densités release, debug et monochromes ont été régénérées depuis le logo haute définition ; les anciennes images ZPlex des variantes debug ont été supprimées.
 - Identifiants internes du lecteur et dossier public de téléchargements renommés pour Movynex.
 - Nom du projet Gradle remplacé par Movynex.
 
