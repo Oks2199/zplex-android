@@ -52,7 +52,7 @@ Dernière mise à jour : 11 septembre 2026
 - `progress.md` sert de journal d’avancement et doit rester à jour après chaque étape importante.
 - Le dossier `dist/` reste volontairement hors de Git.
 - Un point de sauvegarde antérieur à la migration existe dans le commit local `ceea2ac`.
-- La migration sans OAuth est en attente de compilation distante et de test sur le téléphone.
+- La migration sans OAuth a été compilée avec succès par GitHub Actions et reste à tester sur le téléphone.
 
 ## Construction et vérification
 
@@ -61,6 +61,9 @@ Dernière mise à jour : 11 septembre 2026
 - La construction GitHub déclenchée après le commit `c58bcd5` a été annulée à la demande de l’utilisateur avant la livraison de la 1.0.1.
 - La compilation locale n’a pas pu être utilisée comme validation finale à cause des restrictions de connexion locale de Gradle dans l’environnement Codex.
 - La prochaine validation complète devra donc être effectuée par GitHub Actions après accord explicite de l’utilisateur.
+- Le workflow GitHub Actions n°6 a réussi sur le commit `bd3e304` : tests debug, APK debug et release ARM64 signée.
+- L’APK de test vérifiée est disponible dans `H:\Downloads\Movynex-1.0.1-SAF-test.apk`.
+- Package vérifié : `com.cursedcrew.movynex`, version `1.0.1`, architecture `arm64-v8a`, signature identique à la 1.0.0.
 
 ## À faire avant la version 1.0.1
 
