@@ -30,7 +30,7 @@ android {
         applicationId = "com.cursedcrew.movynex"
         minSdk = 31
         targetSdk = 36
-        versionCode = 3
+        versionCode = 4
         versionName = "1.0.1"
 
         buildConfigField("String", "TMDB_API_KEY", "\"${tmdbApiKey}\"")
@@ -166,6 +166,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
     implementation("com.squareup.okhttp3:okhttp-dnsoverhttps")
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-moshi:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-scalars:$retrofitVersion")
