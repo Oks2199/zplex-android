@@ -26,7 +26,21 @@
             app:titleTextAppearance="@style/seasonTitleTextAppearance"
             app:titleTextColor="@color/textColor_87"
             tools:subtitle="Subtitle text"
-            tools:title="Title text" />
+            tools:title="Title text">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/homeLogo"
+                android:layout_width="136dp"
+                android:layout_height="36dp"
+                android:layout_gravity="start|center_vertical"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/movynex_logo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/movynex_wordmark"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

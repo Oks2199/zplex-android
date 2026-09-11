@@ -57,8 +57,8 @@ class HomeFragment : Fragment() {
         binding.toolbar.apply {
             navigationIcon = null
             isTitleCentered = false
-            setTitleTextAppearance(context, R.style.homeTitleTextAppearance)
-            title = resources.getString(R.string.app_name)
+            title = null
+            binding.homeLogo.isVisible = true
             inflateMenu(R.menu.main_menu)
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
