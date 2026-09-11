@@ -30,7 +30,12 @@ Dernière mise à jour : 11 septembre 2026
 - Client OAuth renommé **Movynex Android**.
 - Le Client ID, le Client Secret et les utilisateurs de test existants ont été conservés.
 - Le scope Google Cloud et le code Android ont été réduits à la lecture seule : `https://www.googleapis.com/auth/drive.readonly`.
-- Le passage du statut OAuth de **Test** à **En production** reste à effectuer pour supprimer l’expiration des autorisations après sept jours. Pour un usage personnel limité, Google permet de continuer sans validation complète, avec un avertissement « application non validée » lors de la première connexion.
+- Le statut OAuth est passé de **Testing** à **In production** le 11 septembre 2026 : les autorisations Google Drive ne sont plus limitées à sept jours.
+- L'application reste volontairement non validée pour cet usage familial privé. Google peut afficher un avertissement lors de la première connexion et applique une limite de 100 utilisateurs OAuth sur la durée de vie du projet.
+- Site public : `https://sites.google.com/view/movynex/home`.
+- Politique de confidentialité : `https://sites.google.com/view/movynex/privacy-policy`.
+- Conditions d'utilisation : `https://sites.google.com/view/movynex/terms-of-service`.
+- Le domaine OAuth autorisé pour ces pages Google Sites est `google.com`.
 - Une migration vers le sélecteur de dossiers Android (`ACTION_OPEN_DOCUMENT_TREE`) a été testée sur la branche `codex/saf-migration`. Elle est abandonnée pour la lecture vidéo : le fournisseur Google Drive ne permet pas à MPV d’atteindre immédiatement les zones éloignées d’un MKV et peut provoquer plusieurs minutes d’écran noir pendant le chargement.
 - URI de redirection utilisée : `http://127.0.0.1:53682/`.
 
