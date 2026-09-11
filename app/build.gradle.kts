@@ -11,22 +11,43 @@ plugins {
 
 val tmdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("TMDB_API_KEY")
 val omdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("OMDB_API_KEY")
+val releaseKeystorePath = providers.environmentVariable("MOVYNEX_KEYSTORE_PATH").orNull
+val releaseKeystorePassword = providers.environmentVariable("MOVYNEX_KEYSTORE_PASSWORD").orNull
+val releaseKeyAlias = providers.environmentVariable("MOVYNEX_KEY_ALIAS").orNull
+val releaseKeyPassword = providers.environmentVariable("MOVYNEX_KEY_PASSWORD").orNull
+val hasReleaseSigning = listOf(
+    releaseKeystorePath,
+    releaseKeystorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword
+).all { !it.isNullOrBlank() }
 
 android {
     namespace = "zechs.zplex"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "zechs.zplex"
+        applicationId = "com.cursedcrew.movynex"
         minSdk = 31
         targetSdk = 36
-        versionCode = 22
-        versionName = "4.0.0"
+        versionCode = 1
+        versionName = "1.0.0"
 
         buildConfigField("String", "TMDB_API_KEY", "\"${tmdbApiKey}\"")
         buildConfigField("String", "OMDB_API_KEY", "\"${omdbApiKey}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(releaseKeystorePath!!)
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
 
     buildTypes {
@@ -38,6 +59,9 @@ android {
         }
 
         release {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

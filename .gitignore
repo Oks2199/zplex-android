@@ -10,3 +10,6 @@
 local.properties
 /app/release/
 /doubletapplayerview/build/
+*.jks
+*.keystore
+/signing/

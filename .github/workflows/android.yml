@@ -30,12 +30,37 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Clean & Build
-        run: ./gradlew clean build
+      - name: Clean, test & build debug APK
+        run: ./gradlew clean testDebugUnitTest assembleDebug
 
       - name: Upload ARM64 debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: zplex-arm64-debug-apk
+          name: movynex-arm64-debug-apk
           path: app/build/outputs/apk/debug/*arm64-v8a*.apk
+          if-no-files-found: error
+
+      - name: Restore Cursed Crew release keystore
+        if: github.event_name != 'pull_request'
+        env:
+          CURSED_CREW_KEYSTORE_BASE64: ${{ secrets.CURSED_CREW_KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p "${RUNNER_TEMP}/movynex-signing"
+          printf '%s' "${CURSED_CREW_KEYSTORE_BASE64}" | base64 --decode > "${RUNNER_TEMP}/movynex-signing/cursedcrew-release.p12"
+
+      - name: Build signed Movynex release APK
+        if: github.event_name != 'pull_request'
+        env:
+          MOVYNEX_KEYSTORE_PATH: ${{ runner.temp }}/movynex-signing/cursedcrew-release.p12
+          MOVYNEX_KEYSTORE_PASSWORD: ${{ secrets.CURSED_CREW_KEYSTORE_PASSWORD }}
+          MOVYNEX_KEY_ALIAS: ${{ secrets.CURSED_CREW_KEY_ALIAS }}
+          MOVYNEX_KEY_PASSWORD: ${{ secrets.CURSED_CREW_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: Upload signed Movynex ARM64 release APK
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: movynex-arm64-release-apk
+          path: app/build/outputs/apk/release/*arm64-v8a*.apk
           if-no-files-found: error
