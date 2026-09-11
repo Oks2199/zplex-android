@@ -393,7 +393,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             }
 
             is Resource.Success -> {
-                val playbackItem = resource.data.item
+                val playbackItem = resource.data?.item
                 if (playbackItem != null) {
                     val playlistButton = binding.controller.playerToolbar.menu
                         .findItem(R.id.action_playlist)
