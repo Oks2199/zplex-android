@@ -32,3 +32,10 @@ jobs:
 
       - name: Clean & Build
         run: ./gradlew clean build
+
+      - name: Upload ARM64 debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: zplex-arm64-debug-apk
+          path: app/build/outputs/apk/debug/*arm64-v8a*.apk
+          if-no-files-found: error

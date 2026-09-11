@@ -21,7 +21,7 @@ class ColorManager {
         }
 
         fun isDark(color: Int): Boolean {
-            val luminance = ("%.5f".format(ColorUtils.calculateLuminance(color))).toFloat()
+            val luminance = ColorUtils.calculateLuminance(color).toFloat()
             val threshold = 0.09000
             val isDark = luminance < threshold
             Log.d(
