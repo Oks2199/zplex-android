@@ -1,0 +1,307 @@
+# Movynex — dossier de reprise
+
+Ce document rassemble les informations nécessaires pour reprendre le projet dans une nouvelle conversation sans recommencer les recherches. Il ne doit contenir aucun mot de passe, jeton, code OAuth ni valeur de clé API.
+
+## Ordre de lecture pour une nouvelle conversation
+
+1. Lire `AGENTS.md` avant toute modification.
+2. Lire ce fichier en entier.
+3. Lire `progress.md` pour connaître le dernier état livré et les validations restantes.
+4. Consulter `README.md` pour l'utilisation de l'application et les conventions de nommage des médias.
+5. Vérifier `git status`, la branche courante et les derniers commits avant d'écrire quoi que ce soit.
+
+Message de départ conseillé dans une nouvelle conversation :
+
+```text
+Reprends le projet Movynex dans F:\Developpement\zplex-android. Lis entièrement AGENTS.md, PROJECT_CONTEXT.md, progress.md et README.md avant toute action. Vérifie ensuite l'état Git et résume-moi l'état actuel sans modifier ni reconstruire l'application tant que je ne l'ai pas demandé.
+```
+
+## Objectif et périmètre
+
+Movynex est un fork familial privé de ZPlex. L'application parcourt une vidéothèque Google Drive, enrichit les titres avec TMDB et OMDb, puis lit les vidéos avec MPV. Elle est prévue pour deux ou trois utilisateurs connus et n'est pas destinée au Google Play Store.
+
+Le dépôt d'origine reste crédité et la licence MIT doit être conservée. Les noms techniques historiques peuvent rester internes, mais aucun ancien nom ZPlex ne doit être visible dans l'expérience Movynex.
+
+## Dépôt Git
+
+- Dossier de travail Windows : `F:\Developpement\zplex-android`
+- Dépôt familial `origin` : `https://github.com/Oks2199/zplex-android.git`
+- Dépôt d'origine `upstream` : `https://github.com/ZPlexLabs/zplex-android.git`
+- Branche de livraison : `main`
+- Release applicative 1.0.1 : commit `5b51e09`
+- Première refonte générale de la documentation : commit `031be35`
+- Workflow : `.github/workflows/android.yml`
+- Page GitHub Actions : `https://github.com/Oks2199/zplex-android/actions`
+- Visibilité GitHub vérifiée : dépôt public et fork du projet d'origine
+
+Un push applicatif sur `main` déclenche les tests et la construction. Il faut l'accord explicite de l'utilisateur avant ce push. Un commit uniquement documentaire peut utiliser `[skip ci]` afin de ne pas produire inutilement une nouvelle APK. Le dépôt étant public, aucun secret, identifiant privé ou fichier de signature ne doit y être ajouté, même temporairement.
+
+## Identité Android à préserver
+
+- Nom public : **Movynex**
+- Package installé : `com.cursedcrew.movynex`
+- Namespace Kotlin historique : `zechs.zplex`
+- Projet Gradle : `Movynex`
+- Version livrée : `versionCode = 5`, `versionName = 1.0.1`
+- Android minimum : API 31
+- Android cible et compilation : API 36
+- Architecture distribuée : `arm64-v8a`
+- Variante debug : package `com.cursedcrew.movynex.debug`, suffixe de version `-DEBUG`
+
+Pour toute mise à jour destinée à remplacer l'application installée, conserver impérativement le package et la signature, puis augmenter `versionCode`. Changer le package créerait une seconde application ; changer la clé empêcherait Android d'accepter la mise à jour.
+
+## Clé de signature Cursed Crew
+
+La release Movynex est signée avec la clé **Cursed Crew**, également utilisable pour signer d'autres projets Android. Une même clé peut signer plusieurs packages différents. En revanche, toutes les futures mises à jour de `com.cursedcrew.movynex` doivent continuer à utiliser cette clé précise.
+
+- Format reconstruit dans GitHub Actions : PKCS#12, fichier temporaire `cursedcrew-release.p12`
+- Organisation inscrite dans le certificat : **Cursed Crew Studio**
+- Empreinte SHA-256 du certificat : `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
+- La clé privée et ses mots de passe ne sont pas dans Git.
+- Aucun fichier `.p12`, `.jks` ou `.keystore` n'est actuellement conservé dans ce dépôt.
+- Le workflow reconstitue temporairement la clé depuis les secrets GitHub, construit l'APK, puis l'environnement GitHub est détruit.
+
+Secrets GitHub nécessaires à la signature :
+
+```text
+CURSED_CREW_KEYSTORE_BASE64
+CURSED_CREW_KEYSTORE_PASSWORD
+CURSED_CREW_KEY_ALIAS
+CURSED_CREW_KEY_PASSWORD
+```
+
+Variables lues par Gradle pour une signature locale :
+
+```text
+MOVYNEX_KEYSTORE_PATH
+MOVYNEX_KEYSTORE_PASSWORD
+MOVYNEX_KEY_ALIAS
+MOVYNEX_KEY_PASSWORD
+```
+
+Point de sauvegarde important : GitHub ne permet pas de relire la valeur d'un secret après son enregistrement. La construction distante fonctionne actuellement, mais aucune copie privée originale du fichier Cursed Crew n'a été retrouvée dans le dépôt, les autres projets de développement parcourus, les téléchargements ou les emplacements utilisateur courants. Il faut conserver une copie chiffrée hors du dépôt, avec l'alias et les mots de passe dans un gestionnaire de mots de passe. Ne jamais régénérer une nouvelle clé pour une mise à jour de Movynex.
+
+La valeur de l'alias n'est volontairement pas documentée : elle est stockée dans `CURSED_CREW_KEY_ALIAS`. Une nouvelle conversation ne doit ni la deviner ni remplacer le secret si elle n'a pas reçu la valeur de façon privée.
+
+## Clés TMDB et OMDb
+
+Deux clés sont nécessaires pendant la compilation :
+
+```text
+TMDB_API_KEY
+OMDB_API_KEY
+```
+
+En local, elles sont présentes dans `local.properties`, qui est ignoré par Git. Dans GitHub Actions, elles sont enregistrées dans les secrets du dépôt sous les mêmes noms. Ne jamais recopier leurs valeurs dans la documentation, un commit ou une discussion.
+
+## Compilation locale en ligne de commande
+
+Android Studio n'a pas besoin d'être ouvert. Les composants installés sur cette machine sont :
+
+- SDK Android : `C:\Users\Utilisateur\AppData\Local\Android\Sdk`
+- plateformes présentes jusqu'à `android-36`
+- runtime Java d'Android Studio : `C:\Program Files\Android\Android Studio\jbr`
+- Gradle Wrapper : version 8.13
+- Android Gradle Plugin : version 8.12.2
+- bytecode Java/Kotlin ciblé : Java 17
+
+Le `java` global de Windows pointe encore vers Java 8. Il ne faut donc pas lancer Gradle sans sélectionner d'abord le runtime récent. Dans une nouvelle fenêtre PowerShell :
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+Set-Location 'F:\Developpement\zplex-android'
+```
+
+Vérifier que `local.properties` contient, sans le committer :
+
+```properties
+sdk.dir=C:/Users/Utilisateur/AppData/Local/Android/Sdk
+TMDB_API_KEY=<valeur privée>
+OMDB_API_KEY=<valeur privée>
+```
+
+Tests et APK debug :
+
+```powershell
+.\gradlew.bat clean testDebugUnitTest assembleDebug
+```
+
+APK ARM64 debug attendue :
+
+```text
+app\build\outputs\apk\debug\app-arm64-v8a-debug.apk
+```
+
+Une release locale exige en plus une copie privée de la clé Cursed Crew et les quatre variables `MOVYNEX_*` :
+
+```powershell
+.\gradlew.bat clean testDebugUnitTest assembleRelease
+```
+
+APK ARM64 release attendue :
+
+```text
+app\build\outputs\apk\release\app-arm64-v8a-release.apk
+```
+
+## Construction recommandée avec GitHub Actions
+
+La méthode de référence est le workflow **Android Build & Test** :
+
+1. Vérifier que les six secrets GitHub nécessaires sont configurés.
+2. Modifier `versionCode` et `versionName` dans `app/build.gradle.kts` si une nouvelle version est préparée.
+3. Exécuter les tests localement lorsque possible.
+4. Après accord de l'utilisateur, pousser le commit applicatif sur `main`, ou lancer manuellement le workflow depuis l'onglet Actions.
+5. Attendre la réussite de tous les tests et builds.
+6. Télécharger l'artefact `movynex-arm64-release-apk`.
+7. Extraire `app-arm64-v8a-release.apk`, vérifier son identité et sa signature, puis seulement le renommer pour la livraison.
+
+Le workflow utilise les six secrets suivants :
+
+```text
+TMDB_API_KEY
+OMDB_API_KEY
+CURSED_CREW_KEYSTORE_BASE64
+CURSED_CREW_KEYSTORE_PASSWORD
+CURSED_CREW_KEY_ALIAS
+CURSED_CREW_KEY_PASSWORD
+```
+
+## Vérification et livraison d'une APK
+
+Avant livraison, vérifier au minimum :
+
+- package `com.cursedcrew.movynex` ;
+- `versionCode` et `versionName` attendus ;
+- libellé public `Movynex` ;
+- présence exclusive de l'ABI distribuée `arm64-v8a` ;
+- certificat Cursed Crew avec l'empreinte connue ;
+- absence des anciens visuels ZPlex ;
+- fonctionnement de la connexion Drive et de la lecture vidéo.
+
+Pour calculer l'empreinte du fichier sous PowerShell :
+
+```powershell
+Get-FileHash -Algorithm SHA256 'chemin\vers\Movynex.apk'
+```
+
+Release 1.0.1 vérifiée :
+
+- APK livrée : `H:\Downloads\Movynex-1.0.1.apk`
+- Copie locale de travail : `F:\Developpement\zplex-android\dist\final-run-10\app-arm64-v8a-release.apk`
+- Taille : `39 220 967` octets
+- SHA-256 de l'APK : `647ADB0B00197E314AC4498C48B59EB0F500CFCAFD3788D444F58CC1D3F2A002`
+- Workflow réussi : `https://github.com/Oks2199/zplex-android/actions/runs/34603761277`
+
+Le dossier `dist/` est local, non versionné et ne doit pas être ajouté à Git.
+
+## Google Cloud et OAuth
+
+Configuration à conserver :
+
+- Projet Google Cloud : **Movynex Personal**
+- Marque/application OAuth : **Movynex**
+- Client OAuth : **Movynex Android**
+- Type de client : application de bureau
+- Google Drive API : activée
+- Audience : externe
+- Statut de publication : **In production**
+- Scope : `https://www.googleapis.com/auth/drive.readonly`
+- URI de redirection : `http://127.0.0.1:53682/`
+- Domaine autorisé pour Google Sites : `google.com`
+
+Liens utiles :
+
+- Console Google Cloud : `https://console.cloud.google.com/`
+- Configuration OAuth : **Google Auth Platform** → Branding, Audience, Clients et Data Access
+- Éditeur Google Sites utilisé : `https://sites.google.com/u/0/?ec=wgc-sites-%5Bmodule%5D-goto`
+- Documentation officielle sur l'audience : `https://support.google.com/cloud/answer/15549945`
+
+Le statut **In production** évite l'expiration automatique des jetons après sept jours qui s'applique au mode Testing avec un scope Drive. Une autorisation créée auparavant en mode Testing peut encore expirer ; il suffit alors de reconnecter le compte une fois. L'application n'étant pas vérifiée publiquement, Google peut afficher un avertissement et applique un plafond de 100 nouveaux utilisateurs, ce qui convient à l'usage familial prévu.
+
+Le projet et le client OAuth existants ont été renommés, pas remplacés. Révoquer l'ancien accès dans le compte Google révoquerait donc aussi l'autorisation utilisée par Movynex et imposerait une reconnexion. Ne le faire que pour déconnecter volontairement l'application.
+
+## Site Google Sites
+
+Le site public créé pour l'identité et les informations OAuth est :
+
+- Accueil : `https://sites.google.com/view/movynex/home`
+- Politique de confidentialité : `https://sites.google.com/view/movynex/privacy-policy`
+- Conditions d'utilisation : `https://sites.google.com/view/movynex/terms-of-service`
+
+Le titre public est **Movynex**. Il a remplacé l'ancien titre **Nothing - Void Lords**. Ces pages et leurs liens doivent rester publiquement accessibles tant qu'elles sont déclarées dans Google Auth Platform.
+
+## Procédure de connexion Google dans l'application
+
+1. Ouvrir les paramètres Google Drive de Movynex.
+2. Saisir localement le Client ID et le Client Secret transmis en privé.
+3. Utiliser `http://127.0.0.1:53682/` comme URI de redirection.
+4. Vérifier le scope de lecture seule.
+5. Appuyer sur **Sign in** et autoriser l'accès Google Drive.
+6. À la fin, la page `127.0.0.1` peut être inaccessible : c'est attendu, aucun serveur local n'écoute sur le téléphone.
+7. Copier l'URL complète affichée dans la barre d'adresse.
+8. Revenir dans Movynex, choisir **Enter authorization code?**, coller l'URL complète et valider.
+9. Sélectionner les dossiers Films et Séries puis lancer l'indexation.
+
+Les identifiants et jetons sont conservés dans l'espace privé de l'application. Une mise à jour avec le même package et la même signature les conserve ; une désinstallation les efface.
+
+## Accès Drive et stockage
+
+- Movynex demande uniquement `drive.readonly` : elle peut lister et télécharger les fichiers, mais pas les modifier ni les supprimer sur Drive.
+- Les téléchargements hors ligne sont enregistrés dans le stockage interne privé, dans `movynex-downloads`.
+- Désinstaller l'application supprime ses réglages, bases locales et téléchargements.
+- Les vidéos distantes doivent continuer à être lues par le lecteur OAuth direct.
+
+## Conventions de nommage des médias
+
+Films, directement dans le dossier choisi :
+
+```text
+Titre (Année) [TMDB_ID].mkv
+Titre (Année) [TMDB_ID].mp4
+```
+
+Séries :
+
+```text
+Nom de la série (Année) [TMDB_ID]\Season 1\Nom - S01E01 - Titre.mkv
+```
+
+Les extensions de films reconnues sont actuellement `.mkv` et `.mp4` en minuscules. Un épisode doit contenir un motif `SxxExx`. Les fichiers doivent se trouver directement dans leur dossier de film ou de saison respectif.
+
+## Identité graphique
+
+- Icône : grand monogramme **M** bleu/violet sur fond `#15171D`
+- Premier plan des icônes release : `app/src/main/res/mipmap-*/ic_launcher_foreground.png`
+- Icônes debug et monochromes : variantes `ic_launcher_debug*`
+- Mot-symbole de l'accueil : `app/src/main/res/drawable-nodpi/movynex_wordmark.png`
+- L'accueil affiche le mot-symbole ; les autres pages gardent leurs titres fonctionnels.
+
+## Historique technique à connaître
+
+- `cf609ce` corrige le `NumberFormatException` provoqué par les nombres décimaux avec une virgule sur un téléphone en français.
+- `2013477` crée l'identité de release Movynex, le package et la signature.
+- `c58bcd5` termine le nettoyage principal des éléments visibles ZPlex.
+- `f50c471` restaure le lecteur OAuth direct qui démarre correctement les films.
+- `5b51e09` ajoute l'icône au grand M et correspond au code de la release 1.0.1.
+- `031be35` remet la documentation générale à jour sans reconstruire l'APK.
+
+Branches de sauvegarde :
+
+- `codex/oauth-restoration` conserve la restauration du lecteur direct.
+- `codex/saf-migration`, commit `cd27201`, conserve l'expérience avec le sélecteur Android SAF.
+
+La migration SAF a été abandonnée pour la release : le fournisseur Google Drive pouvait charger presque tout un MKV avant de permettre les recherches demandées par MPV, ce qui produisait plusieurs minutes d'écran noir. Ne pas la fusionner dans `main` sans une nouvelle solution testée sur le téléphone.
+
+## Dette connue et précautions
+
+- Des appels `Log.d` historiques dans `SessionManager.kt` et `DriveRepository.kt` peuvent exposer le Client ID, des codes ou des jetons OAuth dans les journaux de diagnostic. Les retirer avant toute diffusion plus large que la famille.
+- Ne jamais afficher ou committer les valeurs de `local.properties`, des secrets GitHub ou des variables de signature.
+- Ne pas modifier le package, la signature, les clés de stockage ou les bases locales sans migration.
+- Ne pas annoncer une APK comme livrée ou testée sans avoir vérifié l'artefact correspondant.
+- Ne pas remplacer le lecteur OAuth direct par SAF sans validation réelle du démarrage, de l'avance rapide et de la reprise sur une vidéo Drive.
+
+## État à reprendre
+
+Movynex 1.0.1 est construite, signée et disponible dans `H:\Downloads`. Le code et la documentation sont publiés sur `origin/main`. La prochaine vérification attendue est l'installation de cette APK par-dessus la version existante, puis le contrôle de l'icône, de la connexion Drive, du démarrage d'un film, de l'avance rapide et de la reprise.

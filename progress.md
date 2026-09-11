@@ -76,6 +76,14 @@ La dernière validation restante est un contrôle sur le téléphone : installat
 - `c58bcd5` — nettoyage principal de l'identité Movynex.
 - `f50c471` — restauration du lecteur Google Drive OAuth direct.
 - `5b51e09` — nouvelle icône Movynex et release applicative 1.0.1.
+- `031be35` — refonte de la documentation générale Movynex.
+
+## Documentation de reprise
+
+- `PROJECT_CONTEXT.md` centralise désormais les informations nécessaires à une nouvelle conversation : dépôt et branches, identité Android, compilation locale et GitHub, clé Cursed Crew, secrets attendus, vérification de l'APK, Google Cloud, OAuth, Google Sites, connexion, stockage, conventions de nommage et décisions techniques.
+- `README.md`, `AGENTS.md` et `progress.md` renvoient vers ce dossier de reprise.
+- Aucune valeur de secret n'est enregistrée dans la documentation.
+- La clé Cursed Crew fonctionne dans GitHub Actions, mais aucune copie privée originale du fichier n'a été retrouvée dans le dépôt ou les emplacements locaux parcourus. Une sauvegarde chiffrée externe reste à localiser ou à confirmer.
 
 ## Validation restante
 

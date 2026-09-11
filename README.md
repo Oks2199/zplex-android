@@ -4,6 +4,8 @@ Movynex est une application Android privée destinée à parcourir et lire une v
 
 Le projet est un fork familial de [ZPlex](https://github.com/ZPlexLabs/zplex-android). Il n'est pas destiné à être publié sur le Google Play Store.
 
+Pour reprendre le développement dans une nouvelle conversation, commencer par [`AGENTS.md`](AGENTS.md), puis lire le [`dossier de reprise`](PROJECT_CONTEXT.md) et [`progress.md`](progress.md).
+
 ## Version actuelle
 
 - Version : `1.0.1` (`versionCode = 5`)

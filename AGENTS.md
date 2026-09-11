@@ -2,6 +2,13 @@
 
 Ce fichier contient les règles persistantes à respecter lors de toute modification du dépôt.
 
+## Reprise du projet
+
+- Lire `PROJECT_CONTEXT.md` et `progress.md` en entier avant de commencer une nouvelle session de travail.
+- Traiter `PROJECT_CONTEXT.md` comme la source de vérité pour les chemins, la compilation, la signature, Google Cloud, Google Sites et l'historique technique.
+- Maintenir le dossier de reprise après toute modification de la procédure de build, de la signature, d'OAuth, des services externes ou des emplacements de livraison.
+- Ne jamais ajouter de valeur secrète au dossier de reprise, même pour faciliter une session future.
+
 ## Identité du produit
 
 - Le nom public de l'application est **Movynex**.
@@ -76,6 +83,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 ## Documentation et suivi
 
 - `README.md` décrit l'installation, l'utilisation, le nommage des médias, OAuth et le développement.
+- `PROJECT_CONTEXT.md` contient toutes les informations nécessaires à la reprise du projet dans une nouvelle conversation.
 - `progress.md` décrit uniquement l'état réel, les livraisons vérifiées, les validations restantes et la dette connue.
 - Mettre ces deux fichiers à jour après une étape importante, sans y inscrire de secret.
 - Ne pas annoncer une modification comme publiée, testée ou installée sans preuve correspondante.
