@@ -4,11 +4,12 @@ Dernière mise à jour : 11 septembre 2026
 
 ## État actuel
 
-- L’APK `Movynex-1.0.0.apk` est installé et fonctionne sur le téléphone.
+- La version SAF expérimentale (`versionCode = 4`) est encore installée sur le téléphone au moment de cette mise à jour.
 - La connexion à Google Drive fonctionne.
-- Les films présents sur Google Drive sont indexés et se lancent correctement.
+- Les films présents sur Google Drive sont indexés correctement.
 - Le plantage provoqué par la locale française lors de l’ouverture d’un film est corrigé.
-- La future mise à jour est préparée avec `versionCode = 2` et `versionName = 1.0.1`.
+- La restauration du lecteur Google Drive OAuth est prête avec `versionCode = 5` et `versionName = 1.0.1`.
+- L’APK signée à valider est disponible dans `H:\Downloads\Movynex-1.0.1.apk`.
 - Aucun APK 1.0.1 final ne doit être construit tant que le nettoyage visuel n’est pas terminé et validé par l’utilisateur.
 
 ## Identité Movynex terminée
@@ -29,9 +30,8 @@ Dernière mise à jour : 11 septembre 2026
 - Client OAuth renommé **Movynex Android**.
 - Le Client ID, le Client Secret et les utilisateurs de test existants ont été conservés.
 - Le scope Google Cloud et le code Android ont été réduits à la lecture seule : `https://www.googleapis.com/auth/drive.readonly`.
-- Le passage du statut OAuth de **Test** à **En production** reste à effectuer pour supprimer l’expiration des autorisations après sept jours.
-- Le logo OAuth doit être conservé selon le choix de l’utilisateur. Sans domaine vérifiable, la publication OAuth en production reste bloquée.
-- Une solution sans domaine a été identifiée : remplacer OAuth/Drive REST par le sélecteur de dossiers Android (`ACTION_OPEN_DOCUMENT_TREE`). Chaque utilisateur sélectionnerait une fois son dossier Google Drive, puis Android conserverait l’accès en lecture aux fichiers et sous-dossiers. Cette migration reste à valider et à implémenter.
+- Le passage du statut OAuth de **Test** à **En production** reste à effectuer pour supprimer l’expiration des autorisations après sept jours. Pour un usage personnel limité, Google permet de continuer sans validation complète, avec un avertissement « application non validée » lors de la première connexion.
+- Une migration vers le sélecteur de dossiers Android (`ACTION_OPEN_DOCUMENT_TREE`) a été testée sur la branche `codex/saf-migration`. Elle est abandonnée pour la lecture vidéo : le fournisseur Google Drive ne permet pas à MPV d’atteindre immédiatement les zones éloignées d’un MKV et peut provoquer plusieurs minutes d’écran noir pendant le chargement.
 - URI de redirection utilisée : `http://127.0.0.1:53682/`.
 
 ## Corrections déjà enregistrées dans Git
@@ -54,9 +54,10 @@ Dernière mise à jour : 11 septembre 2026
 
 - Le workflow GitHub utilise Java 17, exécute les tests debug et génère une release ARM64 signée.
 - Les secrets GitHub nécessaires à TMDB, OMDb et à la signature Cursed Crew sont configurés.
-- La construction GitHub déclenchée après le commit `c58bcd5` a été annulée à la demande de l’utilisateur avant la livraison de la 1.0.1.
-- La compilation locale n’a pas pu être utilisée comme validation finale à cause des restrictions de connexion locale de Gradle dans l’environnement Codex.
-- La prochaine validation complète devra donc être effectuée par GitHub Actions après accord explicite de l’utilisateur.
+- La restauration OAuth est isolée sur `codex/oauth-restoration` au commit `f50c471`; l’expérience SAF reste conservée sur `codex/saf-migration` au commit `cd27201`.
+- GitHub Actions #9 a terminé avec succès : tests, APK debug et APK release signée.
+- L’APK release a été vérifiée : package `com.cursedcrew.movynex`, versionCode `5`, versionName `1.0.1`, signature Cursed Crew `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`.
+- Empreinte SHA-256 de l’APK : `BC7676D3DF3BE32B63E8526904EA108E66F6C0855263E81EF52906203B9B1390`.
 
 ## À faire avant la version 1.0.1
 
