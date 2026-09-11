@@ -83,11 +83,17 @@ class MPVView(
     }
 
     fun play(path: String) {
-        this.playUri = path
+        if (holder.surface.isValid) {
+            MPVLib.command(arrayOf("loadfile", path))
+            playUri = null
+        } else {
+            playUri = path
+        }
     }
 
     fun stop() {
-//        MPVLib.command(arrayOf("cycle", "stop"))
+        playUri = null
+        MPVLib.command(arrayOf("stop"))
     }
 
     // Called when back button is pressed, or app is shutting down

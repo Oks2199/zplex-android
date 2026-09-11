@@ -22,6 +22,7 @@ import android.media.AudioManager.STREAM_MUSIC
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -124,6 +125,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
     private lateinit var binding: ActivityMpvBinding
     private lateinit var player: MPVView
     private lateinit var controller: PlayerControlViewBinding
+    private var playbackDescriptor: ParcelFileDescriptor? = null
 
     private val viewModel by viewModels<PlayerViewModel>()
 
@@ -428,6 +430,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                         viewModel.getWatch(playbackItem.tmdbId, false, null, null)
                     }
                     val playUri = try {
+                        player.stop()
+                        closePlaybackDescriptor()
                         resolvePlaybackUri(playbackItem)
                     } catch (exception: Exception) {
                         showErrorDialog(
@@ -438,9 +442,6 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
                     Log.d(TAG, "playUri: $playUri")
 
-                    if (player.vo != null && player.vo!!) {
-                        MPVLib.command(arrayOf("loadfile", playUri))
-                    }
                     player.play(playUri)
                 }
                 TransitionManager.endTransitions(controller.mainControls)
@@ -488,7 +489,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
     private fun resolvePlaybackUri(playbackItem: PlaybackItem): String {
         if (playbackItem.offline) {
-            return Uri.fromFile(File(playbackItem.fileId)).toString()
+            return File(playbackItem.fileId).absolutePath
         }
 
         val uri = Uri.parse(playbackItem.fileId)
@@ -497,10 +498,18 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         }
         val descriptor = contentResolver.openFileDescriptor(uri, "r")
             ?: throw IllegalStateException(getString(R.string.unable_to_open_media))
+        playbackDescriptor = descriptor
 
-        // Ownership of the descriptor is transferred to mpv. fdclose:// makes mpv
-        // close it after playback, including when moving to another playlist item.
-        return "fdclose://${descriptor.detachFd()}"
+        // Keep the ParcelFileDescriptor alive while mpv reads from fd://. Drive's
+        // document provider can back it with a remote stream that depends on the
+        // Java-side descriptor remaining open.
+        return "fd://${descriptor.fd}"
+    }
+
+    private fun closePlaybackDescriptor() {
+        runCatching { playbackDescriptor?.close() }
+            .onFailure { Log.w(TAG, "Unable to close playback descriptor", it) }
+        playbackDescriptor = null
     }
 
     private fun hideSystemUI() {
@@ -1281,6 +1290,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         player.removeObserver(this)
         player.destroy()
+        closePlaybackDescriptor()
         releaseMediaSession()
 
         super.onDestroy()
