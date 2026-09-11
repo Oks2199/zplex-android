@@ -1,142 +1,193 @@
-# zplex-android
+# Movynex
 
-ZPlex is an Android app for managing and streaming your personal collection of movies and TV shows.
-It connects with **Google Drive** (with user-provided OAuth credentials) and organizes your library automatically using file naming conventions.
+Movynex est une application Android privée destinée à parcourir et lire une vidéothèque familiale stockée sur Google Drive. Elle indexe les films et séries à partir de conventions de nommage, récupère les métadonnées auprès de TMDB et OMDb, puis utilise MPV pour la lecture.
 
-Think of it as a lightweight, Drive-powered alternative to Plex — designed for personal use.
+Le projet est un fork familial de [ZPlex](https://github.com/ZPlexLabs/zplex-android). Il n'est pas destiné à être publié sur le Google Play Store.
 
----
+## Version actuelle
 
-## ✨ Key Features
+- Version : `1.0.1` (`versionCode = 5`)
+- Package Android : `com.cursedcrew.movynex`
+- Android minimum : Android 12 / API 31
+- APK de référence : ARM64, signée avec la clé Cursed Crew
+- Accès Google Drive : lecture seule
+- Statut OAuth : externe, en production
 
-* 📂 **Personal Library Integration** – Indexes movies and TV shows from your Google Drive.
-* 🎬 **Streaming & Offline Support** – Watch instantly or download for offline playback.
-* ⏯ **Smart Playback** – Remembers your progress and resumes where you left off.
-* 🕑 **History Tracking** – Continue watching directly from the home screen.
-* 🔍 **TMDB Search** – Find titles using TheMovieDB API, with metadata support.
-* 📱 **App modes** –
+## Fonctionnalités
 
-  * With Google Drive → full streaming + offline support.
-  * Without Google Drive → use as a TMDB client with a personal watchlist.
+- Indexation de dossiers Films et Séries choisis sur Google Drive.
+- Lecture en streaming avec MPV.
+- Téléchargement hors ligne dans l'espace privé de l'application.
+- Reprise de lecture et historique enregistrés localement.
+- Affiches, résumés, notes et autres métadonnées via TMDB et OMDb.
+- Recherche, listes personnelles, saisons et épisodes.
+- Mode image dans l'image pris en charge par le lecteur.
 
----
+## Organisation de Google Drive
 
-## 📸 App Screenshots
-Home|Library|Details
-:-----:|:-------------------------------:|:-----------:|
-![Home](/images/home.jpg)|![Library](/images/library.jpg)|![Details](/images/details.jpg)
+Les dossiers peuvent porter n'importe quel nom : l'utilisateur sélectionne séparément son dossier de films et son dossier de séries dans Movynex.
 
----
+### Films
 
-## 🧩 How It Works
+Les vidéos doivent être placées directement à la racine du dossier de films sélectionné.
 
-* On first launch, sign in with Google Drive and select your **Movies** and **TV Shows** folders.
-* ZPlex indexes your library based on the naming rules.
-* You can:
+Format reconnu :
 
-  * **Stream** content directly.
-  * **Download** for offline playback (long-press *Watch Now*).
-* If on airplane mode (or no internet), the app automatically filters the library to downloaded items only.
-* Progress is stored locally, so you can resume playback anytime.
-
----
-
-## 📂 Library Folder Structure
-
-ZPlex relies on **specific naming conventions** (FileBot-style) to index movies and TV shows correctly.
-
-### Movies
-
-| Folder / File Path Example            | Explanation                                   |
-|---------------------------------------|-----------------------------------------------|
-| `Movies/Avatar (2009) [19995].mkv`    | `MovieName (ReleaseYear) [TMDB_ID].extension` |
-| `Movies/Inception (2010) [27205].mp4` | File name includes release year and TMDB ID   |
-
-**FileBot syntax:** `Movies/{n} ({y}) [{id}]`
-> All movies must reside directly in the **Movies** folder.
-
-### TV Shows
-
-| Folder / File Path Example                                                                              | Explanation                                                                                                  |
-|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| `TV Shows/Firefly (2002) [78874]/Season 1/Firefly - S01E01 - Serenity.mkv`                              | `ShowName (ReleaseYear) [TMDB_ID]/Season {number}/{ShowName} - S{season}E{episode} - EpisodeTitle.extension` |
-| `TV Shows/Game of Thrones (2011) [1399]/Season 3/Game of Thrones - S03E09 - The Rains of Castamere.mkv` | Follows the same pattern; ensure correct season/episode formatting.                                          |
-
-**FileBot syntax:** `TV Shows/{n} ({y}) [{id}]/{'Season '+s}/{n} - {s00e00} - {t}`
-
-> * Each show must have its own folder under **TV Shows**.
-> * Season folders should be named exactly `Season {number}`.
-> * Episode files must follow the pattern `ShowName - S{season}E{episode} - EpisodeTitle.extension`.
-### Folder Strucutre
-```
-Movies/
-├─ Avatar (2009) [19995].mkv
-├─ Inception (2010) [27205].mp4
-
-TV Shows/
-├─ Firefly (2002) [78874]/
-│  ├─ Season 1/
-│  │  ├─ Firefly - S01E01 - Serenity.mkv
-│  │  └─ Firefly - S01E02 - The Train Job.mkv
-│  └─ Season 2/
-│     ├─ Firefly - S02E01 - Serenity Returns.mkv
-│     └─ ...
+```text
+Titre (Année) [TMDB_ID].mkv
+Titre (Année) [TMDB_ID].mp4
 ```
 
----
+Exemples :
 
-## 🔑 Google Drive Setup (OAuth)
+```text
+Avatar (2009) [19995].mkv
+Inception (2010) [27205].mp4
+```
 
-To use ZPlex with Google Drive, **interested users must create their own OAuth credentials** at [Google Cloud Console](https://console.cloud.google.com/) and link their account within the app.
+Les extensions actuellement reconnues par l'indexeur sont `.mkv` et `.mp4` en minuscules. L'identifiant numérique entre crochets est celui de l'œuvre sur [TMDB](https://www.themoviedb.org/).
 
-> The app does **not provide built-in credentials**, so each user needs to configure their own for Drive integration.
+### Séries
 
----
+Chaque série possède son propre dossier à la racine du dossier de séries sélectionné :
 
-## 🚀 Getting Started
+```text
+Nom de la série (Année) [TMDB_ID]/
+└── Season 1/
+    ├── Nom de la série - S01E01 - Titre de l'épisode.mkv
+    └── Nom de la série - S01E02 - Titre de l'épisode.mkv
+```
 
-### Prerequisites
+Règles importantes :
 
-* Android Studio
-* JDK 11 & 17
-* Android SDK 22+
+- le dossier de la série suit le format `Nom (Année) [TMDB_ID]` ;
+- les dossiers de saisons se nomment `Season 1`, `Season 2`, etc. ;
+- le nom d'un épisode doit contenir un identifiant comme `S01E01` ;
+- les fichiers vidéo d'une saison sont placés directement dans son dossier `Season N`.
 
-### Local Development Setup
+## Configuration de Google Drive
 
-1. Clone the repository:
+Movynex n'intègre aucun identifiant OAuth dans le dépôt ou dans l'APK. Le Client ID et le Client Secret doivent être transmis de façon privée aux utilisateurs autorisés, puis saisis localement dans l'application.
+
+La configuration Google Cloud utilisée par la famille est la suivante :
+
+- projet : **Movynex Personal** ;
+- application OAuth : **Movynex** ;
+- client : **Movynex Android** ;
+- type de client : application de bureau ;
+- scope : `https://www.googleapis.com/auth/drive.readonly` ;
+- URI de redirection : `http://127.0.0.1:53682/` ;
+- audience : externe, statut **In production**.
+
+Pages publiques associées à l'écran de consentement :
+
+- [Accueil Movynex](https://sites.google.com/view/movynex/home)
+- [Politique de confidentialité](https://sites.google.com/view/movynex/privacy-policy)
+- [Conditions d'utilisation](https://sites.google.com/view/movynex/terms-of-service)
+
+### Première connexion
+
+1. Ouvrir les paramètres Google Drive de Movynex.
+2. Saisir le Client ID, le Client Secret et `http://127.0.0.1:53682/`.
+3. Vérifier que le scope affiché est `https://www.googleapis.com/auth/drive.readonly`.
+4. Appuyer sur **Sign in**, choisir le compte Google et accepter l'accès en lecture seule.
+5. Le navigateur finit sur une adresse `127.0.0.1` qui peut afficher « site inaccessible » : ce comportement est attendu.
+6. Copier l'adresse complète depuis la barre d'adresse du navigateur.
+7. Revenir dans Movynex, choisir **Enter authorization code?**, coller l'adresse complète puis valider.
+8. Sélectionner les dossiers de films et de séries, puis lancer l'indexation.
+
+Le statut OAuth en production évite l'expiration automatique au bout de sept jours propre au mode de test. Comme l'application familiale n'est pas validée publiquement par Google, un avertissement « application non validée » peut apparaître lors de la première connexion et le projet reste soumis à une limite de 100 utilisateurs OAuth.
+
+## Installation et mises à jour
+
+Une nouvelle APK doit conserver à la fois :
+
+- le package `com.cursedcrew.movynex` ;
+- la signature Cursed Crew.
+
+Ces deux éléments permettent d'installer une mise à jour par-dessus la version existante sans effacer la connexion Google Drive, les dossiers sélectionnés, l'historique ou les téléchargements. Ne pas désinstaller l'application avant une mise à jour, car une désinstallation supprime ses données locales.
+
+## Développement
+
+### Prérequis
+
+- JDK 17
+- Android Studio récent
+- Android SDK 36
+- Git
+
+### Installation locale
 
 ```bash
-git clone https://github.com/ZPlexLabs/zplex-android.git
+git clone https://github.com/Oks2199/zplex-android.git
 cd zplex-android
 ```
 
-2. Add API keys in **`local.properties`** (create if it doesn’t exist):
+Créer ou compléter `local.properties` sans le committer :
 
+```properties
+sdk.dir=C:/chemin/vers/Android/Sdk
+TMDB_API_KEY=votre_cle_tmdb
+OMDB_API_KEY=votre_cle_omdb
 ```
-TMDB_API_KEY=your_tmdb_api_key
-OMDB_API_KEY=your_omdb_api_key
+
+Tests et compilation debug :
+
+```bash
+./gradlew testDebugUnitTest assembleDebug
 ```
 
-3. Open in Android Studio, let Gradle sync, then build & run.
+Sous Windows :
 
----
+```powershell
+.\gradlew.bat testDebugUnitTest assembleDebug
+```
 
-## 🔗 Related Projects
+Le namespace Kotlin historique `zechs.zplex` est volontairement conservé en interne. Il ne correspond pas au package Android public et ne doit pas être renommé sans migration planifiée.
 
-* **[DriveStream](https://github.com/itszechs/DriveStream)** – A Google Drive client app with **MPV integration** for streaming video files.
-  ZPlex builds on similar ideas, providing a richer media library experience with indexing, offline playback, and TMDB metadata.
+### Signature release
 
----
+La configuration release attend les variables d'environnement suivantes :
 
-## 🙏 Credits
+```text
+MOVYNEX_KEYSTORE_PATH
+MOVYNEX_KEYSTORE_PASSWORD
+MOVYNEX_KEY_ALIAS
+MOVYNEX_KEY_PASSWORD
+```
 
-* [TheMovieDB](https://www.themoviedb.org/) – for metadata & search API
-* [FileBot](https://www.filebot.net/) – for file naming conventions
-* [Plex](https://www.plex.tv/) – inspiration for idea
-* [mpv-android](https://github.com/mpv-android/mpv-android) – for MPV build scripts used in the project
+Leurs valeurs ne doivent jamais être ajoutées au dépôt, à la documentation ou aux journaux.
 
----
+## Intégration continue
 
-## 📜 License
+Le workflow [`.github/workflows/android.yml`](.github/workflows/android.yml) :
 
-This project is licensed under the [MIT License](LICENSE).
+- utilise Java 17 ;
+- exécute les tests unitaires debug ;
+- construit les APK debug par architecture ;
+- construit une APK release ARM64 signée lors des exécutions hors pull request ;
+- récupère TMDB, OMDb et la signature depuis les secrets GitHub.
+
+Un push sur `main` déclenche automatiquement ce workflow. La release Movynex 1.0.1 de référence a été produite par [GitHub Actions n°10](https://github.com/Oks2199/zplex-android/actions/runs/34603761277).
+
+## Confidentialité et sécurité
+
+- L'accès Google Drive est limité à la lecture : Movynex ne peut ni modifier ni supprimer les fichiers Drive.
+- Les identifiants OAuth, jetons, préférences, index et progressions sont conservés dans l'espace privé de l'application sur l'appareil.
+- Les fichiers hors ligne sont enregistrés dans le dossier privé `movynex-downloads` de l'application et disparaissent lors de sa désinstallation.
+- Les titres et identifiants nécessaires peuvent être envoyés à TMDB et OMDb pour récupérer les métadonnées.
+- Ne jamais partager une capture, une URL ou un journal contenant un Client ID, un Client Secret, un code d'autorisation ou un jeton OAuth.
+
+## Crédits
+
+- [ZPlex](https://github.com/ZPlexLabs/zplex-android) — projet d'origine
+- [DriveStream](https://github.com/itszechs/DriveStream) — idées liées à Google Drive et MPV
+- [TheMovieDB](https://www.themoviedb.org/) — métadonnées et recherche
+- [OMDb API](https://www.omdbapi.com/) — métadonnées complémentaires
+- [FileBot](https://www.filebot.net/) — conventions de nommage
+- [Plex](https://www.plex.tv/) — inspiration du concept
+- [mpv-android](https://github.com/mpv-android/mpv-android) — base des scripts MPV
+
+## Licence
+
+Le projet reste distribué sous la [licence MIT](LICENSE). La notice de copyright du projet d'origine doit être conservée.

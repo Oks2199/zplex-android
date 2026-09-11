@@ -1,85 +1,91 @@
-# Movynex — état d’avancement
+# Movynex — état d'avancement
 
 Dernière mise à jour : 11 septembre 2026
 
-## État actuel
+## Résumé
 
-- La version SAF expérimentale (`versionCode = 4`) est encore installée sur le téléphone au moment de cette mise à jour.
-- La connexion à Google Drive fonctionne.
-- Les films présents sur Google Drive sont indexés correctement.
-- Le plantage provoqué par la locale française lors de l’ouverture d’un film est corrigé.
-- La restauration du lecteur Google Drive OAuth est prête avec `versionCode = 5` et `versionName = 1.0.1`.
-- L’APK signée à valider est disponible dans `H:\Downloads\Movynex-1.0.1.apk`.
-- Aucun APK 1.0.1 final ne doit être construit tant que le nettoyage visuel n’est pas terminé et validé par l’utilisateur.
+Movynex 1.0.1 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `5b51e09`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.1.apk`.
 
-## Identité Movynex terminée
+La dernière validation restante est un contrôle sur le téléphone : installation par-dessus l'application existante, affichage de la nouvelle icône, reconnexion OAuth si nécessaire et lecture d'un film.
 
-- Nom public Android : **Movynex**.
+## Release de référence
+
+- Nom : **Movynex 1.0.1**
+- `versionCode` : `5`
+- `versionName` : `1.0.1`
+- Package : `com.cursedcrew.movynex`
+- Libellé Android : `Movynex`
+- Architecture livrée : `arm64-v8a`
+- Signature : Cursed Crew
+- Empreinte SHA-256 du certificat : `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
+- Empreinte SHA-256 de l'APK : `647ADB0B00197E314AC4498C48B59EB0F500CFCAFD3788D444F58CC1D3F2A002`
+- Workflow : [GitHub Actions n°10](https://github.com/Oks2199/zplex-android/actions/runs/34603761277), terminé avec succès
+- Emplacement livré : `H:\Downloads\Movynex-1.0.1.apk`
+
+## Fonctionnement validé
+
+- Connexion à Google Drive opérationnelle.
+- Sélection et indexation des dossiers Drive opérationnelles.
+- Ouverture et lecture d'un film via le lecteur OAuth direct opérationnelles.
+- Téléchargement hors ligne conservé dans le stockage privé de l'application.
+- Plantage `NumberFormatException` avec la locale française corrigé.
+- Tests unitaires debug et compilations debug/release réussis dans GitHub Actions n°10.
+- Package, version, libellé, architecture et signature de l'APK finale contrôlés après téléchargement.
+
+## Identité Movynex
+
+- Nom public Android et OAuth : **Movynex**.
 - Package Android : `com.cursedcrew.movynex`.
-- Signature release : clé **Cursed Crew**.
-- Nouveau logo Movynex créé en bleu et violet.
-- L'icône Android utilise désormais le grand **M** du logo sur fond presque noir, dans un style d'icône simple et lisible comparable à Netflix. Le mot-symbole complet reste réservé à l'intérieur de l'application.
-- Toutes les densités release, debug et monochromes ont été régénérées depuis le logo haute définition ; les anciennes images ZPlex des variantes debug ont été supprimées.
-- Identifiants internes du lecteur et dossier public de téléchargements renommés pour Movynex.
-- Nom du projet Gradle remplacé par Movynex.
+- Namespace Kotlin historique conservé en interne : `zechs.zplex`.
+- Mot-symbole bleu/violet affiché dans la barre supérieure de l'accueil.
+- Icône validée : grand **M** haute définition sur fond presque noir.
+- Toutes les densités release, debug et monochromes utilisent la nouvelle identité.
+- Les anciens visuels ZPlex ont été retirés des variantes debug.
+- Les identifiants publics du lecteur, des notifications et des téléchargements ont été renommés pour Movynex.
+- Les mentions ZPlex restantes sont limitées aux noms techniques internes et aux crédits du projet d'origine.
 
 ## Google Cloud et OAuth
 
-- Projet Google Cloud renommé **Movynex Personal**.
-- Nom affiché sur l’écran de consentement OAuth remplacé par **Movynex**.
-- Logo Movynex ajouté et enregistré sur l’écran de consentement.
-- Client OAuth renommé **Movynex Android**.
-- Le Client ID, le Client Secret et les utilisateurs de test existants ont été conservés.
-- Le scope Google Cloud et le code Android ont été réduits à la lecture seule : `https://www.googleapis.com/auth/drive.readonly`.
-- Le statut OAuth est passé de **Testing** à **In production** le 11 septembre 2026 : les autorisations Google Drive ne sont plus limitées à sept jours.
-- L'application reste volontairement non validée pour cet usage familial privé. Google peut afficher un avertissement lors de la première connexion et applique une limite de 100 utilisateurs OAuth sur la durée de vie du projet.
+- Projet : **Movynex Personal**.
+- Client : **Movynex Android**.
+- Client ID et Client Secret existants conservés et absents de Git.
+- Scope Google Drive : `https://www.googleapis.com/auth/drive.readonly`.
+- URI de redirection : `http://127.0.0.1:53682/`.
+- Audience externe, statut **In production** depuis le 11 septembre 2026.
+- L'expiration automatique des autorisations au bout de sept jours liée au mode Testing ne s'applique plus aux nouvelles autorisations.
+- L'application reste non validée publiquement : un avertissement Google peut apparaître et la limite OAuth affichée est de 100 utilisateurs.
+- Domaine OAuth autorisé : `google.com`.
 - Site public : `https://sites.google.com/view/movynex/home`.
 - Politique de confidentialité : `https://sites.google.com/view/movynex/privacy-policy`.
 - Conditions d'utilisation : `https://sites.google.com/view/movynex/terms-of-service`.
-- Le domaine OAuth autorisé pour ces pages Google Sites est `google.com`.
-- Une migration vers le sélecteur de dossiers Android (`ACTION_OPEN_DOCUMENT_TREE`) a été testée sur la branche `codex/saf-migration`. Elle est abandonnée pour la lecture vidéo : le fournisseur Google Drive ne permet pas à MPV d’atteindre immédiatement les zones éloignées d’un MKV et peut provoquer plusieurs minutes d’écran noir pendant le chargement.
-- URI de redirection utilisée : `http://127.0.0.1:53682/`.
+- Le titre public Google Sites a été corrigé de **Nothing - Void Lords** vers **Movynex**.
 
-## Corrections déjà enregistrées dans Git
+## Git et branches
 
-- `cf609ce` — correction du plantage lié au format décimal français.
-- `2013477` — création de l’identité release Movynex, package, signature et workflow GitHub.
-- `c58bcd5` — remplacement des icônes et nettoyage principal de l’identité Movynex.
-- Ces changements sont présents sur `origin/main`.
+- `origin` : `https://github.com/Oks2199/zplex-android.git`.
+- `upstream` : `https://github.com/ZPlexLabs/zplex-android.git`.
+- `main` contient la release applicative 1.0.1 au commit `5b51e09`.
+- `codex/oauth-restoration` conserve l'historique de restauration du lecteur OAuth direct.
+- `codex/saf-migration` au commit `cd27201` conserve l'expérience SAF abandonnée pour la lecture distante.
+- Le dossier `dist/` contient uniquement des artefacts locaux et reste hors de Git.
 
-## Modifications locales en cours
+## Jalons principaux
 
-- Le texte Movynex situé en haut à gauche de l’accueil est remplacé par le logo horizontal.
-- Le logo horizontal est stocké dans `app/src/main/res/drawable-nodpi/movynex_wordmark.png`.
-- Le logo est affiché uniquement sur l’accueil ; les autres écrans conservent leurs titres fonctionnels.
-- `AGENTS.md` a été ajouté pour protéger l’identité, la signature, les secrets et la procédure de livraison.
-- `progress.md` sert de journal d’avancement et doit rester à jour après chaque étape importante.
-- Le dossier `dist/` reste volontairement hors de Git.
+- `cf609ce` — correction du format décimal avec la locale française.
+- `2013477` — identité release Movynex, package, signature et workflow GitHub.
+- `c58bcd5` — nettoyage principal de l'identité Movynex.
+- `f50c471` — restauration du lecteur Google Drive OAuth direct.
+- `5b51e09` — nouvelle icône Movynex et release applicative 1.0.1.
 
-## Construction et vérification
+## Validation restante
 
-- Le workflow GitHub utilise Java 17, exécute les tests debug et génère une release ARM64 signée.
-- Les secrets GitHub nécessaires à TMDB, OMDb et à la signature Cursed Crew sont configurés.
-- La restauration OAuth est isolée sur `codex/oauth-restoration` au commit `f50c471`; l’expérience SAF reste conservée sur `codex/saf-migration` au commit `cd27201`.
-- GitHub Actions #9 a terminé avec succès : tests, APK debug et APK release signée.
-- L’APK release a été vérifiée : package `com.cursedcrew.movynex`, versionCode `5`, versionName `1.0.1`, signature Cursed Crew `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`.
-- Empreinte SHA-256 de l’APK : `BC7676D3DF3BE32B63E8526904EA108E66F6C0855263E81EF52906203B9B1390`.
+1. Installer `H:\Downloads\Movynex-1.0.1.apk` par-dessus la version existante.
+2. Vérifier l'icône sur l'écran d'accueil et dans le gestionnaire de fichiers.
+3. Vérifier que Google Drive reste connecté ; si l'ancien jeton de test expire, se reconnecter une fois afin d'obtenir une autorisation créée en production.
+4. Lire un film et vérifier le démarrage, l'avance rapide et la reprise de lecture.
 
-## À faire avant la version 1.0.1
+## Dette et améliorations futures
 
-1. Terminer l’audit visuel de l’application et relever toute autre référence visible à l’ancien nom.
-2. Vérifier la taille et l’alignement du logo dans la barre supérieure de l’accueil.
-3. Regrouper et relire les modifications locales.
-4. Demander l’accord explicite de l’utilisateur avant tout push déclenchant la construction finale.
-5. Laisser GitHub Actions exécuter les tests et générer l’APK release ARM64 signé.
-6. Vérifier le package, la version, le nom, l’architecture, les clés API et la signature de l’APK.
-7. Copier l’APK final vérifié dans `H:\Downloads` pour installation comme mise à jour.
-
-## Points à préserver
-
-- Ne pas modifier `com.cursedcrew.movynex`.
-- Ne pas changer la clé de signature Cursed Crew.
-- Ne pas exposer les mots de passe, secrets OAuth ou clés API.
-- Ne pas forcer l’utilisateur à reconfigurer Google Drive lors d’une mise à jour.
-- Ne pas renommer les stockages persistants sans prévoir une migration compatible.
-- Conserver la licence et les crédits nécessaires du projet open source d’origine.
+- Retirer les journaux `Log.d` qui peuvent contenir le client OAuth, un code d'autorisation ou des jetons avant toute distribution plus large.
+- Moderniser progressivement le design et la traduction de l'interface.
+- Conserver la migration SAF uniquement comme expérience séparée tant que la lecture distante n'est pas immédiate.

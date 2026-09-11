@@ -1,56 +1,88 @@
 # Movynex — consignes du projet
 
+Ce fichier contient les règles persistantes à respecter lors de toute modification du dépôt.
+
 ## Identité du produit
 
-- Le nom public de l’application est **Movynex**.
-- L’identifiant Android officiel est `com.cursedcrew.movynex`. Ne jamais le changer pour une mise à jour existante.
-- Le `namespace` Kotlin historique reste `zechs.zplex` tant qu’une migration complète, planifiée et testée n’est pas explicitement demandée. Il est interne et ne doit jamais être affiché à l’utilisateur.
-- Aucune mention visible de l’ancien nom ZPlex ne doit apparaître dans l’application, son icône, ses notifications, ses dossiers publics ou le parcours OAuth.
-- Conserver les mentions d’origine nécessaires dans la licence et les crédits du projet open source.
+- Le nom public de l'application est **Movynex**.
+- L'identifiant Android officiel est `com.cursedcrew.movynex`. Ne jamais le changer pour une mise à jour existante.
+- Le namespace Kotlin historique `zechs.zplex` reste interne tant qu'une migration complète, planifiée et testée n'est pas explicitement demandée.
+- Les noms internes historiques peuvent rester dans les packages, identifiants de vues et fichiers de navigation. Ils ne doivent jamais être affichés à l'utilisateur.
+- Aucune mention visible de l'ancien nom ZPlex ne doit apparaître dans l'application, son icône, ses notifications, ses dossiers de téléchargement ou le parcours OAuth.
+- Conserver la licence MIT et les crédits nécessaires du projet open source d'origine.
 
 ## Identité graphique
 
-- L’icône Android release utilise les fichiers `app/src/main/res/mipmap-*/ic_launcher_foreground.png`.
-- Le logo horizontal de l’accueil est `app/src/main/res/drawable-nodpi/movynex_wordmark.png`.
-- Sur l’accueil, afficher le logo dans la barre supérieure à la place du titre texte. Sur les autres écrans, conserver les titres fonctionnels habituels.
-- Toute nouvelle ressource de marque doit rester lisible sur fond sombre et dans les masques d’icône Android ronds ou carrés.
+- L'icône Android utilise le grand monogramme **M** bleu/violet sur fond `#15171D`.
+- Les couches release sont `app/src/main/res/mipmap-*/ic_launcher_foreground.png`.
+- Les variantes debug et monochromes doivent rester cohérentes avec la release et ne contenir aucun ancien visuel.
+- Le mot-symbole horizontal est `app/src/main/res/drawable-nodpi/movynex_wordmark.png`.
+- Sur l'accueil, afficher le mot-symbole dans la barre supérieure. Sur les autres écrans, conserver les titres fonctionnels.
+- Toute ressource de marque doit rester lisible sur fond sombre et dans les masques Android ronds, carrés ou adaptatifs.
 
 ## Version et compatibilité
 
-- Incrémenter `versionCode` à chaque APK destinée à remplacer une version déjà installée.
-- Utiliser un `versionName` clair suivant le format `MAJEUR.MINEUR.CORRECTIF`.
-- Préserver les réglages locaux, la connexion Google Drive, l’indexation, l’historique et les téléchargements lors des mises à jour.
-- Ne pas renommer une base de données, une clé de préférences ou un stockage persistant sans migration compatible.
+- Version livrée de référence : `versionCode = 5`, `versionName = 1.0.1`.
+- Android minimum : API 31 ; compilation et cible : API 36.
+- Incrémenter `versionCode` pour chaque APK destinée à remplacer une version déjà installée.
+- Utiliser un `versionName` au format `MAJEUR.MINEUR.CORRECTIF`.
+- Préserver les réglages locaux, la connexion Google Drive, l'indexation, l'historique et les téléchargements lors des mises à jour.
+- Ne pas renommer une base de données, une clé DataStore ou un stockage persistant sans migration compatible.
 
 ## Google Drive et OAuth
 
 - Projet Google Cloud : **Movynex Personal**.
 - Nom public OAuth : **Movynex**.
-- Client OAuth : **Movynex Android**.
-- Scope Drive attendu : `https://www.googleapis.com/auth/drive`.
+- Client OAuth : **Movynex Android**, de type application de bureau.
+- Scope attendu dans Google Cloud et dans Android : `https://www.googleapis.com/auth/drive.readonly`.
 - URI de redirection attendue : `http://127.0.0.1:53682/`.
-- Ne jamais recréer ou remplacer le Client ID, le Client Secret, les scopes ou les utilisateurs de test sans demande explicite.
-- Ne jamais écrire les identifiants OAuth ou les clés d’API dans Git.
+- Audience : externe ; statut : **In production**.
+- Domaine autorisé pour les pages Google Sites : `google.com`.
+- Pages publiques :
+  - `https://sites.google.com/view/movynex/home`
+  - `https://sites.google.com/view/movynex/privacy-policy`
+  - `https://sites.google.com/view/movynex/terms-of-service`
+- Ne jamais recréer ou remplacer le Client ID, le Client Secret, les scopes ou l'audience sans demande explicite.
+- Un changement de scope impose normalement une nouvelle autorisation Google aux utilisateurs.
+- Ne jamais écrire les identifiants OAuth, codes d'autorisation, jetons ou clés d'API dans Git ou dans une réponse utilisateur.
+- Le trafic HTTP en clair autorisé dans le manifeste sert au retour OAuth local sur `127.0.0.1`; ne pas le retirer sans remplacer ce mécanisme.
 
-## Clés API et signature
+## Lecture Google Drive
+
+- Conserver le lecteur OAuth direct actuellement fonctionnel.
+- La tentative basée sur le sélecteur Android SAF est conservée sur `codex/saf-migration`, mais elle n'est pas destinée à la release : le fournisseur Google Drive peut charger un MKV en entier avant de permettre les recherches nécessaires à MPV, ce qui provoque un long écran noir.
+- Ne pas réintroduire la migration SAF sans test concluant de lecture immédiate et de déplacement dans une vidéo distante.
+- Toute conversion de nombres doit être indépendante de la langue du téléphone, notamment avec la locale française.
+
+## Clés API, jetons et signature
 
 - TMDB et OMDb sont injectés depuis `local.properties` en local et depuis les secrets GitHub en CI.
-- La release doit rester signée avec la clé **Cursed Crew** afin que les APK suivantes puissent mettre à jour l’application installée.
-- Les variables de signature attendues sont `MOVYNEX_KEYSTORE_PATH`, `MOVYNEX_KEYSTORE_PASSWORD`, `MOVYNEX_KEY_ALIAS` et `MOVYNEX_KEY_PASSWORD`.
+- La release doit rester signée avec la clé **Cursed Crew** pour pouvoir mettre à jour l'application installée.
+- Variables de signature attendues : `MOVYNEX_KEYSTORE_PATH`, `MOVYNEX_KEYSTORE_PASSWORD`, `MOVYNEX_KEY_ALIAS` et `MOVYNEX_KEY_PASSWORD`.
 - Ne jamais afficher, copier dans les journaux, committer ou remplacer une clé, un mot de passe ou un secret.
+- Dette de sécurité connue : certains appels `Log.d` historiques exposent le client OAuth ou les jetons dans les journaux de diagnostic. Les supprimer avant toute distribution plus large que le cercle familial.
 
 ## Construction et livraison
 
-- Le workflow `.github/workflows/android.yml` teste le debug puis construit l’APK release ARM64 signé.
-- Un push sur `main` déclenche automatiquement une construction GitHub. Ne pas pousser tant que l’utilisateur n’a pas explicitement confirmé qu’il souhaite construire l’APK final.
-- Avant une livraison, exécuter les tests unitaires et une compilation debug avec Java 17, puis vérifier la release signée produite par GitHub Actions.
-- Vérifier au minimum le package, la version, le libellé Movynex, l’architecture ARM64 et la signature Cursed Crew.
-- Copier uniquement l’APK final vérifié dans `H:\Downloads` quand l’utilisateur demande une livraison.
+- Utiliser JDK 17. Le workflow `.github/workflows/android.yml` teste le debug puis produit une release ARM64 signée.
+- Un push sur `main` déclenche automatiquement une construction GitHub.
+- Ne pas pousser une modification applicative sur `main` sans accord explicite de l'utilisateur pour lancer la construction.
+- Pour une modification exclusivement documentaire, un commit contenant `[skip ci]` peut être utilisé afin d'éviter une construction inutile.
+- Avant une livraison, exécuter les tests unitaires et une compilation debug, puis vérifier la release signée produite par GitHub Actions.
+- Vérifier au minimum le package, `versionCode`, `versionName`, le libellé Movynex, l'architecture ARM64, les clés API et la signature Cursed Crew.
+- Copier uniquement l'APK finale vérifiée dans `H:\Downloads` lorsque l'utilisateur demande une livraison.
 - Garder `dist/` hors de Git.
 
-## Qualité et sécurité des modifications
+## Documentation et suivi
 
-- Corriger les conversions numériques sans dépendre de la langue du téléphone ; l’application doit fonctionner avec la locale française.
-- Éviter les refactorisations mécaniques massives du namespace historique pendant une modification d’interface.
-- Ne pas supprimer les changements existants de l’utilisateur et ne pas modifier les fichiers sans rapport avec la demande.
-- Pour toute modification visuelle, vérifier les écrans concernés avant de déclencher une nouvelle release.
+- `README.md` décrit l'installation, l'utilisation, le nommage des médias, OAuth et le développement.
+- `progress.md` décrit uniquement l'état réel, les livraisons vérifiées, les validations restantes et la dette connue.
+- Mettre ces deux fichiers à jour après une étape importante, sans y inscrire de secret.
+- Ne pas annoncer une modification comme publiée, testée ou installée sans preuve correspondante.
+
+## Qualité des modifications
+
+- Préserver les changements existants de l'utilisateur et éviter les refactorisations sans rapport avec la demande.
+- Vérifier les écrans concernés avant de déclencher une release après une modification visuelle.
+- Conserver `origin` sur le fork familial et `upstream` sur le dépôt ZPlex d'origine.
+- Ne pas fusionner `codex/saf-migration` dans `main` sans demande et validation explicites.
