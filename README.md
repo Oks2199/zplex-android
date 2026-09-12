@@ -173,7 +173,7 @@ Le workflow [`.github/workflows/android.yml`](.github/workflows/android.yml) :
 - construit une APK release ARM64 signée lors des exécutions hors pull request ;
 - récupère TMDB, OMDb et la signature depuis les secrets GitHub.
 
-Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers `main` exécute les tests et construit le debug, mais ignore volontairement la release signée. Un lancement manuel ne teste que le contenu déjà poussé sur la branche distante sélectionnée : il n'inclut jamais les modifications non committées du poste local. La release Movynex 1.0.1 de référence a été produite par [GitHub Actions n°10](https://github.com/Oks2199/zplex-android/actions/runs/34603761277).
+Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers `main` exécute les tests et construit le debug, mais ignore volontairement la release signée. Un lancement manuel ne teste que le contenu déjà poussé sur la branche distante sélectionnée : il n'inclut jamais les modifications non committées du poste local. Movynex 1.0.2 a été construite et vérifiée par [GitHub Actions n°11](https://github.com/Oks2199/zplex-android/actions/runs/34693277079) ; Movynex 1.0.1 reste la dernière APK effectivement livrée.
 
 ## Confidentialité et sécurité
 
