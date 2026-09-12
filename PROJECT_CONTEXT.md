@@ -31,6 +31,7 @@ Le dépôt d'origine reste crédité et la licence MIT doit être conservée. Le
 - Branche de livraison : `main`
 - Release applicative 1.0.1 : commit `5b51e09`
 - Release applicative 1.0.2 : commit `302d08d`
+- Release applicative 1.0.3 : commit `2fae67b`
 - Première refonte générale de la documentation : commit `031be35`
 - Workflow : `.github/workflows/android.yml`
 - Page GitHub Actions : `https://github.com/Oks2199/zplex-android/actions`
@@ -44,7 +45,7 @@ Un push applicatif sur `main` déclenche les tests et la construction. Il faut l
 - Package installé : `com.cursedcrew.movynex`
 - Namespace Kotlin historique : `zechs.zplex`
 - Projet Gradle : `Movynex`
-- Version livrée : `versionCode = 6`, `versionName = 1.0.2`
+- Version livrée : `versionCode = 7`, `versionName = 1.0.3`
 - Android minimum : API 31
 - Android cible et compilation : API 36
 - Architecture distribuée : `arm64-v8a`
@@ -158,7 +159,7 @@ Procédure à suivre dans une nouvelle conversation :
 3. Effectuer les contrôles statiques encore possibles localement. Pour les ressources Android, `aapt2` se trouve notamment dans `C:\Users\Utilisateur\AppData\Local\Android\Sdk\build-tools\35.0.0\aapt2.exe`.
 4. Utiliser ensuite GitHub Actions pour les tests unitaires et la compilation complète.
 
-Le 12 septembre 2026, le nouveau `strings.xml` français a ainsi été compilé avec succès directement par `aapt2` 35.0.0. Les tests Gradle et l'assemblage de ces modifications restent néanmoins à faire dans GitHub Actions.
+Le 12 septembre 2026, le nouveau `strings.xml` français a ainsi été compilé avec succès directement par `aapt2` 35.0.0. Les tests Gradle et les assemblages debug/release ont ensuite réussi dans GitHub Actions n°14.
 
 ## Construction recommandée avec GitHub Actions
 
@@ -226,6 +227,22 @@ Release 1.0.2 vérifiée et livrée :
 - Signature : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
 - Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34693277079`
 - Les six secrets GitHub requis ont été confirmés comme configurés, sans lire ni afficher leurs valeurs.
+
+Release 1.0.3 vérifiée et livrée :
+
+- Commit applicatif livré : `2fae67b`
+- APK livrée : `H:\Downloads\Movynex-1.0.3.apk`
+- Copie locale de l'artefact : `F:\Developpement\zplex-android\dist\run-34718793281-release\app-arm64-v8a-release.apk`
+- Taille : `39 270 935` octets
+- SHA-256 de l'APK : `58A315F0930B2491DF9F81DAA26406484E492240DBC2ADE486B9B3E214BD26A3`
+- Package : `com.cursedcrew.movynex`
+- Version : `versionCode = 7`, `versionName = 1.0.3`
+- Libellé : `Movynex`
+- Architecture exclusive : `arm64-v8a`
+- Signature : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
+- Les clés TMDB et OMDb sont bien présentes dans la release ; leurs valeurs n'ont pas été affichées.
+- Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34718793281`
+- La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
 
 Le dossier `dist/` est local, non versionné et ne doit pas être ajouté à Git.
 
@@ -337,16 +354,20 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.2 a été poussée sur `origin/main` au commit `302d08d`, puis construite et signée avec succès par GitHub Actions n°11. L'artefact ARM64 a été téléchargé dans `dist/` et son package, sa version, son libellé, son architecture, sa signature et son empreinte ont été vérifiés. La copie livrée `H:\Downloads\Movynex-1.0.2.apk` possède la même empreinte SHA-256. Elle a été installée sur le téléphone et l'utilisateur a confirmé que l'application fonctionne.
+Movynex 1.0.3 est publiée sur `origin/main` au commit `2fae67b`. Elle corrige le champ anglais repéré dans Recherche après l'installation de la 1.0.2 et termine le passage en français des textes visibles de la bibliothèque, d'OAuth et Drive, du lecteur, de l'historique, des téléchargements, de l'indexation, de la distribution, des erreurs, des notifications et des écrans masqués Discover/Upcoming. Les journaux techniques invisibles restent en anglais.
 
-Movynex 1.0.2 demande les métadonnées TMDB en français (`fr-FR`) et les sorties pour la région France (`FR`). Les principaux libellés des fiches, saisons et épisodes ont également été traduits. Le format interne `Season N` des dossiers Google Drive reste volontairement inchangé.
+Les deux premières exécutions de cette livraison ont détecté des erreurs simples : GitHub Actions n°12 a échoué à cause d'un import `R` manquant dans `CastViewModel`, puis n°13 à cause d'une attente anglaise obsolète dans `ConverterUtilsTest`. Les commits `4643428` et `2fae67b` ont corrigé ces deux points. GitHub Actions n°14 a ensuite réussi l'intégralité des tests, la compilation debug et la release ARM64 signée.
 
-Après installation sur le téléphone, un oubli de traduction a été repéré dans l'écran Recherche : le champ de saisie affichait encore `Search for a movie, tv show…`. Une correction locale non publiée traduit ce champ, les messages associés et les autres textes visibles anglais repérés dans l'application : bibliothèque, OAuth et Drive, lecteur, historique, téléchargements, indexation, distribution, erreurs, notifications et écrans masqués Discover/Upcoming. Les journaux techniques invisibles restent en anglais. Cette correction devra être livrée dans une version ultérieure avec un `versionCode` supérieur à 6.
+Pour la 1.0.3, la demande de « nouvelle mise à jour » a été interprétée comme l'accord de pousser directement sur `main`, sans passer d'abord par la pull request de validation recommandée lorsque Gradle local est bloqué. Ne pas reproduire cet écart : pour une modification applicative suivante, valider d'abord une branche par pull request, puis intégrer sur `main` seulement après réussite et accord explicite de livraison.
+
+L'artefact de GitHub Actions n°14 a été téléchargé dans `dist/run-34718793281-release/`. Son package, sa version 1.0.3/code 7, son libellé, son architecture ARM64 exclusive, la présence des clés API et sa signature Cursed Crew ont été vérifiés. Son SHA-256 est `58A315F0930B2491DF9F81DAA26406484E492240DBC2ADE486B9B3E214BD26A3`. La copie livrée `H:\Downloads\Movynex-1.0.3.apk` possède exactement la même empreinte. L'installation et le contrôle visuel sur le téléphone restent à faire.
+
+Movynex demande les métadonnées TMDB en français (`fr-FR`) et les sorties pour la région France (`FR`). Le format interne `Season N` des dossiers Google Drive reste volontairement inchangé.
 
 Un audit complet d'une éventuelle sélection de langue est conservé dans `LANGUAGE_AUDIT.md`. Le 12 septembre 2026, l'utilisateur a décidé de ne pas l'implémenter pour le moment, Movynex restant une application familiale en français. L'audit reste une référence si une version bilingue devient utile. Le passage français local a néanmoins supprimé les comparaisons avec les libellés anglais `Movies` et `TV Shows` ainsi que la conversion du texte de tri par `SortBy.valueOf()` dans `BrowseFragment` ; les libellés de genre et de tri viennent désormais des ressources et sont associés à leurs valeurs stables.
 
-Pour actualiser les deux films déjà indexés après installation d'une future APK contenant cette modification : faire un appui long sur le compteur du cache API dans les réglages pour le réinitialiser, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse des médias. L'historique de lecture est stocké séparément.
+Pour actualiser les deux films déjà indexés après installation de la 1.0.3 : faire un appui long sur le compteur du cache API dans les réglages pour le réinitialiser, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse des médias. L'historique de lecture est stocké séparément.
 
-La compilation AAPT2 de toutes les ressources Android de ce passage français réussit avec la version 35.0.0. `git diff --check` ne relève aucune erreur. La tentative locale des tests et de l'assemblage debug avec le JDK 17 s'arrête avant la configuration du projet sur la limite connue `Unable to establish loopback connection` ; une validation GitHub reste donc nécessaire.
+La compilation AAPT2 de toutes les ressources Android de ce passage français réussit avec la version 35.0.0. `git diff --check` ne relève aucune erreur. La tentative locale des tests et de l'assemblage debug avec le JDK 17 s'arrête avant la configuration du projet sur la limite connue `Unable to establish loopback connection` ; la validation complète a donc été effectuée par GitHub Actions n°14.
 
-Le passage complet de l'interface en français est préparé pour Movynex 1.0.3 (`versionCode = 7`, `versionName = 1.0.3`). La sélection Français / English / Système est différée sans date. La construction GitHub Actions, la vérification de l'APK signée et la livraison restent à effectuer.
+La sélection Français / English / Système reste différée sans date. `LANGUAGE_AUDIT.md` doit être relu avant de reprendre ce chantier.

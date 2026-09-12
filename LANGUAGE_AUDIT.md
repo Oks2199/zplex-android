@@ -10,11 +10,11 @@ Cet audit décrit comment ajouter correctement une sélection de langue à Movyn
 
 État au moment de l'audit :
 
-- Movynex 1.0.2 est installée et fonctionne sur le téléphone.
-- Une correction locale non publiée traduit le champ de recherche et réalise un passage global des textes visibles de l'interface, des erreurs, des notifications et des tâches de fond.
+- Movynex 1.0.2 est installée et fonctionne sur le téléphone ; la 1.0.3 est construite, vérifiée et prête à être installée par-dessus.
+- Movynex 1.0.3 traduit le champ de recherche et réalise un passage global des textes visibles de l'interface, des erreurs, des notifications et des tâches de fond.
 - Les requêtes TMDB utilisent actuellement `fr-FR` et la région `FR` de manière fixe.
 - Aucun sélecteur de langue, aucune ressource `values-fr` et aucune préférence de langue n'existent encore.
-- La correction française est préparée pour Movynex 1.0.3 avec `versionCode = 7` afin de remplacer la 1.0.2.
+- La correction française est livrée dans Movynex 1.0.3 avec `versionCode = 7` afin de remplacer la 1.0.2.
 
 ## Conclusion de l'audit
 

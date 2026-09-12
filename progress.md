@@ -4,21 +4,36 @@ Dernière mise à jour : 12 septembre 2026
 
 ## Résumé
 
-Movynex 1.0.2 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `302d08d`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.2.apk`.
+Movynex 1.0.3 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `2fae67b`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.3.apk`.
 
-Movynex 1.0.2 a été installée sur le téléphone et l'utilisateur a confirmé que l'application fonctionne. Un oubli de traduction a ensuite été repéré dans Recherche. La correction complète est maintenant préparée pour Movynex 1.0.3 (`versionCode = 7`).
+La 1.0.3 corrige le champ anglais repéré dans Recherche après l'installation de la 1.0.2 et termine le passage en français des textes visibles de l'application. GitHub Actions n°14 a validé les tests unitaires, l'APK debug et la release ARM64 signée. L'installation et le contrôle visuel de la 1.0.3 sur le téléphone restent à faire.
 
-## Correction locale après installation
+## Correction française livrée dans Movynex 1.0.3
 
 - L'écran Recherche de la version 1.0.2 affiche encore `Search for a movie, tv show…` dans son champ de saisie.
-- La correction locale traduit ce champ en `Rechercher un film ou une série…`.
+- La version 1.0.3 traduit ce champ en `Rechercher un film ou une série…`.
 - Les messages « aucun résultat », absence de connexion et erreur réseau du même écran ont également été traduits.
 - Le passage français a été étendu aux autres textes visibles repérés dans l'interface, les erreurs, les notifications et les tâches de fond.
 - Les filtres de l'écran Discover ne comparent plus les libellés anglais `Movies` et `TV Shows` et ne convertissent plus le texte de tri avec `SortBy.valueOf()` ; les genres et tris traduits sont associés à leurs identifiants ou enums stables.
 - Le 12 septembre 2026, l'utilisateur a décidé de ne pas implémenter le sélecteur Français / English / Système pour le moment ; Movynex reste une application familiale en français.
 - La compilation AAPT2 de toutes les ressources Android réussit avec la version 35.0.0 et `git diff --check` ne relève aucune erreur.
-- Avec le JDK 17, les tests et l'assemblage debug locaux restent bloqués avant la configuration du projet par `Unable to establish loopback connection`, limite connue de l'environnement Codex. La validation GitHub n'a pas encore été lancée.
-- Cette correction est intégrée à la candidate Movynex 1.0.3 (`versionCode = 7`) ; elle n'est pas encore publiée ni construite.
+- Avec le JDK 17, les tests et l'assemblage debug locaux restent bloqués avant la configuration du projet par `Unable to establish loopback connection`, limite connue de l'environnement Codex.
+- GitHub Actions n°12 a détecté un import `R` manquant dans `CastViewModel`, corrigé par le commit `4643428`.
+- GitHub Actions n°13 a ensuite détecté une attente anglaise obsolète dans `ConverterUtilsTest`, corrigée par le commit `2fae67b`.
+- GitHub Actions n°14 a réussi les tests unitaires, l'assemblage debug et la release ARM64 signée.
+
+## Movynex 1.0.3
+
+- Version construite : **Movynex 1.0.3**, `versionCode = 7` et `versionName = 1.0.3`.
+- Code applicatif publié sur `origin/main` au commit `2fae67b`.
+- Workflow réussi : [GitHub Actions n°14](https://github.com/Oks2199/zplex-android/actions/runs/34718793281).
+- APK vérifiée : package `com.cursedcrew.movynex`, libellé Movynex et architecture exclusive `arm64-v8a`.
+- Signature Cursed Crew vérifiée avec l'empreinte de certificat attendue.
+- Les clés TMDB et OMDb sont présentes dans la release, sans que leurs valeurs aient été affichées.
+- Empreinte SHA-256 de l'APK : `58A315F0930B2491DF9F81DAA26406484E492240DBC2ADE486B9B3E214BD26A3`.
+- Artefact vérifié : `F:\Developpement\zplex-android\dist\run-34718793281-release\app-arm64-v8a-release.apk`.
+- APK livrée : `H:\Downloads\Movynex-1.0.3.apk`, avec exactement la même empreinte.
+- Aucun schéma de base de données, clé DataStore ou stockage persistant n'a été renommé ; la mise à jour peut être installée par-dessus la 1.0.2 sans désinstallation.
 
 ## Movynex 1.0.2
 
@@ -40,17 +55,17 @@ Movynex 1.0.2 a été installée sur le téléphone et l'utilisateur a confirmé
 
 ## Release de référence
 
-- Nom : **Movynex 1.0.2**
-- `versionCode` : `6`
-- `versionName` : `1.0.2`
+- Nom : **Movynex 1.0.3**
+- `versionCode` : `7`
+- `versionName` : `1.0.3`
 - Package : `com.cursedcrew.movynex`
 - Libellé Android : `Movynex`
 - Architecture livrée : `arm64-v8a`
 - Signature : Cursed Crew
 - Empreinte SHA-256 du certificat : `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
-- Empreinte SHA-256 de l'APK : `06F528A76197C0BA38C13A53447B5B94EBD969D2C0D1DAEF4EAE9D0B5BC2B57A`
-- Workflow : [GitHub Actions n°11](https://github.com/Oks2199/zplex-android/actions/runs/34693277079), terminé avec succès
-- Emplacement livré : `H:\Downloads\Movynex-1.0.2.apk`
+- Empreinte SHA-256 de l'APK : `58A315F0930B2491DF9F81DAA26406484E492240DBC2ADE486B9B3E214BD26A3`
+- Workflow : [GitHub Actions n°14](https://github.com/Oks2199/zplex-android/actions/runs/34718793281), terminé avec succès
+- Emplacement livré : `H:\Downloads\Movynex-1.0.3.apk`
 
 ## Fonctionnement validé
 
@@ -59,7 +74,7 @@ Movynex 1.0.2 a été installée sur le téléphone et l'utilisateur a confirmé
 - Ouverture et lecture d'un film via le lecteur OAuth direct opérationnelles.
 - Téléchargement hors ligne conservé dans le stockage privé de l'application.
 - Plantage `NumberFormatException` avec la locale française corrigé.
-- Tests unitaires debug et compilations debug/release réussis dans GitHub Actions n°11.
+- Tests unitaires debug et compilations debug/release de la 1.0.3 réussis dans GitHub Actions n°14.
 - Package, version, libellé, architecture et signature de l'APK finale contrôlés après téléchargement.
 
 ## Identité Movynex
@@ -94,7 +109,7 @@ Movynex 1.0.2 a été installée sur le téléphone et l'utilisateur a confirmé
 
 - `origin` : `https://github.com/Oks2199/zplex-android.git`.
 - `upstream` : `https://github.com/ZPlexLabs/zplex-android.git`.
-- `main` contient le build applicatif 1.0.2 au commit `302d08d`.
+- `main` contient le build applicatif 1.0.3 au commit `2fae67b`.
 - `codex/oauth-restoration` conserve l'historique de restauration du lecteur OAuth direct.
 - `codex/saf-migration` au commit `cd27201` conserve l'expérience SAF abandonnée pour la lecture distante.
 - Le dossier `dist/` contient uniquement des artefacts locaux et reste hors de Git.
@@ -108,21 +123,25 @@ Movynex 1.0.2 a été installée sur le téléphone et l'utilisateur a confirmé
 - `5b51e09` — nouvelle icône Movynex et release applicative 1.0.1.
 - `031be35` — refonte de la documentation générale Movynex.
 - `302d08d` — métadonnées TMDB françaises et préparation de Movynex 1.0.2.
+- `7d19a0a` — passage complet de l'interface en français et préparation de Movynex 1.0.3.
+- `4643428` — correction de l'import de ressources détectée par GitHub Actions n°12.
+- `2fae67b` — mise à jour du test de temps relatif français ; commit applicatif livré en 1.0.3.
 
 ## Documentation de reprise
 
 - `PROJECT_CONTEXT.md` centralise désormais les informations nécessaires à une nouvelle conversation : dépôt et branches, identité Android, compilation locale et GitHub, clé Cursed Crew, secrets attendus, vérification de l'APK, Google Cloud, OAuth, Google Sites, connexion, stockage, conventions de nommage et décisions techniques.
 - `LANGUAGE_AUDIT.md` conserve l'audit complet d'une éventuelle sélection Français / English / Système : architecture AndroidX, ressources, langue TMDB, cache, métadonnées persistantes, pièges de logique, plan d'implémentation et checklist de validation. Cette fonctionnalité est différée sans date au profit d'une interface française unique.
 - Le 12 septembre 2026, la procédure a été précisée après une reprise de session difficile : l'erreur Gradle `Unable to establish loopback connection` de l'environnement Codex, la validation par pull request, le comportement de `workflow_dispatch` et la séparation entre validation debug et livraison signée sont maintenant documentés explicitement.
+- La 1.0.3 a exceptionnellement été poussée directement sur `main` après l'accord de produire une nouvelle mise à jour. Les erreurs détectées par les exécutions n°12 et n°13 confirment qu'une prochaine modification applicative doit d'abord passer par une branche et une pull request lorsque la validation locale est bloquée.
 - `README.md`, `AGENTS.md` et `progress.md` renvoient vers ce dossier de reprise.
 - Aucune valeur de secret n'est enregistrée dans la documentation.
 - La clé Cursed Crew fonctionne dans GitHub Actions, mais aucune copie privée originale du fichier n'a été retrouvée dans le dépôt ou les emplacements locaux parcourus. Une sauvegarde chiffrée externe reste à localiser ou à confirmer.
 
 ## Validation restante
 
-1. Pousser la candidate Movynex 1.0.3 sur `main`, puis valider les tests unitaires et l'APK debug par GitHub Actions.
+1. Installer `H:\Downloads\Movynex-1.0.3.apk` directement par-dessus la 1.0.2, sans désinstaller l'application.
 2. Vérifier sur le téléphone les écrans Recherche, OAuth/Drive, lecteur, distribution, historique, téléchargements et réglages.
-3. Vérifier l'APK release 1.0.3 signée puis la copier dans `H:\Downloads`.
+3. Réinitialiser le cache API puis réindexer les deux films si leurs anciennes métadonnées restent en cache.
 4. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
 
 ## Dette et améliorations futures
