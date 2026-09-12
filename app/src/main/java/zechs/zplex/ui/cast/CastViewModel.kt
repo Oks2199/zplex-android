@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.person.PersonResponse
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.ui.BaseAndroidViewModel
