@@ -29,7 +29,7 @@ Le dépôt d'origine reste crédité et la licence MIT doit être conservée. Le
 - Dépôt d'origine `upstream` : `https://github.com/ZPlexLabs/zplex-android.git`
 - Branche de livraison : `main`
 - Release applicative 1.0.1 : commit `5b51e09`
-- Build applicatif 1.0.2 vérifié : commit `302d08d`
+- Release applicative 1.0.2 : commit `302d08d`
 - Première refonte générale de la documentation : commit `031be35`
 - Workflow : `.github/workflows/android.yml`
 - Page GitHub Actions : `https://github.com/Oks2199/zplex-android/actions`
@@ -43,8 +43,7 @@ Un push applicatif sur `main` déclenche les tests et la construction. Il faut l
 - Package installé : `com.cursedcrew.movynex`
 - Namespace Kotlin historique : `zechs.zplex`
 - Projet Gradle : `Movynex`
-- Version livrée : `versionCode = 5`, `versionName = 1.0.1`
-- Version construite en attente de livraison : `versionCode = 6`, `versionName = 1.0.2`
+- Version livrée : `versionCode = 6`, `versionName = 1.0.2`
 - Android minimum : API 31
 - Android cible et compilation : API 36
 - Architecture distribuée : `arm64-v8a`
@@ -212,9 +211,10 @@ Release 1.0.1 vérifiée :
 - SHA-256 de l'APK : `647ADB0B00197E314AC4498C48B59EB0F500CFCAFD3788D444F58CC1D3F2A002`
 - Workflow réussi : `https://github.com/Oks2199/zplex-android/actions/runs/34603761277`
 
-Build 1.0.2 vérifié, pas encore livré :
+Release 1.0.2 vérifiée et livrée :
 
 - Commit : `302d08d`
+- APK livrée : `H:\Downloads\Movynex-1.0.2.apk`
 - Copie locale de l'artefact : `F:\Developpement\zplex-android\dist\run-34693277079-release\app-arm64-v8a-release.apk`
 - Taille : `39 229 703` octets
 - SHA-256 de l'APK : `06F528A76197C0BA38C13A53447B5B94EBD969D2C0D1DAEF4EAE9D0B5BC2B57A`
@@ -336,10 +336,10 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.1 reste l'APK livrée dans `H:\Downloads`. Movynex 1.0.2 a été poussée sur `origin/main` au commit `302d08d`, puis construite et signée avec succès par GitHub Actions n°11. L'artefact ARM64 a été téléchargé dans `dist/` et son package, sa version, son libellé, son architecture, sa signature et son empreinte ont été vérifiés. Il n'a pas encore été copié dans `H:\Downloads` ni installé sur le téléphone.
+Movynex 1.0.2 a été poussée sur `origin/main` au commit `302d08d`, puis construite et signée avec succès par GitHub Actions n°11. L'artefact ARM64 a été téléchargé dans `dist/` et son package, sa version, son libellé, son architecture, sa signature et son empreinte ont été vérifiés. La copie livrée `H:\Downloads\Movynex-1.0.2.apk` possède la même empreinte SHA-256. Elle n'est pas encore installée sur le téléphone.
 
 Movynex 1.0.2 demande les métadonnées TMDB en français (`fr-FR`) et les sorties pour la région France (`FR`). Les principaux libellés des fiches, saisons et épisodes ont également été traduits. Le format interne `Season N` des dossiers Google Drive reste volontairement inchangé.
 
 Pour actualiser les deux films déjà indexés après installation d'une future APK contenant cette modification : faire un appui long sur le compteur du cache API dans les réglages pour le réinitialiser, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse des médias. L'historique de lecture est stocké séparément.
 
-La prochaine étape est la livraison éventuelle de l'APK 1.0.2 dans `H:\Downloads`, uniquement sur demande de l'utilisateur, puis son installation par-dessus la version existante. Il faudra vérifier la conservation de la connexion Drive et de l'historique, actualiser les deux films déjà indexés avec la procédure ci-dessus, contrôler leurs informations françaises et tester la lecture, l'avance rapide et la reprise.
+La prochaine étape est l'installation de `H:\Downloads\Movynex-1.0.2.apk` par-dessus la version existante. Il faudra vérifier la conservation de la connexion Drive et de l'historique, actualiser les deux films déjà indexés avec la procédure ci-dessus, contrôler leurs informations françaises et tester la lecture, l'avance rapide et la reprise.

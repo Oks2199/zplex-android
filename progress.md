@@ -4,11 +4,11 @@ Dernière mise à jour : 12 septembre 2026
 
 ## Résumé
 
-Movynex 1.0.1 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `5b51e09`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.1.apk`.
+Movynex 1.0.2 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `302d08d`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.2.apk`.
 
-La dernière validation restante est un contrôle sur le téléphone : installation par-dessus l'application existante, affichage de la nouvelle icône, reconnexion OAuth si nécessaire et lecture d'un film.
+La validation restante est un contrôle sur le téléphone : installation par-dessus l'application existante, conservation de Google Drive et de l'historique, actualisation des deux films, contrôle des métadonnées françaises et lecture d'un film.
 
-## Movynex 1.0.2 construite, en attente de livraison
+## Movynex 1.0.2
 
 - Version construite : **Movynex 1.0.2**, `versionCode = 6` et `versionName = 1.0.2`.
 - Les requêtes TMDB utilisent maintenant la langue `fr-FR` et la région `FR`.
@@ -23,22 +23,22 @@ La dernière validation restante est un contrôle sur le téléphone : installat
 - L'APK release a été vérifiée : package `com.cursedcrew.movynex`, version 1.0.2/code 6, libellé Movynex, architecture ARM64 et signature Cursed Crew.
 - Empreinte SHA-256 : `06F528A76197C0BA38C13A53447B5B94EBD969D2C0D1DAEF4EAE9D0B5BC2B57A`.
 - Artefact vérifié : `F:\Developpement\zplex-android\dist\run-34693277079-release\app-arm64-v8a-release.apk`.
-- L'APK 1.0.2 n'est pas encore copiée dans `H:\Downloads` et n'est pas installée sur le téléphone.
+- L'APK livrée `H:\Downloads\Movynex-1.0.2.apk` possède exactement la même empreinte que l'artefact vérifié. Elle n'est pas encore installée sur le téléphone.
 - Après installation d'une future APK, les deux films déjà indexés pourront être actualisés par un appui long sur le compteur du cache API dans les réglages, puis en les retirant de la bibliothèque par glissement et en relançant l'analyse des médias. L'historique de lecture reste séparé.
 
 ## Release de référence
 
-- Nom : **Movynex 1.0.1**
-- `versionCode` : `5`
-- `versionName` : `1.0.1`
+- Nom : **Movynex 1.0.2**
+- `versionCode` : `6`
+- `versionName` : `1.0.2`
 - Package : `com.cursedcrew.movynex`
 - Libellé Android : `Movynex`
 - Architecture livrée : `arm64-v8a`
 - Signature : Cursed Crew
 - Empreinte SHA-256 du certificat : `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
-- Empreinte SHA-256 de l'APK : `647ADB0B00197E314AC4498C48B59EB0F500CFCAFD3788D444F58CC1D3F2A002`
-- Workflow : [GitHub Actions n°10](https://github.com/Oks2199/zplex-android/actions/runs/34603761277), terminé avec succès
-- Emplacement livré : `H:\Downloads\Movynex-1.0.1.apk`
+- Empreinte SHA-256 de l'APK : `06F528A76197C0BA38C13A53447B5B94EBD969D2C0D1DAEF4EAE9D0B5BC2B57A`
+- Workflow : [GitHub Actions n°11](https://github.com/Oks2199/zplex-android/actions/runs/34693277079), terminé avec succès
+- Emplacement livré : `H:\Downloads\Movynex-1.0.2.apk`
 
 ## Fonctionnement validé
 
@@ -47,7 +47,7 @@ La dernière validation restante est un contrôle sur le téléphone : installat
 - Ouverture et lecture d'un film via le lecteur OAuth direct opérationnelles.
 - Téléchargement hors ligne conservé dans le stockage privé de l'application.
 - Plantage `NumberFormatException` avec la locale française corrigé.
-- Tests unitaires debug et compilations debug/release réussis dans GitHub Actions n°10.
+- Tests unitaires debug et compilations debug/release réussis dans GitHub Actions n°11.
 - Package, version, libellé, architecture et signature de l'APK finale contrôlés après téléchargement.
 
 ## Identité Movynex
@@ -107,12 +107,11 @@ La dernière validation restante est un contrôle sur le téléphone : installat
 
 ## Validation restante
 
-1. Copier l'APK 1.0.2 vérifiée dans `H:\Downloads` uniquement si l'utilisateur demande sa livraison.
-2. Installer Movynex 1.0.2 par-dessus la version existante, sans désinstaller l'application.
-3. Vérifier que Google Drive, les dossiers sélectionnés et l'historique sont conservés.
-4. Réinitialiser le cache API par un appui long sur son compteur, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse.
-5. Vérifier les titres, synopsis, genres et dates en français.
-6. Lire un film et vérifier le démarrage, l'avance rapide et la reprise de lecture.
+1. Installer `H:\Downloads\Movynex-1.0.2.apk` par-dessus la version existante, sans désinstaller l'application.
+2. Vérifier que Google Drive, les dossiers sélectionnés et l'historique sont conservés.
+3. Réinitialiser le cache API par un appui long sur son compteur, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse.
+4. Vérifier les titres, synopsis, genres et dates en français.
+5. Lire un film et vérifier le démarrage, l'avance rapide et la reprise de lecture.
 
 ## Dette et améliorations futures
 
