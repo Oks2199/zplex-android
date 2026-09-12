@@ -19,7 +19,7 @@ class ConverterUtilsTest {
         val fixedDate = LocalDate.of(2023, 1, 1).atStartOfDay(ZoneId.systemDefault())
         val date = Date.from(fixedDate.toInstant())
 
-        val expected = "3 years ago"
+        val expected = "3 ans auparavant"
 
         val response = toDuration("2020-01-01 00:00", date)
         assertEquals(expected, response)
