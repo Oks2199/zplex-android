@@ -476,7 +476,7 @@ class MediaFragment : Fragment() {
             tmdbId = tmdbId,
             seasonName = seasonName,
             seasonNumber = seasonNumber,
-            showName = showName ?: "Unknown",
+            showName = showName ?: getString(R.string.unknown),
             seasonPosterPath = seasonPosterPath,
             showPoster = showPoster,
             seasons = seasons
@@ -563,7 +563,7 @@ class MediaFragment : Fragment() {
                 if (isSaved) {
                     mediaViewModel.deleteShow(show.id)
                     val snackBar = Snackbar.make(
-                        binding.rvList, "${show.name} removed from your library",
+                        binding.rvList, getString(R.string.removed_from_library, show.name),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(
@@ -575,7 +575,7 @@ class MediaFragment : Fragment() {
                 } else {
                     mediaViewModel.saveShow(show)
                     val snackBar = Snackbar.make(
-                        binding.rvList, "${show.name} added to your library",
+                        binding.rvList, getString(R.string.added_to_library, show.name),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(
@@ -612,7 +612,7 @@ class MediaFragment : Fragment() {
                 if (isSaved) {
                     mediaViewModel.deleteMovie(movie.id)
                     val snackBar = Snackbar.make(
-                        binding.rvList, "${movie.title} removed from your library",
+                        binding.rvList, getString(R.string.removed_from_library, movie.title),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(
@@ -624,7 +624,7 @@ class MediaFragment : Fragment() {
                 } else {
                     mediaViewModel.saveMovie(movie)
                     val snackBar = Snackbar.make(
-                        binding.rvList, "${movie.title} added to your library",
+                        binding.rvList, getString(R.string.added_to_library, movie.title),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(

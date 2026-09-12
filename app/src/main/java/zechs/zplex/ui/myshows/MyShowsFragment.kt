@@ -160,7 +160,7 @@ class MyShowsFragment : Fragment() {
                 Log.d(TAG, "name=$name, mediaType=${media.media_type}")
 
                 val snackBar = Snackbar.make(
-                    view, "$name removed from your library",
+                    view, getString(R.string.removed_from_library, name),
                     Snackbar.LENGTH_SHORT
                 )
                 when (media.media_type) {

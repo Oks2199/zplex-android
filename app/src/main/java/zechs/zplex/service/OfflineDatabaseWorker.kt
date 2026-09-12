@@ -73,35 +73,35 @@ class OfflineDatabaseWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         val filePath = inputData.getString(DownloadWorker.FILE_PATH)
-            ?: return fail("File path is required.")
+            ?: return fail(context.getString(R.string.file_path_required))
 
         val file = File(filePath)
 
         // Common required fields
         val title = inputData.getString(DownloadWorker.FILE_TITLE)
-            ?: return fail("Download title is required.", file)
+            ?: return fail(context.getString(R.string.download_title_required), file)
 
         val tmdbId = inputData.getInt(DownloadWorker.TMDB_ID, 0)
             .takeIf { it != 0 }
-            ?: return fail("TMDB ID is required.", file)
+            ?: return fail(context.getString(R.string.tmdb_id_required), file)
 
         val mediaType = inputData.getString(DownloadWorker.MEDIA_TYPE)
-            ?: return fail("Media type is required.", file)
+            ?: return fail(context.getString(R.string.media_type_required), file)
 
         val notificationId = inputData.getInt(DownloadWorker.NOTIFICATION_ID, 0)
             .takeIf { it != 0 }
-            ?: return fail("Notification ID is required.", file)
+            ?: return fail(context.getString(R.string.notification_id_required), file)
 
         return try {
             when (mediaType) {
                 MediaType.tv.name -> {
                     val seasonNumber = inputData.getInt(DownloadWorker.SEASON_NUMBER, 0)
                         .takeIf { it != 0 }
-                        ?: return fail("Season number is required.", file)
+                        ?: return fail(context.getString(R.string.season_number_required), file)
 
                     val episodeNumber = inputData.getInt(DownloadWorker.EPISODE_NUMBER, 0)
                         .takeIf { it != 0 }
-                        ?: return fail("Episode number is required.", file)
+                        ?: return fail(context.getString(R.string.episode_number_required), file)
 
                     saveOfflineShow(title, tmdbId, seasonNumber, episodeNumber, filePath, notificationId)
                     Result.success()
@@ -113,11 +113,11 @@ class OfflineDatabaseWorker @AssistedInject constructor(
                 }
 
                 else -> {
-                    fail("Unsupported media type: $mediaType", file)
+                    fail(context.getString(R.string.unsupported_media_type, mediaType), file)
                 }
             }
         } catch (e: Exception) {
-            fail(e.message ?: "Unable to write metadata.", file)
+            fail(e.message ?: context.getString(R.string.unable_to_write_metadata), file)
         }
     }
 
@@ -135,7 +135,7 @@ class OfflineDatabaseWorker @AssistedInject constructor(
                 }
                 showDownloadCompleteNotification(notificationId, title)
             } else {
-                throw Exception("Unable to fetch show details")
+                throw Exception(context.getString(R.string.unable_to_fetch_media_details))
             }
         }
     }
@@ -171,7 +171,7 @@ class OfflineDatabaseWorker @AssistedInject constructor(
                 }
                 showDownloadCompleteNotification(notificationId, title)
             } else {
-                throw Exception("Unable to fetch show details")
+                throw Exception(context.getString(R.string.unable_to_fetch_media_details))
             }
         }
     }
@@ -183,7 +183,7 @@ class OfflineDatabaseWorker @AssistedInject constructor(
         }
         Log.d(DownloadWorker.TAG, "Download complete.")
         val notification = NotificationCompat.Builder(applicationContext, DownloadWorker.CHANNEL_ID)
-            .setContentTitle("Download Complete")
+            .setContentTitle(context.getString(R.string.download_complete))
             .setContentText(title)
             .setSmallIcon(R.drawable.ic_download_done_24)
             .setGroup(DownloadWorker.OFFLINE_DOWNLOADS_GROUP)

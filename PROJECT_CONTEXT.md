@@ -8,7 +8,8 @@ Ce document rassemble les informations nécessaires pour reprendre le projet dan
 2. Lire ce fichier en entier.
 3. Lire `progress.md` pour connaître le dernier état livré et les validations restantes.
 4. Consulter `README.md` pour l'utilisation de l'application et les conventions de nommage des médias.
-5. Vérifier `git status`, la branche courante et les derniers commits avant d'écrire quoi que ce soit.
+5. Lire `LANGUAGE_AUDIT.md` avant toute modification liée aux langues, aux ressources, à TMDB ou au cache de métadonnées.
+6. Vérifier `git status`, la branche courante et les derniers commits avant d'écrire quoi que ce soit.
 
 Message de départ conseillé dans une nouvelle conversation :
 
@@ -336,10 +337,16 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.2 a été poussée sur `origin/main` au commit `302d08d`, puis construite et signée avec succès par GitHub Actions n°11. L'artefact ARM64 a été téléchargé dans `dist/` et son package, sa version, son libellé, son architecture, sa signature et son empreinte ont été vérifiés. La copie livrée `H:\Downloads\Movynex-1.0.2.apk` possède la même empreinte SHA-256. Elle n'est pas encore installée sur le téléphone.
+Movynex 1.0.2 a été poussée sur `origin/main` au commit `302d08d`, puis construite et signée avec succès par GitHub Actions n°11. L'artefact ARM64 a été téléchargé dans `dist/` et son package, sa version, son libellé, son architecture, sa signature et son empreinte ont été vérifiés. La copie livrée `H:\Downloads\Movynex-1.0.2.apk` possède la même empreinte SHA-256. Elle a été installée sur le téléphone et l'utilisateur a confirmé que l'application fonctionne.
 
 Movynex 1.0.2 demande les métadonnées TMDB en français (`fr-FR`) et les sorties pour la région France (`FR`). Les principaux libellés des fiches, saisons et épisodes ont également été traduits. Le format interne `Season N` des dossiers Google Drive reste volontairement inchangé.
 
+Après installation sur le téléphone, un oubli de traduction a été repéré dans l'écran Recherche : le champ de saisie affichait encore `Search for a movie, tv show…`. Une correction locale non publiée traduit ce champ, les messages associés et les autres textes visibles anglais repérés dans l'application : bibliothèque, OAuth et Drive, lecteur, historique, téléchargements, indexation, distribution, erreurs, notifications et écrans masqués Discover/Upcoming. Les journaux techniques invisibles restent en anglais. Cette correction devra être livrée dans une version ultérieure avec un `versionCode` supérieur à 6.
+
+Un audit complet d'une éventuelle sélection de langue est conservé dans `LANGUAGE_AUDIT.md`. Le 12 septembre 2026, l'utilisateur a décidé de ne pas l'implémenter pour le moment, Movynex restant une application familiale en français. L'audit reste une référence si une version bilingue devient utile. Le passage français local a néanmoins supprimé les comparaisons avec les libellés anglais `Movies` et `TV Shows` ainsi que la conversion du texte de tri par `SortBy.valueOf()` dans `BrowseFragment` ; les libellés de genre et de tri viennent désormais des ressources et sont associés à leurs valeurs stables.
+
 Pour actualiser les deux films déjà indexés après installation d'une future APK contenant cette modification : faire un appui long sur le compteur du cache API dans les réglages pour le réinitialiser, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse des médias. L'historique de lecture est stocké séparément.
 
-La prochaine étape est l'installation de `H:\Downloads\Movynex-1.0.2.apk` par-dessus la version existante. Il faudra vérifier la conservation de la connexion Drive et de l'historique, actualiser les deux films déjà indexés avec la procédure ci-dessus, contrôler leurs informations françaises et tester la lecture, l'avance rapide et la reprise.
+La compilation AAPT2 de toutes les ressources Android de ce passage français réussit avec la version 35.0.0. `git diff --check` ne relève aucune erreur. La tentative locale des tests et de l'assemblage debug avec le JDK 17 s'arrête avant la configuration du projet sur la limite connue `Unable to establish loopback connection` ; une validation GitHub reste donc nécessaire.
+
+Le passage complet de l'interface en français est préparé pour Movynex 1.0.3 (`versionCode = 7`, `versionName = 1.0.3`). La sélection Français / English / Système est différée sans date. La construction GitHub Actions, la vérification de l'APK signée et la livraison restent à effectuer.

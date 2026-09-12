@@ -8,7 +8,7 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 
 ## Version actuelle
 
-- Version du code courant : `1.0.2` (`versionCode = 6`)
+- Version du code courant : `1.0.3` (`versionCode = 7`), en attente de validation GitHub Actions
 - Dernière APK livrée et vérifiée : `1.0.2` (`versionCode = 6`)
 - Package Android : `com.cursedcrew.movynex`
 - Android minimum : Android 12 / API 31
@@ -23,6 +23,7 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 - Téléchargement hors ligne dans l'espace privé de l'application.
 - Reprise de lecture et historique enregistrés localement.
 - Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France.
+- Interface française, y compris les réglages, le lecteur, les notifications, les téléchargements et les messages d'erreur à partir de la version 1.0.3.
 - Recherche, listes personnelles, saisons et épisodes.
 - Mode image dans l'image pris en charge par le lecteur.
 

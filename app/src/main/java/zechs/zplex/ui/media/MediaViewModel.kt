@@ -117,14 +117,16 @@ class MediaViewModel @Inject constructor(
                     MediaType.tv -> fetchShowLocal(tmdbId)
                     MediaType.movie -> fetchMovieLocal(tmdbId)
                     else -> {
-                        _mediaResponse.postValue(Resource.Error("No internet connection"))
+                        _mediaResponse.postValue(
+                            Resource.Error(context.getString(R.string.no_internet_connection))
+                        )
                     }
                 }
 
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            _mediaResponse.postValue(postError(e))
+            _mediaResponse.postValue(postError(context, e))
         }
     }
 
@@ -563,7 +565,7 @@ class MediaViewModel @Inject constructor(
 
     fun playMovie(movie: Movie, year: Int?, studio: String?) = viewModelScope.launch {
         if (movie.fileId == null) {
-            _movieFile.postValue(Event(Resource.Error("Movie not found")))
+            _movieFile.postValue(Event(Resource.Error(context.getString(R.string.movie_not_found))))
             return@launch
         } else {
             val title = "${movie.title}${if (year != null) " (${year})" else ""}"

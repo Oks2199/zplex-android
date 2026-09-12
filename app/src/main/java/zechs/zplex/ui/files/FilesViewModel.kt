@@ -1,16 +1,18 @@
 package zechs.zplex.ui.files
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import zechs.zplex.R
 import zechs.zplex.data.repository.DriveRepository
+import zechs.zplex.ui.BaseAndroidViewModel
 import zechs.zplex.ui.files.FilesFragment.Companion.TAG
 import zechs.zplex.ui.files.adapter.FilesDataModel
 import zechs.zplex.utils.state.Resource
@@ -20,8 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FilesViewModel @Inject constructor(
+    app: Application,
     private val driveRepository: DriveRepository
-) : ViewModel() {
+) : BaseAndroidViewModel(app) {
 
     private val _filesList = MutableLiveData<Resource<List<FilesDataModel>>>()
     val filesList: LiveData<Resource<List<FilesDataModel>>>
@@ -58,11 +61,13 @@ class FilesViewModel @Inject constructor(
         } catch (cancel: CancellationException) {
             Log.d(TAG, cancel.message ?: "CancellationException")
         } catch (timeout: SocketTimeoutException) {
-            _filesList.postValue(Resource.Error("Server timed out"))
+            _filesList.postValue(Resource.Error(context.getString(R.string.server_timed_out)))
             Log.d(TAG, timeout.message ?: "SocketTimeoutException")
             hasFailed = true
         } catch (e: Exception) {
-            _filesList.postValue(Resource.Error(e.message ?: "Something went wrong"))
+            _filesList.postValue(
+                Resource.Error(e.message ?: context.getString(R.string.something_went_wrong))
+            )
             Log.e(TAG, "Something went wrong", e)
             hasFailed = true
         }

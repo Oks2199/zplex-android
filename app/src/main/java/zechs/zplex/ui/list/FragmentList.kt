@@ -169,7 +169,7 @@ class FragmentList : Fragment(), ListClickListener {
             tmdbId = tmdbId,
             seasonName = seasonName,
             seasonNumber = seasonNumber,
-            showName = showName ?: "Unknown",
+            showName = showName ?: getString(R.string.unknown),
             seasonPosterPath = posterPath,
             showPoster = showPoster,
             seasons = seasons

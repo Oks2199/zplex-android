@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.keyword.KeywordResponse
 import zechs.zplex.data.model.tmdb.keyword.TmdbKeyword
 import zechs.zplex.data.model.tmdb.search.SearchResponse
@@ -69,11 +70,11 @@ class BrowseViewModel @Inject constructor(
                 )
                 _browse.postValue(handleBrowseResponse(response))
             } else {
-                _browse.postValue(Resource.Error("No internet connection"))
+                _browse.postValue(Resource.Error(context.getString(R.string.no_internet_connection)))
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            _browse.postValue(postError(e))
+            _browse.postValue(postError(context, e))
         }
     }
 

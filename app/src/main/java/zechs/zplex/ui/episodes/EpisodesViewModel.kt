@@ -169,12 +169,12 @@ class EpisodesViewModel @Inject constructor(
                     emit((handleSeasonResponse(tmdbId, responseSeason)))
                     getLastWatchedEpisode(tmdbId, seasonNumber)
                 } else {
-                    emit((Resource.Error("No internet connection")))
+                    emit(Resource.Error(context.getString(R.string.no_internet_connection)))
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            emit(Resource.Error(e.message ?: "Unknown error"))
+            emit(Resource.Error(e.message ?: context.getString(R.string.unknown_error)))
         }
     }
 

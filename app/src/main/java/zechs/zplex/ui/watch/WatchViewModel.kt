@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.entities.Episode
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.ui.BaseAndroidViewModel
@@ -36,10 +37,10 @@ class WatchViewModel @Inject constructor(
                 val response = tmdbRepository.getEpisode(tvId, seasonNumber, episodeNumber)
                 _episode.postValue(handleEpisodeResponse(response))
             } else {
-                _episode.postValue(Resource.Error("No internet connection"))
+                _episode.postValue(Resource.Error(context.getString(R.string.no_internet_connection)))
             }
         } catch (e: Exception) {
-            _episode.postValue(postError(e))
+            _episode.postValue(postError(context, e))
         }
     }
 

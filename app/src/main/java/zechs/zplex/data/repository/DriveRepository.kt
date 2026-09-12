@@ -1,7 +1,10 @@
 package zechs.zplex.data.repository
 
+import android.content.Context
 import android.util.Log
 import dagger.Lazy
+import dagger.hilt.android.qualifiers.ApplicationContext
+import zechs.zplex.R
 import zechs.zplex.data.model.drive.AuthorizationResponse
 import zechs.zplex.data.model.drive.AuthorizationTokenRequest
 import zechs.zplex.data.model.drive.DriveClient
@@ -20,7 +23,8 @@ import javax.inject.Inject
 class DriveRepository @Inject constructor(
     private val driveApi: DriveApi,
     private val tokenApi: Lazy<TokenApi>,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    @ApplicationContext private val context: Context
 ) {
 
     companion object {
@@ -58,7 +62,7 @@ class DriveRepository @Inject constructor(
         pageSize: Int,
     ): Resource<FilesResponse> {
         val tokenResponse = sessionManager.fetchAccessToken()
-            ?: return Resource.Error("Access token can not be null")
+            ?: return Resource.Error(context.getString(R.string.access_token_missing))
         return try {
             val files = driveApi.getFiles(
                 q = query,
@@ -77,7 +81,7 @@ class DriveRepository @Inject constructor(
         pageSize: Int,
     ): Resource<DriveResponse> {
         val tokenResponse = sessionManager.fetchAccessToken()
-            ?: return Resource.Error("Access token can not be null")
+            ?: return Resource.Error(context.getString(R.string.access_token_missing))
         return try {
             val drives = driveApi.getDrives(
                 pageSize = pageSize,
@@ -123,7 +127,7 @@ class DriveRepository @Inject constructor(
         }
 
         val refreshToken = sessionManager.fetchRefreshToken()
-            ?: return Resource.Error("Refresh token can not be null")
+            ?: return Resource.Error(context.getString(R.string.refresh_token_missing))
 
         return try {
             val token = tokenApi.get().getAccessToken(
@@ -181,7 +185,7 @@ class DriveRepository @Inject constructor(
 
     private inline fun <reified T> doOnError(e: Exception): Resource<T> {
         e.printStackTrace()
-        val error = e.message ?: "An unknown error occurred."
+        val error = e.message ?: context.getString(R.string.unknown_error_occurred)
         Log.d(TAG, error)
         return Resource.Error(error)
     }

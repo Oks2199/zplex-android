@@ -100,7 +100,7 @@ class SearchFragment : Fragment() {
 
                         if (search.results.isEmpty()) {
                             Toast.makeText(
-                                context, "Nothing found", Toast.LENGTH_SHORT
+                                context, getString(R.string.nothing_found), Toast.LENGTH_SHORT
                             ).show()
                         }
 
@@ -119,7 +119,9 @@ class SearchFragment : Fragment() {
                     isLoading = false
                     response.message?.let { message ->
                         Toast.makeText(
-                            context, "An error occurred: $message", Toast.LENGTH_SHORT
+                            context,
+                            getString(R.string.error_occurred, message),
+                            Toast.LENGTH_SHORT
                         ).show()
                         Log.e(TAG, "An error occurred: $message")
                     }

@@ -18,10 +18,10 @@ data class PersonResponse(
 ) {
     val genderName
         get() = when (gender) {
-            0 -> "Others"
-            1 -> "Female"
-            2 -> "Male"
-            else -> "Unknown"
+            0 -> "Autre"
+            1 -> "Femme"
+            2 -> "Homme"
+            else -> "Inconnu"
         }
 
     fun age(): Int? {

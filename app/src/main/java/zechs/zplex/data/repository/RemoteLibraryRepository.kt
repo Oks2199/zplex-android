@@ -8,6 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import zechs.zplex.R
 import zechs.zplex.data.model.drive.DriveFile
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
@@ -42,10 +43,10 @@ class RemoteLibraryRepository @Inject constructor(
     override suspend fun indexMovies() {
         Log.d(TAG, "Beginning indexing movies...")
 
-        updateNotification("Beginning indexing movies...")
+        updateNotification(applicationContext.getString(R.string.indexing_movies_started))
         if (!doesMoviesFolderExist()) {
             Log.d(TAG, "Movies folder does not exist, skipping show processing.")
-            updateNotification("Movies folder does not exist, skipping show processing.")
+            updateNotification(applicationContext.getString(R.string.movies_folder_missing))
             return
         }
 
@@ -67,11 +68,16 @@ class RemoteLibraryRepository @Inject constructor(
             processMovies(driveFiles)
         } else {
             Log.d(TAG, "Error getting files: ${driveFilesResult.message ?: "Unknown error"}")
-            updateNotification("Error getting files: ${driveFilesResult.message ?: "Unknown error"}")
+            updateNotification(
+                applicationContext.getString(
+                    R.string.indexing_files_error,
+                    driveFilesResult.message ?: applicationContext.getString(R.string.unknown_error)
+                )
+            )
         }
 
         Log.d(TAG, "Ended indexing movies")
-        updateNotification("Ended indexing movies")
+        updateNotification(applicationContext.getString(R.string.indexing_movies_finished))
     }
 
     private fun updateNotification(content: String) {
@@ -114,7 +120,9 @@ class RemoteLibraryRepository @Inject constructor(
 
     private suspend fun processSingleMovie(file: DriveFile, videoInfo: Info) {
         Log.d(TAG, "Processing movie: ${videoInfo.name}")
-        updateNotification("Processing movie: ${videoInfo.name}")
+        updateNotification(
+            applicationContext.getString(R.string.indexing_movie, videoInfo.name)
+        )
 
         val savedMovie = tmdbRepository.fetchMovieById(videoInfo.tmdbId)
 
@@ -134,7 +142,9 @@ class RemoteLibraryRepository @Inject constructor(
     ) {
         if (existingMovie.fileId != videoFile.fileId || existingMovie.modifiedTime != file.modifiedTime) {
             Log.d(TAG, "Movie already exists: ${videoFile.name}, updating videoId.")
-            updateNotification("Movie already exists: ${videoFile.name}, updating videoId.")
+            updateNotification(
+                applicationContext.getString(R.string.indexing_existing_movie, videoFile.name)
+            )
             tmdbRepository.upsertMovie(
                 existingMovie.copy(
                     fileId = videoFile.fileId,
@@ -146,7 +156,9 @@ class RemoteLibraryRepository @Inject constructor(
 
     private suspend fun insertNewMovie(file: DriveFile, videoFile: Info) {
         Log.d(TAG, "New movie: ${videoFile.name}, inserting into the database.")
-        updateNotification("New movie: ${videoFile.name}, inserting into the database.")
+        updateNotification(
+            applicationContext.getString(R.string.indexing_new_movie, videoFile.name)
+        )
 
         val movieResponse = tmdbRepository.getMovie(videoFile.tmdbId, appendToQuery = null)
 
@@ -172,7 +184,9 @@ class RemoteLibraryRepository @Inject constructor(
         savedMovies.forEach { savedMovie ->
             if (savedMovie.fileId !in remoteIds) {
                 Log.d(TAG, "Deleting movie: ${savedMovie.title} from the database.")
-                updateNotification("Deleting movie: ${savedMovie.title} from the database.")
+                updateNotification(
+                    applicationContext.getString(R.string.indexing_deleting_movie, savedMovie.title)
+                )
                 tmdbRepository.deleteMovie(savedMovie.id)
             }
         }
@@ -180,11 +194,11 @@ class RemoteLibraryRepository @Inject constructor(
 
     override suspend fun indexShows() {
         Log.d(TAG, "Beginning indexing shows...")
-        updateNotification("Beginning indexing shows...")
+        updateNotification(applicationContext.getString(R.string.indexing_shows_started))
 
         if (!doesShowsFolderExist()) {
             Log.d(TAG, "Shows folder does not exist, skipping show processing.")
-            updateNotification("Shows folder does not exist, skipping show processing.")
+            updateNotification(applicationContext.getString(R.string.shows_folder_missing))
             return
         }
 
@@ -206,11 +220,16 @@ class RemoteLibraryRepository @Inject constructor(
             processShows(driveFiles)
         } else {
             Log.d(TAG, "Error getting files: ${driveFilesResult.message ?: "Unknown error"}")
-            updateNotification("Error getting files: ${driveFilesResult.message ?: "Unknown error"}")
+            updateNotification(
+                applicationContext.getString(
+                    R.string.indexing_files_error,
+                    driveFilesResult.message ?: applicationContext.getString(R.string.unknown_error)
+                )
+            )
         }
 
         Log.d(TAG, "Ended indexing shows")
-        updateNotification("Ended indexing shows")
+        updateNotification(applicationContext.getString(R.string.indexing_shows_finished))
     }
 
     /**
@@ -244,7 +263,9 @@ class RemoteLibraryRepository @Inject constructor(
 
     private suspend fun processSingleShow(file: DriveFile, videoInfo: Info) {
         Log.d(TAG, "Processing show: ${videoInfo.name}")
-        updateNotification("Processing show: ${videoInfo.name}")
+        updateNotification(
+            applicationContext.getString(R.string.indexing_show, videoInfo.name)
+        )
 
         val savedShow = tmdbRepository.fetchShowById(videoInfo.tmdbId)
 
@@ -260,7 +281,9 @@ class RemoteLibraryRepository @Inject constructor(
     private suspend fun updateExistingShow(file: DriveFile, videoInfo: Info, existingShow: Show) {
         if (existingShow.fileId != videoInfo.fileId || existingShow.modifiedTime != file.modifiedTime) {
             Log.d(TAG, "Show already exists: ${videoInfo.name}, updating videoId.")
-            updateNotification("Show already exists: ${videoInfo.name}, updating videoId.")
+            updateNotification(
+                applicationContext.getString(R.string.indexing_existing_show, videoInfo.name)
+            )
             tmdbRepository.upsertShow(
                 existingShow.copy(
                     fileId = videoInfo.fileId,
@@ -273,7 +296,9 @@ class RemoteLibraryRepository @Inject constructor(
 
     private suspend fun insertNewShow(file: DriveFile, videoInfo: Info) {
         Log.d(TAG, "New show: ${videoInfo.name}, inserting into the database.")
-        updateNotification("New show: ${videoInfo.name}, inserting into the database.")
+        updateNotification(
+            applicationContext.getString(R.string.indexing_new_show, videoInfo.name)
+        )
 
         val showResponse = tmdbRepository.getShow(videoInfo.tmdbId, appendToQuery = null)
 
@@ -300,7 +325,9 @@ class RemoteLibraryRepository @Inject constructor(
         savedShows.forEach { savedShow ->
             if (savedShow.fileId !in remoteIds) {
                 Log.d(TAG, "Deleting show: ${savedShow.name} from the database.")
-                updateNotification("Deleting show: ${savedShow.name} from the database.")
+                updateNotification(
+                    applicationContext.getString(R.string.indexing_deleting_show, savedShow.name)
+                )
                 tmdbRepository.deleteShow(savedShow.id)
             }
         }

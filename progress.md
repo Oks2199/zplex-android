@@ -6,7 +6,19 @@ Dernière mise à jour : 12 septembre 2026
 
 Movynex 1.0.2 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `302d08d`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.2.apk`.
 
-La validation restante est un contrôle sur le téléphone : installation par-dessus l'application existante, conservation de Google Drive et de l'historique, actualisation des deux films, contrôle des métadonnées françaises et lecture d'un film.
+Movynex 1.0.2 a été installée sur le téléphone et l'utilisateur a confirmé que l'application fonctionne. Un oubli de traduction a ensuite été repéré dans Recherche. La correction complète est maintenant préparée pour Movynex 1.0.3 (`versionCode = 7`).
+
+## Correction locale après installation
+
+- L'écran Recherche de la version 1.0.2 affiche encore `Search for a movie, tv show…` dans son champ de saisie.
+- La correction locale traduit ce champ en `Rechercher un film ou une série…`.
+- Les messages « aucun résultat », absence de connexion et erreur réseau du même écran ont également été traduits.
+- Le passage français a été étendu aux autres textes visibles repérés dans l'interface, les erreurs, les notifications et les tâches de fond.
+- Les filtres de l'écran Discover ne comparent plus les libellés anglais `Movies` et `TV Shows` et ne convertissent plus le texte de tri avec `SortBy.valueOf()` ; les genres et tris traduits sont associés à leurs identifiants ou enums stables.
+- Le 12 septembre 2026, l'utilisateur a décidé de ne pas implémenter le sélecteur Français / English / Système pour le moment ; Movynex reste une application familiale en français.
+- La compilation AAPT2 de toutes les ressources Android réussit avec la version 35.0.0 et `git diff --check` ne relève aucune erreur.
+- Avec le JDK 17, les tests et l'assemblage debug locaux restent bloqués avant la configuration du projet par `Unable to establish loopback connection`, limite connue de l'environnement Codex. La validation GitHub n'a pas encore été lancée.
+- Cette correction est intégrée à la candidate Movynex 1.0.3 (`versionCode = 7`) ; elle n'est pas encore publiée ni construite.
 
 ## Movynex 1.0.2
 
@@ -23,7 +35,7 @@ La validation restante est un contrôle sur le téléphone : installation par-de
 - L'APK release a été vérifiée : package `com.cursedcrew.movynex`, version 1.0.2/code 6, libellé Movynex, architecture ARM64 et signature Cursed Crew.
 - Empreinte SHA-256 : `06F528A76197C0BA38C13A53447B5B94EBD969D2C0D1DAEF4EAE9D0B5BC2B57A`.
 - Artefact vérifié : `F:\Developpement\zplex-android\dist\run-34693277079-release\app-arm64-v8a-release.apk`.
-- L'APK livrée `H:\Downloads\Movynex-1.0.2.apk` possède exactement la même empreinte que l'artefact vérifié. Elle n'est pas encore installée sur le téléphone.
+- L'APK livrée `H:\Downloads\Movynex-1.0.2.apk` possède exactement la même empreinte que l'artefact vérifié. Elle est installée sur le téléphone et l'utilisateur a confirmé que l'application fonctionne.
 - Après installation d'une future APK, les deux films déjà indexés pourront être actualisés par un appui long sur le compteur du cache API dans les réglages, puis en les retirant de la bibliothèque par glissement et en relançant l'analyse des médias. L'historique de lecture reste séparé.
 
 ## Release de référence
@@ -100,6 +112,7 @@ La validation restante est un contrôle sur le téléphone : installation par-de
 ## Documentation de reprise
 
 - `PROJECT_CONTEXT.md` centralise désormais les informations nécessaires à une nouvelle conversation : dépôt et branches, identité Android, compilation locale et GitHub, clé Cursed Crew, secrets attendus, vérification de l'APK, Google Cloud, OAuth, Google Sites, connexion, stockage, conventions de nommage et décisions techniques.
+- `LANGUAGE_AUDIT.md` conserve l'audit complet d'une éventuelle sélection Français / English / Système : architecture AndroidX, ressources, langue TMDB, cache, métadonnées persistantes, pièges de logique, plan d'implémentation et checklist de validation. Cette fonctionnalité est différée sans date au profit d'une interface française unique.
 - Le 12 septembre 2026, la procédure a été précisée après une reprise de session difficile : l'erreur Gradle `Unable to establish loopback connection` de l'environnement Codex, la validation par pull request, le comportement de `workflow_dispatch` et la séparation entre validation debug et livraison signée sont maintenant documentés explicitement.
 - `README.md`, `AGENTS.md` et `progress.md` renvoient vers ce dossier de reprise.
 - Aucune valeur de secret n'est enregistrée dans la documentation.
@@ -107,14 +120,13 @@ La validation restante est un contrôle sur le téléphone : installation par-de
 
 ## Validation restante
 
-1. Installer `H:\Downloads\Movynex-1.0.2.apk` par-dessus la version existante, sans désinstaller l'application.
-2. Vérifier que Google Drive, les dossiers sélectionnés et l'historique sont conservés.
-3. Réinitialiser le cache API par un appui long sur son compteur, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse.
-4. Vérifier les titres, synopsis, genres et dates en français.
-5. Lire un film et vérifier le démarrage, l'avance rapide et la reprise de lecture.
+1. Pousser la candidate Movynex 1.0.3 sur `main`, puis valider les tests unitaires et l'APK debug par GitHub Actions.
+2. Vérifier sur le téléphone les écrans Recherche, OAuth/Drive, lecteur, distribution, historique, téléchargements et réglages.
+3. Vérifier l'APK release 1.0.3 signée puis la copier dans `H:\Downloads`.
+4. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
 
 ## Dette et améliorations futures
 
 - Retirer les journaux `Log.d` qui peuvent contenir le client OAuth, un code d'autorisation ou des jetons avant toute distribution plus large.
-- Moderniser progressivement le design et la traduction de l'interface.
+- Moderniser progressivement le design de l'interface.
 - Conserver la migration SAF uniquement comme expérience séparée tant que la lecture distante n'est pas immédiate.

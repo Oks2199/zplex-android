@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.search.SearchResponse
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.ui.BaseAndroidViewModel
@@ -43,11 +44,11 @@ class UpcomingViewModel @Inject constructor(
                 val response = tmdbRepository.getUpcoming(page)
                 _upcoming.postValue(handleBrowseResponse(response))
             } else {
-                _upcoming.postValue(Resource.Error("No internet connection"))
+                _upcoming.postValue(Resource.Error(context.getString(R.string.no_internet_connection)))
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            _upcoming.postValue(postError(e))
+            _upcoming.postValue(postError(context, e))
         }
     }
 

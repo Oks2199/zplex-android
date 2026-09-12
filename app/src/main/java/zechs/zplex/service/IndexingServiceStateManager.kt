@@ -43,7 +43,6 @@ private fun getTimestamp() = formatDate(Calendar.getInstance().timeInMillis)
 private fun formatDate(timeInMillis: Long): String {
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = timeInMillis
-    // format: 10:25 PM 6th Jan, 2024
-    val dateFormat = SimpleDateFormat("hh:mm a d MMM, yyyy", Locale.ENGLISH)
+    val dateFormat = SimpleDateFormat("d MMM yyyy 'à' HH:mm", Locale.FRENCH)
     return dateFormat.format(calendar.time)
 }

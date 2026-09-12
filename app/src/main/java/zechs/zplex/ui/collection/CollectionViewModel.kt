@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.collection.CollectionsResponse
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.ui.BaseAndroidViewModel
@@ -33,14 +34,16 @@ class CollectionViewModel @Inject constructor(
                 val person = tmdbRepository.getCollection(collectionId)
                 _collectionResponse.postValue(Event(handlePersonResponse(person)))
             } else {
-                _collectionResponse.postValue(Event(Resource.Error("No internet connection")))
+                _collectionResponse.postValue(
+                    Event(Resource.Error(context.getString(R.string.no_internet_connection)))
+                )
             }
         } catch (t: Throwable) {
             t.printStackTrace()
 
             val errorMsg = if (t is IOException) {
-                "Network Failure"
-            } else t.message ?: "Something went wrong"
+                context.getString(R.string.network_failure)
+            } else t.message ?: context.getString(R.string.something_went_wrong)
 
             _collectionResponse.postValue(Event(Resource.Error(errorMsg)))
         }

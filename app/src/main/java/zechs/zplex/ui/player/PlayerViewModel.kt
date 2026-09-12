@@ -1,7 +1,7 @@
 package zechs.zplex.ui.player
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -10,11 +10,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import zechs.zplex.R
 import zechs.zplex.data.model.entities.WatchedMovie
 import zechs.zplex.data.model.entities.WatchedShow
 import zechs.zplex.data.model.tmdb.entities.Episode
 import zechs.zplex.data.repository.DriveRepository
 import zechs.zplex.data.repository.WatchedRepository
+import zechs.zplex.ui.BaseAndroidViewModel
 import zechs.zplex.ui.player.MPVActivity.Companion.TAG
 import zechs.zplex.utils.SessionManager
 import zechs.zplex.utils.state.Resource
@@ -23,11 +25,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
+    app: Application,
     private val watchedRepository: WatchedRepository,
     private val sessionManager: SessionManager,
     private val driveRepository: DriveRepository,
     private val gson: Gson,
-) : ViewModel() {
+) : BaseAndroidViewModel(app) {
 
     private val _startDuration = Channel<Long>(Channel.CONFLATED)
     val startDuration = _startDuration.receiveAsFlow()
@@ -206,7 +209,7 @@ class PlayerViewModel @Inject constructor(
         }
 
         val client = sessionManager.fetchClient() ?: run {
-            _current.send(Resource.Error("Client not found"))
+            _current.send(Resource.Error(context.getString(R.string.client_not_found)))
             return@launch
         }
         when (val tokenResponse = driveRepository.fetchAccessToken(client)) {

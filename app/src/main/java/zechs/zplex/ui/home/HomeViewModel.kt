@@ -95,7 +95,7 @@ class HomeViewModel @Inject constructor(
     ) = viewModelScope.launch(
         context = Dispatchers.IO + CoroutineExceptionHandler { _, t ->
             t.printStackTrace()
-            _homeMedia.postValue(postError(t))
+            _homeMedia.postValue(postError(context, t))
         }
     ) {
         _homeMedia.postValue(Resource.Loading())
@@ -125,7 +125,7 @@ class HomeViewModel @Inject constructor(
             )
             _homeMedia.postValue(homeResponse)
         } else {
-            _homeMedia.postValue(Resource.Error("No internet connection"))
+            _homeMedia.postValue(Resource.Error(context.getString(R.string.no_internet_connection)))
         }
     }
 

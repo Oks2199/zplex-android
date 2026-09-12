@@ -20,8 +20,12 @@ class ErrorActivity : AppCompatActivity() {
         val errorMessage = intent.getStringExtra(EXTRA_ERROR_MESSAGE)
             ?: getString(R.string.unknown_error)
         val stackTrace = intent.getStringExtra(EXTRA_STACK_TRACE)
-        binding.errorMessageTextView.text = errorMessage.ifEmpty { "Unknown error!" }
-        binding.stackTraceTextView.text = stackTrace?.ifNullOrEmpty { "No stack trace" }
+        binding.errorMessageTextView.text = errorMessage.ifEmpty {
+            getString(R.string.unknown_error)
+        }
+        binding.stackTraceTextView.text = stackTrace?.ifNullOrEmpty {
+            getString(R.string.no_stack_trace)
+        }
     }
 
     companion object {

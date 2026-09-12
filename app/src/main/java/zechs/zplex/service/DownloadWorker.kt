@@ -81,8 +81,6 @@ class DownloadWorker @AssistedInject constructor(
         const val SEASON_NUMBER = "seasonNumber"
         const val EPISODE_NUMBER = "episodeNumber"
         const val CHANNEL_ID = "download_channel"
-        const val CHANNEL_NAME = "Downloads"
-
         fun getDownloadsFolderPath(context: Context): File {
             return File(context.filesDir, DOWNLOADS_FOLDER_NAME)
         }
@@ -90,20 +88,20 @@ class DownloadWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         val client = sessionManager.fetchClient()
-            ?: return fail("Drive Client is required.")
+            ?: return fail(context.getString(R.string.drive_client_required))
 
         val fileId = inputData.getString(FILE_ID)
-            ?: return fail("Download fileId is required.")
+            ?: return fail(context.getString(R.string.download_file_id_required))
 
         val title = inputData.getString(FILE_TITLE)
-            ?: return fail("Download title is required.")
+            ?: return fail(context.getString(R.string.download_title_required))
 
         val tmdbId = inputData.getInt(TMDB_ID, 0)
             .takeIf { it != 0 }
-            ?: return fail("TMDB ID is required.")
+            ?: return fail(context.getString(R.string.tmdb_id_required))
 
         val mediaType = inputData.getString(MEDIA_TYPE)
-            ?: return fail("Media type is required.")
+            ?: return fail(context.getString(R.string.media_type_required))
 
         val seasonNumber: Int?
         val episodeNumber: Int?
@@ -111,11 +109,11 @@ class DownloadWorker @AssistedInject constructor(
             MediaType.tv.name -> {
                 seasonNumber = inputData.getInt(SEASON_NUMBER, 0)
                     .takeIf { it != 0 }
-                    ?: return fail("Season number is required.")
+                    ?: return fail(context.getString(R.string.season_number_required))
 
                 episodeNumber = inputData.getInt(EPISODE_NUMBER, 0)
                     .takeIf { it != 0 }
-                    ?: return fail("Episode number is required.")
+                    ?: return fail(context.getString(R.string.episode_number_required))
             }
 
             MediaType.movie.name -> {
@@ -124,7 +122,7 @@ class DownloadWorker @AssistedInject constructor(
             }
 
             else -> {
-                return fail("Unsupported media type: $mediaType")
+                return fail(context.getString(R.string.unsupported_media_type, mediaType))
             }
         }
 
@@ -135,7 +133,9 @@ class DownloadWorker @AssistedInject constructor(
         val file = try {
             downloadFile(client = client, title = title, fileId = fileId, notificationId = notificationId)
         } catch (e: Exception) {
-            return fail("Download failed: ${e.message ?: "Unknown error"}")
+            return fail(
+                e.message ?: context.getString(R.string.unexpected_download_error)
+            )
         }
 
         return if (file != null) {
@@ -160,9 +160,10 @@ class DownloadWorker @AssistedInject constructor(
 
                 else -> null
             }
-            outputData?.let { Result.success(it) } ?: fail("Unexpected error: outputData is null")
+            outputData?.let { Result.success(it) }
+                ?: fail(context.getString(R.string.unexpected_download_error))
         } else {
-            fail("Download returned null file for fileId=$fileId, title=$title")
+            fail(context.getString(R.string.unexpected_download_error))
         }
     }
 
@@ -232,7 +233,11 @@ class DownloadWorker @AssistedInject constructor(
             }
         } catch (e: Exception) {
             Log.e(TAG, "Something went wrong!", e)
-            showDownloadErrorNotification(notificationId, "Download Failed", title)
+            showDownloadErrorNotification(
+                notificationId,
+                context.getString(R.string.download_failed),
+                title
+            )
             return null
         }
     }
@@ -324,7 +329,7 @@ class DownloadWorker @AssistedInject constructor(
                         val minutes = remainingTimeInSeconds / 60
                         val seconds = remainingTimeInSeconds % 60
                         "${minutes}m ${seconds}s"
-                    } else "Calculating..."
+                    } else context.getString(R.string.calculating)
 
                     showProgressNotification(
                         notificationId = notificationId,
@@ -395,11 +400,23 @@ class DownloadWorker @AssistedInject constructor(
             R.layout.notification_download
         ).apply {
             setTextViewText(R.id.title, title)
-            setTextViewText(R.id.progress_text, "Progress: $progress%")
-            setTextViewText(R.id.downloaded_total, "Downloaded: $downloaded / $total")
-            setTextViewText(R.id.remaining_time, "Remaining Time: $remainingTime")
+            setTextViewText(
+                R.id.progress_text,
+                context.getString(R.string.download_progress, progress)
+            )
+            setTextViewText(
+                R.id.downloaded_total,
+                context.getString(R.string.downloaded_amount, downloaded, total)
+            )
+            setTextViewText(
+                R.id.remaining_time,
+                context.getString(R.string.remaining_time, remainingTime)
+            )
             setProgressBar(R.id.progress_bar, 100, progress, false)
-            setTextViewText(R.id.speed_text, "Speed: $speed")
+            setTextViewText(
+                R.id.speed_text,
+                context.getString(R.string.download_speed, speed)
+            )
             setOnClickPendingIntent(R.id.cancel_btn, cancelIntent)
         }
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
@@ -416,7 +433,7 @@ class DownloadWorker @AssistedInject constructor(
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             /* id = */ CHANNEL_ID,
-            /* name = */ CHANNEL_NAME,
+            /* name = */ context.getString(R.string.download_channel),
             /* importance = */ NotificationManager.IMPORTANCE_LOW
         )
         notificationManager.createNotificationChannel(channel)

@@ -26,7 +26,7 @@ object Converter {
         TimeUnit.MINUTES.toMillis(1),
         TimeUnit.SECONDS.toMillis(1)
     )
-    private val timesString = listOf("year", "month", "day", "hr", "min", "sec")
+    private val timesString = listOf("an", "mois", "jour", "h", "min", "s")
 
     @Throws(ParseException::class)
     fun toDuration(date: String, now: Date = Date()): String {
@@ -42,11 +42,12 @@ object Converter {
             val temp = duration / current
             if (temp >= 1) {
                 response.append(temp.toInt()).append(" ").append(timesString[i])
-                    .append(if (temp.toInt() != 1) "s" else "").append(" ago")
+                    .append(if (temp.toInt() != 1 && (i == 0 || i == 2)) "s" else "")
+                    .append(" auparavant")
                 break
             }
         }
-        return if ("" == response.toString()) "0 secs ago" else response.toString()
+        return if ("" == response.toString()) "0 s auparavant" else response.toString()
     }
 
 
@@ -68,7 +69,7 @@ object Converter {
 
     fun convertMinutes(min: Int): String {
         if (min <= 60) return "$min min"
-        return "${min / 60} hr ${min % 60} min"
+        return "${min / 60} h ${min % 60} min"
     }
 
     fun parseDate(
@@ -115,7 +116,7 @@ object Converter {
         val gb = mb / 1024
         val tb = gb / 1024
         return when {
-            size < 1024L -> "$size Bytes"
+            size < 1024L -> "$size octets"
             size < 1024L * 1024 -> String.format("%.2f", kb) + " KB"
             size < 1024L * 1024 * 1024 -> String.format("%.2f", mb) + " MB"
             size < 1024L * 1024 * 1024 * 1024 -> String.format("%.2f", gb) + " GB"

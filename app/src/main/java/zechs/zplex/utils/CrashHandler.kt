@@ -2,6 +2,7 @@ package zechs.zplex.utils
 
 import android.content.Context
 import android.content.Intent
+import zechs.zplex.R
 import zechs.zplex.ui.error.ErrorActivity
 import zechs.zplex.utils.ext.ifNullOrEmpty
 import java.io.PrintWriter
@@ -21,7 +22,7 @@ class CrashHandler(
         Intent(context.applicationContext, ErrorActivity::class.java).apply {
             putExtra(
                 ErrorActivity.EXTRA_ERROR_MESSAGE,
-                exception.message?.ifNullOrEmpty { "Unknown error!" })
+                exception.message?.ifNullOrEmpty { context.getString(R.string.unknown_error) })
             putExtra(ErrorActivity.EXTRA_STACK_TRACE, stackTrace.toString())
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }.also { context.applicationContext.startActivity(it) }

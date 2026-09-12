@@ -218,61 +218,61 @@ class BrowseFragment : Fragment() {
 
     private fun getMovieGenre(): LinkedHashMap<String, Int> {
         val genreMap = linkedMapOf<String, Int>()
-        genreMap["Select genre"] = 0
-        genreMap["Action"] = 28
-        genreMap["Adventure"] = 12
-        genreMap["Animation"] = 16
-        genreMap["Comedy"] = 35
-        genreMap["Crime"] = 80
-        genreMap["Documentary"] = 99
-        genreMap["Drama"] = 18
-        genreMap["Family"] = 10751
-        genreMap["Fantasy"] = 14
-        genreMap["History"] = 36
-        genreMap["Horror"] = 27
-        genreMap["Music"] = 10402
-        genreMap["Mystery"] = 9648
-        genreMap["Romance"] = 10749
-        genreMap["Sci-fi"] = 878
-        genreMap["TV movie"] = 10770
-        genreMap["Thriller"] = 53
-        genreMap["War"] = 10752
-        genreMap["Western"] = 37
+        genreMap[getString(R.string.select_genre)] = 0
+        genreMap[getString(R.string.genre_action)] = 28
+        genreMap[getString(R.string.genre_adventure)] = 12
+        genreMap[getString(R.string.genre_animation)] = 16
+        genreMap[getString(R.string.genre_comedy)] = 35
+        genreMap[getString(R.string.genre_crime)] = 80
+        genreMap[getString(R.string.genre_documentary)] = 99
+        genreMap[getString(R.string.genre_drama)] = 18
+        genreMap[getString(R.string.genre_family)] = 10751
+        genreMap[getString(R.string.genre_fantasy)] = 14
+        genreMap[getString(R.string.genre_history)] = 36
+        genreMap[getString(R.string.genre_horror)] = 27
+        genreMap[getString(R.string.genre_music)] = 10402
+        genreMap[getString(R.string.genre_mystery)] = 9648
+        genreMap[getString(R.string.genre_romance)] = 10749
+        genreMap[getString(R.string.genre_science_fiction)] = 878
+        genreMap[getString(R.string.genre_tv_movie)] = 10770
+        genreMap[getString(R.string.genre_thriller)] = 53
+        genreMap[getString(R.string.genre_war)] = 10752
+        genreMap[getString(R.string.genre_western)] = 37
         return genreMap
     }
 
     private fun getTvGenre(): LinkedHashMap<String, Int> {
         val genreMap = linkedMapOf<String, Int>()
-        genreMap["Select genre"] = 0
-        genreMap["Action"] = 10759
-        genreMap["Animation"] = 16
-        genreMap["Comedy"] = 35
-        genreMap["Crime"] = 80
-        genreMap["Documentary"] = 99
-        genreMap["Drama"] = 18
-        genreMap["Family"] = 10751
-        genreMap["Kids"] = 10762
-        genreMap["Mystery"] = 9648
-        genreMap["News"] = 10763
-        genreMap["Reality"] = 10764
-        genreMap["Sci-fi"] = 10765
-        genreMap["War"] = 10768
-        genreMap["Western"] = 37
+        genreMap[getString(R.string.select_genre)] = 0
+        genreMap[getString(R.string.genre_action)] = 10759
+        genreMap[getString(R.string.genre_animation)] = 16
+        genreMap[getString(R.string.genre_comedy)] = 35
+        genreMap[getString(R.string.genre_crime)] = 80
+        genreMap[getString(R.string.genre_documentary)] = 99
+        genreMap[getString(R.string.genre_drama)] = 18
+        genreMap[getString(R.string.genre_family)] = 10751
+        genreMap[getString(R.string.genre_kids)] = 10762
+        genreMap[getString(R.string.genre_mystery)] = 9648
+        genreMap[getString(R.string.genre_news)] = 10763
+        genreMap[getString(R.string.genre_reality)] = 10764
+        genreMap[getString(R.string.genre_science_fiction)] = 10765
+        genreMap[getString(R.string.genre_war)] = 10768
+        genreMap[getString(R.string.genre_western)] = 37
         return genreMap
     }
 
-    private fun getSorts(): LinkedHashMap<String, String> {
-        val sortMap = linkedMapOf<String, String>()
-        sortMap["Popularity"] = "popularity"
-        sortMap["Release date"] = "release_date"
-        sortMap["Revenue"] = "revenue"
-        sortMap["Title"] = "original_title"
-        sortMap["Average vote"] = "vote_average"
-        sortMap["Total vote"] = "vote_count"
+    private fun getSorts(): LinkedHashMap<String, SortBy> {
+        val sortMap = linkedMapOf<String, SortBy>()
+        sortMap[getString(R.string.sort_popularity)] = SortBy.popularity
+        sortMap[getString(R.string.sort_release_date)] = SortBy.release_date
+        sortMap[getString(R.string.sort_revenue)] = SortBy.revenue
+        sortMap[getString(R.string.sort_original_title)] = SortBy.original_title
+        sortMap[getString(R.string.sort_average_vote)] = SortBy.vote_average
+        sortMap[getString(R.string.sort_vote_count)] = SortBy.vote_count
         return sortMap
     }
 
-    private fun getSort(key: String): String {
+    private fun getSort(key: SortBy): String {
         return getSorts().filterValues { it == key }.keys.elementAt(0)
     }
 
@@ -381,7 +381,7 @@ class BrowseFragment : Fragment() {
 
                     else -> {}
                 }
-                sortMenu.text = getSort(currentFilters.sortBy.name)
+                sortMenu.text = getSort(currentFilters.sortBy)
             }
             setupSortMenu(context, filtersDialog)
         }
@@ -389,16 +389,12 @@ class BrowseFragment : Fragment() {
         mediaChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             checkedIds.forEach { checkedId ->
                 TransitionManager.beginDelayedTransition(dialogRoot)
-                val mediaChecked = group.findViewById<Chip>(
-                    checkedId
-                ).text.toString()
-
                 genreMenu.text = getString(R.string.select_genre)
 
                 currentFilters?.let {
-                    when (mediaChecked) {
-                        "Movies" -> setupGenresMenu(context, filtersDialog, moviesGenreList)
-                        "TV Shows" -> setupGenresMenu(context, filtersDialog, tvGenreList)
+                    when (checkedId) {
+                        R.id.chip_movie -> setupGenresMenu(context, filtersDialog, moviesGenreList)
+                        R.id.chip_tv -> setupGenresMenu(context, filtersDialog, tvGenreList)
                         else -> {}
                     }
                 }
@@ -418,23 +414,21 @@ class BrowseFragment : Fragment() {
         }
 
         btnApply.setOnClickListener {
-            val mediaChecked = mediaChipGroup.findViewById<Chip>(
-                mediaChipGroup.checkedChipId
-            ).text.toString()
+            val checkedMediaId = mediaChipGroup.checkedChipId
 
             val movieGenre = getGenre(genreMenu.text.toString(), getMovieGenre())
             val tvGenre = getGenre(genreMenu.text.toString(), getTvGenre())
 
-            val genre = when (mediaChecked) {
-                "Movies" -> if (movieGenre == -1 || movieGenre == 0) null else movieGenre
-                "TV Shows" -> if (tvGenre == -1 || tvGenre == 0) null else tvGenre
+            val genre = when (checkedMediaId) {
+                R.id.chip_movie -> if (movieGenre == -1 || movieGenre == 0) null else movieGenre
+                R.id.chip_tv -> if (tvGenre == -1 || tvGenre == 0) null else tvGenre
                 else -> null
             }
-            val sortBy = SortBy.valueOf(getSorts()[sortMenu.text.toString()] ?: "Popularity")
+            val sortBy = getSorts()[sortMenu.text.toString()] ?: SortBy.popularity
 
-            val mediaType = when (mediaChecked) {
-                "Movies" -> MediaType.movie
-                "TV Shows" -> MediaType.tv
+            val mediaType = when (checkedMediaId) {
+                R.id.chip_movie -> MediaType.movie
+                R.id.chip_tv -> MediaType.tv
                 else -> MediaType.movie
             }
 

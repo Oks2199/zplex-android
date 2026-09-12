@@ -621,7 +621,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         if (chapters.isEmpty()) {
             MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.chapters))
-                .setItems(arrayOf("None")) { dialog, _ ->
+                .setItems(arrayOf(getString(R.string.none))) { dialog, _ ->
                     dialog.dismiss()
                 }.show()
             return
@@ -693,7 +693,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             ) { dialog, item ->
                 setSpeed(speeds[item])
                 dialog.dismiss()
-                configSnackbar("Playback speed set to ${speeds[item]}x")
+                configSnackbar(getString(R.string.playback_speed_set, speeds[item].toString()))
             }
         }.also { it.show() }
     }
@@ -820,10 +820,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(
             PLAYER_CHANNEL_ID,
-            "Playback",
+            getString(R.string.playback_channel),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Playback controls"
+            description = getString(R.string.playback_controls)
         }
         notificationManager?.createNotificationChannel(channel)
 
@@ -937,14 +937,14 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         val mediaMetadata = controller.metadata
 
         val title = mediaMetadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
-            ?: controller.queueTitle?.toString() ?: "Preparing playback..."
+            ?: controller.queueTitle?.toString() ?: getString(R.string.preparing_playback)
         val subtitle =
             mediaMetadata?.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE) ?: ""
 
         val playAction = if (player.paused == true) {
             NotificationCompat.Action.Builder(
                 R.drawable.ic_play_24,
-                "Play",
+                getString(R.string.btn_play),
                 MediaButtonReceiver.buildMediaButtonPendingIntent(
                     this,
                     PlaybackStateCompat.ACTION_PLAY
@@ -953,7 +953,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         } else {
             NotificationCompat.Action.Builder(
                 R.drawable.ic_pause_24,
-                "Pause",
+                getString(R.string.btn_pause),
                 MediaButtonReceiver.buildMediaButtonPendingIntent(
                     this,
                     PlaybackStateCompat.ACTION_PAUSE
@@ -963,7 +963,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         val prevAction = NotificationCompat.Action.Builder(
             R.drawable.ic_previous_24,
-            "Previous",
+            getString(R.string.previous),
             MediaButtonReceiver.buildMediaButtonPendingIntent(
                 this,
                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
@@ -971,7 +971,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         ).build()
         val nextAction = NotificationCompat.Action.Builder(
             R.drawable.ic_next_24,
-            "Next",
+            getString(R.string.next),
             MediaButtonReceiver.buildMediaButtonPendingIntent(
                 this,
                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT

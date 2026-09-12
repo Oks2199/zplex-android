@@ -1,25 +1,27 @@
 package zechs.zplex.utils.state
 
+import android.content.Context
+import zechs.zplex.R
 import java.io.IOException
 
 class ResourceExt {
 
     companion object {
 
-        fun <T> postError(exception: Exception): Resource<T> {
+        fun <T> postError(context: Context, exception: Exception): Resource<T> {
             return Resource.Error(
                 message = if (exception is IOException) {
-                    "Network Failure"
-                } else exception.message ?: "Something went wrong",
+                    context.getString(R.string.network_failure)
+                } else exception.message ?: context.getString(R.string.something_went_wrong),
                 data = null
             )
         }
 
-        fun <T> postError(throwable: Throwable): Resource<T> {
+        fun <T> postError(context: Context, throwable: Throwable): Resource<T> {
             return Resource.Error(
                 message = if (throwable is IOException) {
-                    "Network Failure"
-                } else throwable.message ?: "Something went wrong",
+                    context.getString(R.string.network_failure)
+                } else throwable.message ?: context.getString(R.string.something_went_wrong),
                 data = null
             )
         }

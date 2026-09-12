@@ -1,15 +1,17 @@
 package zechs.zplex.ui.episodes
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.entities.Season
 import zechs.zplex.data.repository.TmdbRepository
+import zechs.zplex.ui.BaseAndroidViewModel
 import zechs.zplex.ui.episodes.EpisodesFragment.Companion.TAG
 import zechs.zplex.utils.ext.ifNullOrEmpty
 import zechs.zplex.utils.state.Resource
@@ -18,8 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EpisodesSharedViewModel @Inject constructor(
+    app: Application,
     private val tmdbRepository: TmdbRepository
-) : ViewModel() {
+) : BaseAndroidViewModel(app) {
 
     var showName: String = ""
         private set
@@ -56,13 +59,15 @@ class EpisodesSharedViewModel @Inject constructor(
                 Log.d(TAG, "Fetched ${fetchedSeasons.size} seasons from API")
                 _seasons.postValue(Resource.Success(fetchedSeasons))
             } else {
-                val errorMsg = response.message().ifNullOrEmpty { "Something went wrong!" }
+                val errorMsg = response.message().ifNullOrEmpty {
+                    context.getString(R.string.something_went_wrong)
+                }
                 Log.e(TAG, "API call failed -> $errorMsg")
                 _seasons.postValue(Resource.Error(errorMsg))
             }
         } catch (e: Exception) {
             Log.e(TAG, "Exception while fetching seasons: ${e.localizedMessage}", e)
-            _seasons.postValue(postError(e))
+            _seasons.postValue(postError(context, e))
         }
     }
 

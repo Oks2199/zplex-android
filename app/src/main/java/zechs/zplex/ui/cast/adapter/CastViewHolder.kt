@@ -53,7 +53,7 @@ sealed class CastViewHolder(
                 val lineLimit = 7 - tvName.lineCount
 
                 val biography = if (item.biography == null || item.biography == "") {
-                    "No biography available"
+                    root.context.getString(R.string.no_biography_available)
                 } else item.biography
                 tvBiography.text = biography
                 tvBiography.maxLines = lineLimit
@@ -111,7 +111,11 @@ sealed class CastViewHolder(
             itemBinding.apply {
                 val context = this.root.context
                 item.age?.let {
-                    add(context, "$it years old", R.drawable.ic_person_24)
+                    add(
+                        context,
+                        context.resources.getQuantityString(R.plurals.age_years, it, it),
+                        R.drawable.ic_person_24
+                    )
                 }
 
                 val genderIcon = when (item.gender) {
@@ -123,11 +127,19 @@ sealed class CastViewHolder(
                 add(context, item.genderName, genderIcon)
 
                 item.birthday?.let {
-                    add(context, "Born in ${it.take(4)}", R.drawable.ic_child_24)
+                    add(
+                        context,
+                        context.getString(R.string.born_in, it.take(4)),
+                        R.drawable.ic_child_24
+                    )
                 }
 
                 item.death?.let {
-                    add(context, "Died in ${it.take(4)}", R.drawable.ic_face_sad_24)
+                    add(
+                        context,
+                        context.getString(R.string.died_in, it.take(4)),
+                        R.drawable.ic_face_sad_24
+                    )
                 }
 
                 item.place_of_birth?.let { add(context, it, R.drawable.ic_place_24) }

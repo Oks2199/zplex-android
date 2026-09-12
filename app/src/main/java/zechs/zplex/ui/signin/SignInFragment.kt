@@ -114,9 +114,9 @@ class SignInFragment : Fragment() {
 
         binding.enterCode.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Please note")
+                .setTitle(getString(R.string.please_note))
                 .setMessage(getString(R.string.important_note_message))
-                .setPositiveButton("Continue") { dialog, _ ->
+                .setPositiveButton(getString(R.string.continue_action)) { dialog, _ ->
                     dialog.dismiss()
                     showCodeDialog()
                 }.show()

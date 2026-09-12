@@ -32,7 +32,7 @@ class DetailedViewHolder(
                 placeholder(R.drawable.no_poster)
             }
 
-            var releasing = "Release date not available"
+            var releasing = root.context.getString(R.string.release_date_not_available)
             media.releasedDate()?.let { releasing = it }
             tvYear.text = releasing
 

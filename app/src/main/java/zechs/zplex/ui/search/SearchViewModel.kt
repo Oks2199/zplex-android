@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.search.SearchResponse
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.ui.BaseAndroidViewModel
@@ -40,14 +41,16 @@ class SearchViewModel @Inject constructor(
                 val response = tmdbRepository.getSearch(query, page)
                 _searchResponse.postValue(handleSearchResponse(response))
             } else {
-                _searchResponse.postValue(Resource.Error("No internet connection"))
+                _searchResponse.postValue(
+                    Resource.Error(context.getString(R.string.no_internet_connection))
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
 
             val errorMsg = if (e is IOException) {
-                "Network Failure"
-            } else e.message ?: "Something went wrong"
+                context.getString(R.string.network_failure)
+            } else e.message ?: context.getString(R.string.something_went_wrong)
             _searchResponse.postValue(Resource.Error(errorMsg))
         }
     }

@@ -33,11 +33,13 @@ class CastViewModel @Inject constructor(
                 val person = tmdbRepository.getPerson(personId)
                 _personResponse.postValue(Event(handlePersonResponse(person)))
             } else {
-                _personResponse.postValue(Event(Resource.Error("No internet connection")))
+                _personResponse.postValue(
+                    Event(Resource.Error(context.getString(R.string.no_internet_connection)))
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            _personResponse.postValue(Event(postError(e)))
+            _personResponse.postValue(Event(postError(context, e)))
         }
     }
 
@@ -65,7 +67,14 @@ class CastViewModel @Inject constructor(
                     birthday = result.birthday,
                     death = result.deathday,
                     gender = result.gender,
-                    genderName = result.genderName,
+                    genderName = context.getString(
+                        when (result.gender) {
+                            0 -> R.string.gender_other
+                            1 -> R.string.gender_female
+                            2 -> R.string.gender_male
+                            else -> R.string.unknown
+                        }
+                    ),
                     place_of_birth = result.place_of_birth
                 )
             )
@@ -74,7 +83,7 @@ class CastViewModel @Inject constructor(
                 if (mediaList.isNotEmpty()) {
                     castDataModel.add(
                         CastDataModel.Heading(
-                            heading = "Appears In"
+                            heading = context.getString(R.string.appears_in)
                         )
                     )
 
