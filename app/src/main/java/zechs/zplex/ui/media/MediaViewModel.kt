@@ -17,6 +17,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.local.offline.OfflineMovieDao
 import zechs.zplex.data.local.offline.OfflineShowDao
 import zechs.zplex.data.model.MediaType
@@ -254,7 +255,7 @@ class MediaViewModel @Inject constructor(
             )
 
             val plot = if (result.overview == null || result.overview == "") {
-                "No description"
+                context.getString(R.string.no_description)
             } else result.overview
 
             mediaDataModel.add(
@@ -271,20 +272,32 @@ class MediaViewModel @Inject constructor(
                 }
 
                 season?.let {
-                    val seasonName = "Season ${it.season_number}"
+                    val seasonName = context.getString(R.string.season_number, it.season_number)
 
-                    var premiered = "$seasonName of ${result.name}"
+                    var premiered = context.getString(
+                        R.string.season_of_show,
+                        seasonName,
+                        result.name
+                    )
                     var yearSeason = ""
 
                     val formattedDate = it.air_date?.let { date ->
                         yearSeason += "${date.take(4)} | "
-                        Converter.parseDate(date)
+                        Converter.parseDate(
+                            date,
+                            dstPattern = "d MMMM yyyy",
+                            locale = Locale.FRENCH
+                        )
                     }
 
-                    yearSeason += "${it.episode_count} episodes"
+                    yearSeason += context.resources.getQuantityString(
+                        R.plurals.episode_count,
+                        it.episode_count,
+                        it.episode_count
+                    )
 
                     formattedDate?.let {
-                        premiered += " premiered on $formattedDate."
+                        premiered += " ${context.getString(R.string.premiered_on, formattedDate)}"
                     }
                     val seasonPlot = if (it.overview.isNullOrEmpty()) {
                         premiered
@@ -329,7 +342,7 @@ class MediaViewModel @Inject constructor(
                 if (it.isNotEmpty()) {
                     mediaDataModel.add(
                         MediaDataModel.Casts(
-                            heading = "Casts",
+                            heading = context.getString(R.string.casts),
                             casts = it
                         )
                     )
@@ -340,7 +353,7 @@ class MediaViewModel @Inject constructor(
                 if (it.isNotEmpty() && it.size >= 3) {
                     mediaDataModel.add(
                         MediaDataModel.Recommendations(
-                            heading = "Recommendations",
+                            heading = context.getString(R.string.recommendations),
                             recommendations = it
                         )
                     )
@@ -354,7 +367,7 @@ class MediaViewModel @Inject constructor(
 
                     mediaDataModel.add(
                         MediaDataModel.MoreFromCompany(
-                            heading = "More from $studio",
+                            heading = context.getString(R.string.more_from_company, studio),
                             more = mediaList
                         )
                     )
@@ -366,7 +379,7 @@ class MediaViewModel @Inject constructor(
                 if (it.isNotEmpty()) {
                     mediaDataModel.add(
                         MediaDataModel.Videos(
-                            heading = "Related videos",
+                            heading = context.getString(R.string.related_videos),
                             videos = it
                         )
                     )
@@ -422,7 +435,7 @@ class MediaViewModel @Inject constructor(
             )
 
             val plot = if (result.overview == null || result.overview == "") {
-                "No description"
+                context.getString(R.string.no_description)
             } else result.overview
 
             mediaDataModel.add(
@@ -468,7 +481,7 @@ class MediaViewModel @Inject constructor(
                 if (it.isNotEmpty()) {
                     mediaDataModel.add(
                         MediaDataModel.Casts(
-                            heading = "Casts",
+                            heading = context.getString(R.string.casts),
                             casts = it
                         )
                     )
@@ -479,7 +492,7 @@ class MediaViewModel @Inject constructor(
                 if (it.isNotEmpty() && it.size >= 3) {
                     mediaDataModel.add(
                         MediaDataModel.Recommendations(
-                            heading = "Recommendations",
+                            heading = context.getString(R.string.recommendations),
                             recommendations = it
                         )
                     )
@@ -493,7 +506,7 @@ class MediaViewModel @Inject constructor(
 
                     mediaDataModel.add(
                         MediaDataModel.MoreFromCompany(
-                            heading = "More from $studio",
+                            heading = context.getString(R.string.more_from_company, studio),
                             more = mediaList
                         )
                     )
@@ -504,7 +517,7 @@ class MediaViewModel @Inject constructor(
                 if (it.isNotEmpty()) {
                     mediaDataModel.add(
                         MediaDataModel.Videos(
-                            heading = "Related videos",
+                            heading = context.getString(R.string.related_videos),
                             videos = it
                         )
                     )

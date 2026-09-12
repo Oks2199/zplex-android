@@ -111,7 +111,13 @@ sealed class MediaViewHolder(
         fun bind(item: MediaDataModel.Title) {
             itemBinding.apply {
                 tvTitle.text = item.title
-                spannablePlotText(tvPlot, item.plot, 160, "...more", rootView)
+                spannablePlotText(
+                    tvPlot,
+                    item.plot,
+                    160,
+                    root.context.getString(R.string.read_more),
+                    rootView
+                )
             }
         }
     }

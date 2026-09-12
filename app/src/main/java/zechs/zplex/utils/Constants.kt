@@ -8,6 +8,8 @@ object Constants {
     const val TMDB_API_URL = "https://api.themoviedb.org"
     const val TMDB_IMAGE_PREFIX = "https://www.themoviedb.org/t/p"
     const val TMDB_API_KEY = BuildConfig.TMDB_API_KEY
+    const val TMDB_LANGUAGE = "fr-FR"
+    const val TMDB_REGION = "FR"
 
     const val GOOGLE_API = "https://www.googleapis.com"
     const val DRIVE_API = "${GOOGLE_API}/drive/v3"

@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.model.entities.WatchedMovie
 import zechs.zplex.data.model.entities.WatchedShow
 import zechs.zplex.data.model.tmdb.search.SearchResponse
@@ -148,7 +149,7 @@ class HomeViewModel @Inject constructor(
             }
 
             if (trendingList.isNotEmpty()) {
-                homeMedia.add(HomeDataModel.Header(heading = "Trending today"))
+                homeMedia.add(HomeDataModel.Header(heading = context.getString(R.string.trending_today)))
                 homeMedia.add(HomeDataModel.Media(media = trendingList))
             }
         }
@@ -156,7 +157,7 @@ class HomeViewModel @Inject constructor(
         if (popular.isSuccessful && popular.body() != null) {
             val popularList = popular.body()!!.results
             if (popularList.isNotEmpty()) {
-                homeMedia.add(HomeDataModel.Header(heading = "Popular on streaming"))
+                homeMedia.add(HomeDataModel.Header(heading = context.getString(R.string.popular_on_streaming)))
                 homeMedia.add(HomeDataModel.Media(media = popularList))
             }
         }

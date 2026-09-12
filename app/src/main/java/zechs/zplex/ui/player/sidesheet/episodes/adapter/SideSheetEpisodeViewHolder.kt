@@ -19,8 +19,10 @@ class SideSheetEpisodeViewHolder(
     val episodesAdapter: SideSheetEpisodesAdapter
 ) : RecyclerView.ViewHolder(itemBinding.root) {
     fun bind(episode: Episode) {
-        val count = "Episode ${episode.episode_number}"
-        val title = episode.name?.ifNullOrEmpty { "No title" }
+        val count = itemBinding.root.context.getString(R.string.episode_number, episode.episode_number)
+        val title = episode.name?.ifNullOrEmpty {
+            itemBinding.root.context.getString(R.string.no_title)
+        }
         itemBinding.apply {
             val watchProgressTAG = "watchProgressTAG"
 

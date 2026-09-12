@@ -14,6 +14,8 @@ import zechs.zplex.data.model.tmdb.person.PersonResponse
 import zechs.zplex.data.model.tmdb.search.SearchResponse
 import zechs.zplex.data.model.tmdb.season.SeasonResponse
 import zechs.zplex.utils.Constants.TMDB_API_KEY
+import zechs.zplex.utils.Constants.TMDB_LANGUAGE
+import zechs.zplex.utils.Constants.TMDB_REGION
 
 interface TmdbApi {
 
@@ -24,7 +26,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("append_to_response")
         append_to_response: String?
     ): Response<TvResponse>
@@ -38,7 +40,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
     ): Response<SeasonResponse>
 
     @GET("3/tv/{tv_id}/season/{season_number}/episode/{episode_number}")
@@ -52,7 +54,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
     ): Response<Episode>
 
     @GET("3/search/multi")
@@ -60,7 +62,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("query")
         query: String,
         @Query("page")
@@ -76,7 +78,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("append_to_response")
         append_to_response: String?
     ): Response<MovieResponse>
@@ -88,7 +90,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US"
+        language: String = TMDB_LANGUAGE
     ): Response<CollectionsResponse>
 
     @GET("3/discover/{media_type}")
@@ -98,7 +100,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("sort_by")
         sort_by: String,
         @Query("page")
@@ -117,9 +119,11 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("page")
         page: Int,
+        @Query("region")
+        region: String = TMDB_REGION,
     ): Response<SearchResponse>
 
     @GET("3/discover/movie")
@@ -127,7 +131,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("release_date.gte")
         release_date_start: String,
         @Query("release_date.lte")
@@ -135,7 +139,7 @@ interface TmdbApi {
         @Query("with_release_type")
         with_release_type: String = "3|2",
         @Query("region")
-        region: String = "US"
+        region: String = TMDB_REGION
     ): Response<SearchResponse>
 
 
@@ -146,7 +150,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US"
+        language: String = TMDB_LANGUAGE
     ): Response<SearchResponse>
 
     @GET("3/tv/on_the_air")
@@ -154,7 +158,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("page")
         page: Int = 1,
     ): Response<SearchResponse>
@@ -166,7 +170,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("page")
         page: Int = 1,
         @Query("include_adult")
@@ -184,7 +188,7 @@ interface TmdbApi {
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
-        language: String = "en-US",
+        language: String = TMDB_LANGUAGE,
         @Query("append_to_response")
         append_to_response: String = "combined_credits"
     ): Response<PersonResponse>

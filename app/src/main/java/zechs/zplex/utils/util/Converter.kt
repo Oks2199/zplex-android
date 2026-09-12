@@ -74,10 +74,11 @@ object Converter {
     fun parseDate(
         date: String,
         srcPattern: String = "yyyy-MM-dd",
-        dstPattern: String = "EEEE dd, yyyy"
+        dstPattern: String = "EEEE dd, yyyy",
+        locale: Locale = Locale.ENGLISH
     ): String {
         val srcFormat = DateTimeFormatter.ofPattern(srcPattern)
-        val dstFormat = DateTimeFormatter.ofPattern(dstPattern, Locale.ENGLISH)
+        val dstFormat = DateTimeFormatter.ofPattern(dstPattern, locale)
         val datetime = LocalDate.parse(date, srcFormat)
         return datetime.format(dstFormat)
     }

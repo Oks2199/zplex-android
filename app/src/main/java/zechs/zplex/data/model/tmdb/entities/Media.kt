@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.utils.util.Converter
 import java.io.Serializable
+import java.util.Locale
 
 @Keep
 data class Media(
@@ -24,7 +25,11 @@ data class Media(
     fun releasedDate(): String? {
         val date = release_date ?: first_air_date
         return if (date != null && date != "") {
-            Converter.parseDate(date, dstPattern = "MMM dd, yyyy")
+            Converter.parseDate(
+                date,
+                dstPattern = "d MMM yyyy",
+                locale = Locale.FRENCH
+            )
         } else null
     }
 

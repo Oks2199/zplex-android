@@ -75,7 +75,7 @@ class FragmentList : Fragment(), ListClickListener {
 
     private fun handleSeason(it: ListDataModel.Seasons) {
         binding.toolbar.apply {
-            title = "Seasons"
+            title = getString(R.string.seasons)
             subtitle = it.showName
         }
 
@@ -86,7 +86,7 @@ class FragmentList : Fragment(), ListClickListener {
 
     private fun handleCasts(it: ListDataModel.Casts) {
         binding.toolbar.apply {
-            title = "Casts"
+            title = getString(R.string.casts)
             isTitleCentered = false
         }
 
@@ -104,7 +104,7 @@ class FragmentList : Fragment(), ListClickListener {
 
     private fun handleVideo(it: ListDataModel.Videos) {
         binding.toolbar.apply {
-            title = "More videos"
+            title = getString(R.string.more_videos)
             isTitleCentered = false
         }
 

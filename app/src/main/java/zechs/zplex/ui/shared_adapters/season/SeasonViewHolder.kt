@@ -9,6 +9,7 @@ import zechs.zplex.data.model.tmdb.entities.Season
 import zechs.zplex.databinding.ItemDetailedMediaBinding
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.util.Converter
+import java.util.Locale
 
 class SeasonViewHolder(
     private val showName: String,
@@ -28,22 +29,32 @@ class SeasonViewHolder(
                 placeholder(R.drawable.no_poster)
             }
 
-            val seasonName = "Season ${season.season_number}"
+            val seasonNumber = season.season_number
+            val seasonName = root.context.getString(R.string.season_number, seasonNumber)
             tvTitle.text = season.name
 
-            var premiered = "$seasonName of $showName"
+            var premiered = root.context.getString(R.string.season_of_show, seasonName, showName)
             var yearSeason = ""
 
             val formattedDate = season.air_date?.let { date ->
                 yearSeason += "${date.take(4)} | "
-                Converter.parseDate(date)
+                Converter.parseDate(
+                    date,
+                    dstPattern = "d MMMM yyyy",
+                    locale = Locale.FRENCH
+                )
             }
 
-            yearSeason += "${season.episode_count} episodes"
+            val episodeCount = season.episode_count
+            yearSeason += root.resources.getQuantityString(
+                R.plurals.episode_count,
+                episodeCount,
+                episodeCount
+            )
             tvYear.text = yearSeason
 
             formattedDate?.let {
-                premiered += " premiered on $formattedDate."
+                premiered += " ${root.context.getString(R.string.premiered_on, formattedDate)}"
             }
             val seasonPlot = if (season.overview.toString() == "") {
                 premiered

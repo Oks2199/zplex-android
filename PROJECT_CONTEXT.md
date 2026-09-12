@@ -145,6 +145,19 @@ APK ARM64 release attendue :
 app\build\outputs\apk\release\app-arm64-v8a-release.apk
 ```
 
+### Limite connue de Gradle dans l'environnement Codex Windows
+
+Le 12 septembre 2026, plusieurs lancements avec le runtime Android Studio, avec et sans daemon, puis dans un processus Windows séparé, ont tous échoué avec `Unable to establish loopback connection`. La trace montre un échec dans `java.nio.channels.Selector.open` pendant la connexion au daemon Gradle, avant la configuration et la compilation du projet. Ce résultat ne constitue donc pas une erreur de compilation du code Movynex.
+
+Procédure à suivre dans une nouvelle conversation :
+
+1. Vérifier une fois le diagnostic avec `--stacktrace`.
+2. Si la trace échoue encore avant la configuration du projet, ne pas modifier `gradle.properties`, le JDK ou le code applicatif pour contourner cette limite.
+3. Effectuer les contrôles statiques encore possibles localement. Pour les ressources Android, `aapt2` se trouve notamment dans `C:\Users\Utilisateur\AppData\Local\Android\Sdk\build-tools\35.0.0\aapt2.exe`.
+4. Utiliser ensuite GitHub Actions pour les tests unitaires et la compilation complète.
+
+Le 12 septembre 2026, le nouveau `strings.xml` français a ainsi été compilé avec succès directement par `aapt2` 35.0.0. Les tests Gradle et l'assemblage de ces modifications restent néanmoins à faire dans GitHub Actions.
+
 ## Construction recommandée avec GitHub Actions
 
 La méthode de référence est le workflow **Android Build & Test** :
@@ -152,10 +165,13 @@ La méthode de référence est le workflow **Android Build & Test** :
 1. Vérifier que les six secrets GitHub nécessaires sont configurés.
 2. Modifier `versionCode` et `versionName` dans `app/build.gradle.kts` si une nouvelle version est préparée.
 3. Exécuter les tests localement lorsque possible.
-4. Après accord de l'utilisateur, pousser le commit applicatif sur `main`, ou lancer manuellement le workflow depuis l'onglet Actions.
-5. Attendre la réussite de tous les tests et builds.
-6. Télécharger l'artefact `movynex-arm64-release-apk`.
-7. Extraire `app-arm64-v8a-release.apk`, vérifier son identité et sa signature, puis seulement le renommer pour la livraison.
+4. Si la compilation locale est bloquée par l'environnement Codex, pousser les changements sur une branche dédiée et ouvrir une pull request vers `main` pour exécuter les tests et construire l'APK debug. Sur une pull request, les étapes de signature et de release sont volontairement ignorées.
+5. Attendre la réussite de cette validation avant toute livraison.
+6. Après accord explicite de l'utilisateur, intégrer ou pousser la modification applicative sur `main`. Ce push relance le workflow, cette fois avec la release ARM64 signée.
+7. Télécharger l'artefact `movynex-arm64-release-apk`.
+8. Extraire `app-arm64-v8a-release.apk`, vérifier son identité et sa signature, puis seulement le renommer pour la livraison.
+
+Le bouton **Run workflow** (`workflow_dispatch`) peut aussi lancer la construction sur une branche distante existante. Il ne transmet pas le contenu du poste local : le commit à tester doit déjà avoir été poussé sur la branche sélectionnée. Comme cette exécution n'est pas une pull request, elle lance également les étapes de release signée.
 
 Le workflow utilise les six secrets suivants :
 
@@ -304,4 +320,10 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.1 est construite, signée et disponible dans `H:\Downloads`. Le code et la documentation sont publiés sur `origin/main`. La prochaine vérification attendue est l'installation de cette APK par-dessus la version existante, puis le contrôle de l'icône, de la connexion Drive, du démarrage d'un film, de l'avance rapide et de la reprise.
+Movynex 1.0.1 est construite, signée et disponible dans `H:\Downloads`. Le code correspondant à cette release et sa documentation sont publiés sur `origin/main`.
+
+Une modification locale préparée pour Movynex 1.0.2 (`versionCode = 6`, `versionName = 1.0.2`) le 12 septembre 2026 demande désormais les métadonnées TMDB en français (`fr-FR`) et les sorties pour la région France (`FR`). Les principaux libellés des fiches, saisons et épisodes ont également été traduits. Le format interne `Season N` des dossiers Google Drive reste volontairement inchangé. Le fichier de ressources traduit a été compilé avec succès par `aapt2` 35.0.0. La compilation Gradle complète n'a pas pu démarrer dans l'environnement Codex à cause d'une erreur Java/Gradle `Unable to establish loopback connection`, survenue avant la configuration du projet ; les tests et la compilation debug restent donc à exécuter dans GitHub Actions.
+
+Pour actualiser les deux films déjà indexés après installation d'une future APK contenant cette modification : faire un appui long sur le compteur du cache API dans les réglages pour le réinitialiser, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse des médias. L'historique de lecture est stocké séparément.
+
+La prochaine vérification attendue pour la release 1.0.1 reste son installation par-dessus la version existante, puis le contrôle de l'icône, de la connexion Drive, du démarrage d'un film, de l'avance rapide et de la reprise.

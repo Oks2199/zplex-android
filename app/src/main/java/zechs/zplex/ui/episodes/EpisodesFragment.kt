@@ -116,12 +116,13 @@ class EpisodesFragment : Fragment() {
     }
 
     private fun showEpisodeOptionsDialog(episode: Episode) {
-        val message = """
-        • Title: ${episode.name ?: "Unknown"}
-        • Season: ${episode.season_number}
-        • Episode: ${episode.episode_number}
-        • File Size: ${episode.fileSize ?: "Unknown"}
-        """.trimIndent()
+        val message = getString(
+            R.string.episode_details,
+            episode.name ?: getString(R.string.unknown),
+            episode.season_number,
+            episode.episode_number,
+            episode.fileSize ?: getString(R.string.unknown)
+        )
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.download_episode))
@@ -151,7 +152,7 @@ class EpisodesFragment : Fragment() {
             .setTitle(
                 getString(
                     R.string.confirm_delete_episode,
-                    episode.name ?: "Episode ${episode.episode_number}"
+                    episode.name ?: getString(R.string.episode_number, episode.episode_number)
                 )
             )
             .setPositiveButton(R.string.yes) { dialog, _ ->

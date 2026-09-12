@@ -73,6 +73,9 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 
 - Utiliser JDK 17. Le workflow `.github/workflows/android.yml` teste le debug puis produit une release ARM64 signée.
 - Un push sur `main` déclenche automatiquement une construction GitHub.
+- Un lancement manuel GitHub Actions ne voit que les commits déjà présents sur la branche distante sélectionnée ; il ne peut jamais tester des modifications locales non poussées.
+- Dans l'environnement Codex Windows, l'erreur Gradle `Unable to establish loopback connection` peut survenir avant la configuration du projet. Après confirmation par une tentative avec `--stacktrace`, la traiter comme une limite de l'environnement, ne pas modifier Gradle pour la contourner et utiliser GitHub Actions pour la validation complète.
+- Si Gradle est bloqué localement, une pull request vers `main` permet de valider les tests et l'APK debug sans produire de release signée. La livraison se fait ensuite seulement après validation et accord explicite pour intégrer ou pousser sur `main`.
 - Ne pas pousser une modification applicative sur `main` sans accord explicite de l'utilisateur pour lancer la construction.
 - Pour une modification exclusivement documentaire, un commit contenant `[skip ci]` peut être utilisé afin d'éviter une construction inutile.
 - Avant une livraison, exécuter les tests unitaires et une compilation debug, puis vérifier la release signée produite par GitHub Actions.

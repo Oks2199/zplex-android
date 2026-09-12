@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import zechs.zplex.R
 import zechs.zplex.data.local.offline.OfflineEpisodeDao
 import zechs.zplex.data.local.offline.OfflineSeasonDao
 import zechs.zplex.data.local.offline.OfflineShowDao
@@ -53,6 +54,7 @@ import zechs.zplex.utils.util.Converter
 import zechs.zplex.utils.util.DriveApiQueryBuilder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 
 typealias seasonResponseTmdb = zechs.zplex.data.model.tmdb.season.SeasonResponse
@@ -269,25 +271,45 @@ class EpisodesViewModel @Inject constructor(
     }
 
     private fun createSeasonHeader(result: seasonResponseTmdb): SeasonHeader {
-        val overviewBuilder = StringBuilder("Season ${result.season_number} of $showName")
+        val seasonNumber = result.season_number ?: 0
+        val seasonName = context.getString(R.string.season_number, seasonNumber)
+        val overviewBuilder = StringBuilder(
+            context.getString(R.string.season_of_show, seasonName, showName.orEmpty())
+        )
 
         result.episodes?.size?.let { numberOfEpisodes ->
-            overviewBuilder.append(if (numberOfEpisodes == 1) " with 1 episode" else " with $numberOfEpisodes episodes")
+            overviewBuilder.append(" • ")
+            overviewBuilder.append(
+                context.resources.getQuantityString(
+                    R.plurals.episode_count,
+                    numberOfEpisodes,
+                    numberOfEpisodes
+                )
+            )
         }
 
         result.air_date?.let { date ->
             val localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE)
-            val parsedDate = Converter.parseDate(date)
+            val parsedDate = Converter.parseDate(
+                date,
+                dstPattern = "d MMMM yyyy",
+                locale = Locale.FRENCH
+            )
             if (localDate.isAfter(LocalDate.now())) {
-                overviewBuilder.append(" is scheduled to premiere on $parsedDate")
+                overviewBuilder.append(" • ")
+                overviewBuilder.append(context.getString(R.string.scheduled_to_premiere_on, parsedDate))
             } else {
-                overviewBuilder.append(" premiered on $parsedDate")
+                overviewBuilder.append(" • ")
+                overviewBuilder.append(context.getString(R.string.premiered_on, parsedDate))
             }
-        } ?: run { overviewBuilder.append(" is scheduled to premiere soon") }
+        } ?: run {
+            overviewBuilder.append(" • ")
+            overviewBuilder.append(context.getString(R.string.scheduled_to_premiere_soon))
+        }
 
         Log.d(TAG, "Overview: $overviewBuilder")
         return SeasonHeader(
-            seasonNumber = "Season ${result.season_number}",
+            seasonNumber = seasonName,
             number = result.season_number ?: 0,
             seasonName = result.name,
             seasonPosterPath = result.poster_path,

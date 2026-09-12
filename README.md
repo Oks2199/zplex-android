@@ -8,7 +8,8 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 
 ## Version actuelle
 
-- Version : `1.0.1` (`versionCode = 5`)
+- Version du code courant : `1.0.2` (`versionCode = 6`)
+- Dernière APK livrée et vérifiée : `1.0.1` (`versionCode = 5`)
 - Package Android : `com.cursedcrew.movynex`
 - Android minimum : Android 12 / API 31
 - APK de référence : ARM64, signée avec la clé Cursed Crew
@@ -21,7 +22,7 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 - Lecture en streaming avec MPV.
 - Téléchargement hors ligne dans l'espace privé de l'application.
 - Reprise de lecture et historique enregistrés localement.
-- Affiches, résumés, notes et autres métadonnées via TMDB et OMDb.
+- Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France.
 - Recherche, listes personnelles, saisons et épisodes.
 - Mode image dans l'image pris en charge par le lecteur.
 
@@ -145,6 +146,8 @@ Sous Windows :
 .\gradlew.bat testDebugUnitTest assembleDebug
 ```
 
+Dans certaines sessions Codex Windows, Gradle peut échouer avec `Unable to establish loopback connection` avant même de configurer le projet. Cette erreur vient de l'environnement d'exécution et ne prouve pas que le code Android ne compile pas. Dans ce cas, la validation de référence doit être effectuée avec GitHub Actions ; il est inutile de modifier `gradle.properties` ou le code applicatif pour tenter de corriger cette erreur.
+
 Le namespace Kotlin historique `zechs.zplex` est volontairement conservé en interne. Il ne correspond pas au package Android public et ne doit pas être renommé sans migration planifiée.
 
 ### Signature release
@@ -170,7 +173,7 @@ Le workflow [`.github/workflows/android.yml`](.github/workflows/android.yml) :
 - construit une APK release ARM64 signée lors des exécutions hors pull request ;
 - récupère TMDB, OMDb et la signature depuis les secrets GitHub.
 
-Un push sur `main` déclenche automatiquement ce workflow. La release Movynex 1.0.1 de référence a été produite par [GitHub Actions n°10](https://github.com/Oks2199/zplex-android/actions/runs/34603761277).
+Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers `main` exécute les tests et construit le debug, mais ignore volontairement la release signée. Un lancement manuel ne teste que le contenu déjà poussé sur la branche distante sélectionnée : il n'inclut jamais les modifications non committées du poste local. La release Movynex 1.0.1 de référence a été produite par [GitHub Actions n°10](https://github.com/Oks2199/zplex-android/actions/runs/34603761277).
 
 ## Confidentialité et sécurité
 

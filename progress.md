@@ -1,12 +1,25 @@
 # Movynex — état d'avancement
 
-Dernière mise à jour : 11 septembre 2026
+Dernière mise à jour : 12 septembre 2026
 
 ## Résumé
 
 Movynex 1.0.1 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `5b51e09`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.1.apk`.
 
 La dernière validation restante est un contrôle sur le téléphone : installation par-dessus l'application existante, affichage de la nouvelle icône, reconnexion OAuth si nécessaire et lecture d'un film.
+
+## Modification locale en attente de validation
+
+- Version préparée : **Movynex 1.0.2**, `versionCode = 6` et `versionName = 1.0.2`.
+- Les requêtes TMDB utilisent maintenant la langue `fr-FR` et la région `FR`.
+- Les principaux libellés visibles des fiches de films et séries, des saisons et des épisodes ont été traduits en français.
+- Les dates affichées dans ces écrans utilisent une locale française.
+- Le format technique `Season N` reste inchangé pour préserver la correspondance avec les dossiers Google Drive.
+- Aucun schéma de base de données ni stockage persistant n'a été modifié.
+- Le fichier `strings.xml` traduit a été compilé avec succès par `aapt2` 35.0.0.
+- La compilation locale a été tentée, mais Gradle s'arrête avant de configurer le projet avec `Unable to establish loopback connection` dans l'environnement Codex. Les tests unitaires et la compilation debug restent à valider hors de cet environnement.
+- Cette modification n'est ni poussée, ni intégrée à une APK livrée.
+- Après installation d'une future APK, les deux films déjà indexés pourront être actualisés par un appui long sur le compteur du cache API dans les réglages, puis en les retirant de la bibliothèque par glissement et en relançant l'analyse des médias. L'historique de lecture reste séparé.
 
 ## Release de référence
 
@@ -81,6 +94,7 @@ La dernière validation restante est un contrôle sur le téléphone : installat
 ## Documentation de reprise
 
 - `PROJECT_CONTEXT.md` centralise désormais les informations nécessaires à une nouvelle conversation : dépôt et branches, identité Android, compilation locale et GitHub, clé Cursed Crew, secrets attendus, vérification de l'APK, Google Cloud, OAuth, Google Sites, connexion, stockage, conventions de nommage et décisions techniques.
+- Le 12 septembre 2026, la procédure a été précisée après une reprise de session difficile : l'erreur Gradle `Unable to establish loopback connection` de l'environnement Codex, la validation par pull request, le comportement de `workflow_dispatch` et la séparation entre validation debug et livraison signée sont maintenant documentés explicitement.
 - `README.md`, `AGENTS.md` et `progress.md` renvoient vers ce dossier de reprise.
 - Aucune valeur de secret n'est enregistrée dans la documentation.
 - La clé Cursed Crew fonctionne dans GitHub Actions, mais aucune copie privée originale du fichier n'a été retrouvée dans le dépôt ou les emplacements locaux parcourus. Une sauvegarde chiffrée externe reste à localiser ou à confirmer.

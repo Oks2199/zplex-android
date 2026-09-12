@@ -97,13 +97,17 @@ class WatchFragment : Fragment() {
             "${TMDB_IMAGE_PREFIX}/${StillSize.original}${episode.still_path}"
         }
 
-        seasonEpisodeText = "Season ${episode.season_number}, Episode ${episode.episode_number}"
+        seasonEpisodeText = getString(
+            R.string.season_episode,
+            episode.season_number,
+            episode.episode_number
+        )
 
         binding.apply {
             tvSeasonEpisode.text = seasonEpisodeText
             tvTitle.text = episode.name
             tvOverview.text = if (episode.overview.isNullOrEmpty()) {
-                "No description"
+                getString(R.string.no_description)
             } else episode.overview
             tvOverview.setOnClickListener {
                 TransitionManager.beginDelayedTransition(binding.root)
