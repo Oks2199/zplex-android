@@ -4,7 +4,9 @@ Dernière mise à jour : 13 septembre 2026
 
 ## Résumé
 
-Movynex 1.0.4 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `16f1c55`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.4.apk`.
+Movynex 1.0.4 est construite, signée et livrée. L'APK finale vérifiée, basée sur le commit applicatif `16f1c55`, se trouve dans `H:\Downloads\Movynex-1.0.4.apk`.
+
+Le code applicatif de `origin/main` contient maintenant l'amélioration des séries au commit `7447e33`. Cette évolution est intégrée et validée, mais elle n'a pas encore reçu un nouveau numéro de version et n'a pas été livrée sur le téléphone.
 
 La pull request n°1 a validé la 1.0.4 avec GitHub Actions n°15 avant son intégration à `main`. GitHub Actions n°16 a ensuite réussi les tests unitaires, l'APK debug et la release ARM64 signée. L'APK finale a été contrôlée puis copiée dans `H:\Downloads`.
 
@@ -14,10 +16,10 @@ La 1.0.4 ajoute les disponibilités françaises des films. Les fiches récupère
 
 La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, conformément à la correction explicite de l'utilisateur : le schéma de `zplex_db.db`, la navigation inférieure et le fonctionnement historique de `Ma liste` restent inchangés.
 
-## Amélioration des séries validée, en attente d'intégration
+## Amélioration des séries intégrée à main
 
-- Branche : `codex/series-availability`, commit applicatif `b817a6b`.
-- Pull request de validation : [n°2](https://github.com/Oks2199/zplex-android/pull/2), non fusionnée.
+- Commit d'implémentation : `b817a6b` ; commit d'intégration dans `main` : `7447e33`.
+- Pull request de validation [n°2](https://github.com/Oks2199/zplex-android/pull/2), fusionnée le 13 septembre 2026.
 - Le bouton de la fiche série devient « Saisons et épisodes » et conserve l'accès complet aux saisons et épisodes, avec ou sans fichier Drive.
 - Les plateformes françaises sont affichées au niveau général de la série puis au niveau précis de la saison consultée, avec attribution JustWatch.
 - Les nouvelles entrées de plateformes sont conservées 24 heures dans le cache et sont couvertes par la remise à zéro existante.
@@ -27,7 +29,9 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - Tests ajoutés pour les plateformes françaises et les trois états des épisodes.
 - Validation locale : ressources compilées par AAPT2 35.0.0 et `git diff --check` réussi. Gradle reste bloqué avant configuration par la limite Windows connue.
 - Validation distante réussie : [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421) a exécuté les tests unitaires, compilé l'APK debug ARM64 et téléversé l'artefact.
-- Aucune release 1.0.5 n'est encore construite ou livrée ; la version de référence reste la 1.0.4.
+- Validation après intégration réussie : [GitHub Actions n°18](https://github.com/Oks2199/zplex-android/actions/runs/34759881898) a exécuté les tests, construit l'APK debug et produit une release ARM64 signée.
+- Cette release technique porte encore `versionName = 1.0.4` et `versionCode = 8` ; elle n'a pas été copiée dans `H:\Downloads` ni livrée sur le téléphone.
+- Une future livraison de cette évolution devra passer en 1.0.5 avec un `versionCode` supérieur. La référence effectivement livrée reste la 1.0.4 précédente.
 
 ## Movynex 1.0.4
 
