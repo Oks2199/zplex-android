@@ -26,6 +26,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Le mot-symbole horizontal est `app/src/main/res/drawable-nodpi/movynex_wordmark.png`.
 - Sur l'accueil, afficher le mot-symbole dans la barre supérieure. Sur les autres écrans, conserver les titres fonctionnels.
 - Toute ressource de marque doit rester lisible sur fond sombre et dans les masques Android ronds, carrés ou adaptatifs.
+- Afficher les affiches et portraits TMDB dans un cadre vertical `2:3` avec `centerCrop` : les rares sources dans un autre ratio doivent être recadrées, jamais étirées ni autorisées à modifier la hauteur d'une carte.
 
 ## Version et compatibilité
 

@@ -22,7 +22,7 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 - Lecture en streaming avec MPV.
 - Téléchargement hors ligne dans l'espace privé de l'application.
 - Reprise de lecture et historique enregistrés localement.
-- Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France.
+- Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France. Les affiches sont présentées dans des cadres `2:3` uniformes sans déformation.
 - Disponibilités françaises des films via TMDB/JustWatch : sortie cinéma récente, streaming par abonnement, location et achat.
 - Le bouton principal d'une fiche ne propose la lecture que lorsqu'un fichier Drive ou hors ligne est réellement disponible ; sinon il indique le type de disponibilité externe.
 - La Bibliothèque contient uniquement les films et séries détectés sur Google Drive. Ma liste contient les médias ajoutés manuellement qui ne sont pas encore présents sur le Drive.

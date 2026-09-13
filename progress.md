@@ -28,6 +28,7 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - La barre inférieure contient Accueil, Bibliothèque et Ma liste. La loupe de recherche est placée dans les barres supérieures et Recherche possède maintenant une flèche retour.
 - La déconnexion conserve la dernière Bibliothèque connue et Ma liste au lieu de transformer tous les médias Drive en éléments de Ma liste.
 - Tests unitaires ajoutés pour les trois états, le passage automatique vers la Bibliothèque et la protection du nettoyage Drive.
+- Les affiches TMDB sont harmonisées au ratio `2:3` avec `centerCrop`. Cela corrige les hauteurs variables dans « Continuer la lecture » et dans le composant partagé par l'accueil, la recherche, l'exploration, la Bibliothèque, Ma liste, les recommandations et la filmographie, tout en évitant l'étirement des rares affiches atypiques sur les fiches et saisons.
 - Contrôles locaux réussis : compilation AAPT2 35.0.0, compilation Kotlin de la logique pure et `git diff --check`.
 - Gradle local s'arrête avant la configuration sur la limite connue `Unable to establish loopback connection` avec le JDK 17 et `--stacktrace`.
 - Validation GitHub Actions, intégration dans `main`, incrément de version et APK restent à faire.
