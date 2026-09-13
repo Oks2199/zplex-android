@@ -32,7 +32,7 @@ Le dépôt d'origine reste crédité et la licence MIT doit être conservée. Le
 - Release applicative 1.0.1 : commit `5b51e09`
 - Release applicative 1.0.2 : commit `302d08d`
 - Release applicative 1.0.3 : commit `2fae67b`
-- Version 1.0.4 en validation : branche `codex/movie-availability`
+- Release applicative 1.0.4 : commit `16f1c55`
 - Première refonte générale de la documentation : commit `031be35`
 - Workflow : `.github/workflows/android.yml`
 - Page GitHub Actions : `https://github.com/Oks2199/zplex-android/actions`
@@ -46,8 +46,7 @@ Un push applicatif sur `main` déclenche les tests et la construction. Il faut l
 - Package installé : `com.cursedcrew.movynex`
 - Namespace Kotlin historique : `zechs.zplex`
 - Projet Gradle : `Movynex`
-- Version livrée : `versionCode = 7`, `versionName = 1.0.3`
-- Version préparée : `versionCode = 8`, `versionName = 1.0.4`
+- Version livrée : `versionCode = 8`, `versionName = 1.0.4`
 - Android minimum : API 31
 - Android cible et compilation : API 36
 - Architecture distribuée : `arm64-v8a`
@@ -246,6 +245,23 @@ Release 1.0.3 vérifiée et livrée :
 - Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34718793281`
 - La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
 
+Release 1.0.4 vérifiée et livrée :
+
+- Commit applicatif livré : `16f1c55`
+- Pull request de validation : [n°1](https://github.com/Oks2199/zplex-android/pull/1), fusionnée après réussite de GitHub Actions n°15
+- APK livrée : `H:\Downloads\Movynex-1.0.4.apk`
+- Copie locale de l'artefact : `F:\Developpement\zplex-android\dist\run-34755317919-release\app-arm64-v8a-release.apk`
+- Taille : `39 281 563` octets
+- SHA-256 de l'APK : `B04F1809D6D715D79A2013C0F907B88923902E7262584DC5D71CC9F63D2E01D7`
+- Package : `com.cursedcrew.movynex`
+- Version : `versionCode = 8`, `versionName = 1.0.4`
+- Libellé : `Movynex`
+- Architecture exclusive : `arm64-v8a`
+- Signature : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
+- Les clés TMDB et OMDb sont bien présentes dans la release ; leurs valeurs n'ont pas été affichées.
+- Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34755317919`
+- La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
+
 Le dossier `dist/` est local, non versionné et ne doit pas être ajouté à Git.
 
 ## Google Cloud et OAuth
@@ -356,7 +372,7 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.3 est publiée sur `origin/main` au commit `2fae67b`. Elle corrige le champ anglais repéré dans Recherche après l'installation de la 1.0.2 et termine le passage en français des textes visibles de la bibliothèque, d'OAuth et Drive, du lecteur, de l'historique, des téléchargements, de l'indexation, de la distribution, des erreurs, des notifications et des écrans masqués Discover/Upcoming. Les journaux techniques invisibles restent en anglais.
+Movynex 1.0.4 est publiée sur `origin/main` au commit applicatif `16f1c55`. Elle ajoute les disponibilités françaises des films, corrige le comportement du bouton principal lorsqu'aucun fichier n'est disponible et réduit le M de l'icône à 85 %. Elle conserve les traductions et le fonctionnement validé de la 1.0.3. Les journaux techniques invisibles restent en anglais.
 
 Les deux premières exécutions de cette livraison ont détecté des erreurs simples : GitHub Actions n°12 a échoué à cause d'un import `R` manquant dans `CastViewModel`, puis n°13 à cause d'une attente anglaise obsolète dans `ConverterUtilsTest`. Les commits `4643428` et `2fae67b` ont corrigé ces deux points. GitHub Actions n°14 a ensuite réussi l'intégralité des tests, la compilation debug et la release ARM64 signée.
 
@@ -368,16 +384,16 @@ Movynex demande les métadonnées TMDB en français (`fr-FR`) et les sorties pou
 
 Un audit complet d'une éventuelle sélection de langue est conservé dans `LANGUAGE_AUDIT.md`. Le 12 septembre 2026, l'utilisateur a décidé de ne pas l'implémenter pour le moment, Movynex restant une application familiale en français. L'audit reste une référence si une version bilingue devient utile. Le passage français local a néanmoins supprimé les comparaisons avec les libellés anglais `Movies` et `TV Shows` ainsi que la conversion du texte de tri par `SortBy.valueOf()` dans `BrowseFragment` ; les libellés de genre et de tri viennent désormais des ressources et sont associés à leurs valeurs stables.
 
-Pour actualiser les deux films déjà indexés après installation de la 1.0.3 : faire un appui long sur le compteur du cache API dans les réglages pour le réinitialiser, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse des médias. L'historique de lecture est stocké séparément.
+Pour actualiser les deux films déjà indexés après installation de la 1.0.4 : faire un appui long sur le compteur du cache API dans les réglages pour le réinitialiser, retirer les deux films de la bibliothèque par glissement, puis relancer l'analyse des médias. L'historique de lecture est stocké séparément.
 
 La compilation AAPT2 de toutes les ressources Android de ce passage français réussit avec la version 35.0.0. `git diff --check` ne relève aucune erreur. La tentative locale des tests et de l'assemblage debug avec le JDK 17 s'arrête avant la configuration du projet sur la limite connue `Unable to establish loopback connection` ; la validation complète a donc été effectuée par GitHub Actions n°14.
 
-Après validation de la 1.0.3, la capture du gestionnaire de fichiers Samsung a montré que le M de l'icône touchait visuellement les limites du masque rond. Une correction réduit exactement les calques de premier plan existants à 85 %, sans redessiner le monogramme, et les recentre sur leur canevas transparent. Elle concerne `ic_launcher_foreground.png`, `ic_launcher_debug_foreground.png` et `ic_launcher_debug_monochrome.png` dans les cinq dossiers de densité. AAPT2 35.0.0 compile ces ressources avec succès. Cette correction est regroupée avec les autres changements dans le commit applicatif `71e4e08` de la branche distante `codex/movie-availability`; elle n'est pas encore intégrée à `main` ni publiée. La branche prépare désormais Movynex 1.0.4 avec `versionCode = 8` et `versionName = 1.0.4`.
+Après validation de la 1.0.3, la capture du gestionnaire de fichiers Samsung a montré que le M de l'icône touchait visuellement les limites du masque rond. La 1.0.4 réduit exactement les calques de premier plan existants à 85 %, sans redessiner le monogramme, et les recentre sur leur canevas transparent. Elle concerne `ic_launcher_foreground.png`, `ic_launcher_debug_foreground.png` et `ic_launcher_debug_monochrome.png` dans les cinq dossiers de densité. AAPT2 35.0.0 compile ces ressources avec succès.
 
-Une seconde modification prépare les fiches de films à distinguer la lecture réelle des disponibilités externes en France. TMDB fournit les dates de sortie françaises et les plateformes issues de JustWatch. Les dates sont mises en cache 30 jours avec la clé `movie_<id>_release_dates_FR`; les plateformes sont mises en cache 24 heures avec la clé `movie_<id>_watch_providers_FR`. Le bouton de remise à zéro du cache efface également ces entrées. Cette modification est elle aussi dans `71e4e08`, poussé sur `origin/codex/movie-availability` pour validation avant toute intégration à `main`.
+La 1.0.4 distingue la lecture réelle des disponibilités externes en France sur les fiches de films. TMDB fournit les dates de sortie françaises et les plateformes issues de JustWatch. Les dates sont mises en cache 30 jours avec la clé `movie_<id>_release_dates_FR`; les plateformes sont mises en cache 24 heures avec la clé `movie_<id>_watch_providers_FR`. Le bouton de remise à zéro du cache efface également ces entrées.
 
 Sur une fiche film, la priorité prévue est : fichier Drive ou hors ligne (`Regarder` / `Continuer la lecture`), sortie cinéma française de type 2 ou 3 datant de 30 jours au plus (`Au cinéma`), plateforme unique (`Sur <plateforme>`), plusieurs plateformes, location, achat, puis indisponibilité. Une section séparée « Où voir ce film en France ? » détaille simultanément cinéma, streaming, location et achat et affiche l'attribution JustWatch avec un lien vers la page TMDB quand elle existe. Les films hors ligne peuvent être lus sans connexion Google Drive. La séparation structurelle entre « Bibliothèque » et « À voir » a été explicitement différée par l'utilisateur : aucune migration de base, aucun nouvel onglet et aucune nouvelle table ne font partie de ce chantier.
 
-Les nouveaux tests unitaires couvrent la fenêtre cinéma, la fusion et le tri des plateformes et la priorité du fichier local/Drive. AAPT2 35.0.0 compile toutes les ressources modifiées. Comme attendu dans cet environnement, Gradle lancé avec le JDK 17 s'arrête avant la configuration du projet sur `Unable to establish loopback connection`. La branche distante `codex/movie-availability` est prête à être proposée en pull request afin que GitHub Actions valide les tests Kotlin et l'APK debug avant toute intégration dans `main`.
+Les nouveaux tests unitaires couvrent la fenêtre cinéma, la fusion et le tri des plateformes et la priorité du fichier local/Drive. AAPT2 35.0.0 compile toutes les ressources modifiées. Comme attendu dans cet environnement, Gradle lancé avec le JDK 17 s'arrête avant la configuration du projet sur `Unable to establish loopback connection`. La pull request n°1 a toutefois validé les tests Kotlin et l'APK debug avec GitHub Actions n°15. Après fusion sur `main`, GitHub Actions n°16 a réussi les tests, l'APK debug et la release ARM64 signée. L'artefact final a été vérifié puis livré dans `H:\Downloads\Movynex-1.0.4.apk`.
 
 La sélection Français / English / Système reste différée sans date. `LANGUAGE_AUDIT.md` doit être relu avant de reprendre ce chantier.

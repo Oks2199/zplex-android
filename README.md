@@ -8,8 +8,8 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 
 ## Version actuelle
 
-- Version du code courant : `1.0.4` (`versionCode = 8`), en cours de validation
-- Dernière APK livrée et vérifiée : `1.0.3` (`versionCode = 7`)
+- Version du code courant : `1.0.4` (`versionCode = 8`)
+- Dernière APK livrée et vérifiée : `1.0.4` (`versionCode = 8`)
 - Package Android : `com.cursedcrew.movynex`
 - Android minimum : Android 12 / API 31
 - APK de référence : ARM64, signée avec la clé Cursed Crew
@@ -176,7 +176,7 @@ Le workflow [`.github/workflows/android.yml`](.github/workflows/android.yml) :
 - construit une APK release ARM64 signée lors des exécutions hors pull request ;
 - récupère TMDB, OMDb et la signature depuis les secrets GitHub.
 
-Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers `main` exécute les tests et construit le debug, mais ignore volontairement la release signée. Un lancement manuel ne teste que le contenu déjà poussé sur la branche distante sélectionnée : il n'inclut jamais les modifications non committées du poste local. Movynex 1.0.3 a été construite et vérifiée par [GitHub Actions n°14](https://github.com/Oks2199/zplex-android/actions/runs/34718793281), puis livrée dans `H:\Downloads\Movynex-1.0.3.apk`.
+Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers `main` exécute les tests et construit le debug, mais ignore volontairement la release signée. Un lancement manuel ne teste que le contenu déjà poussé sur la branche distante sélectionnée : il n'inclut jamais les modifications non committées du poste local. Movynex 1.0.4 a d'abord été validée par la pull request n°1 et [GitHub Actions n°15](https://github.com/Oks2199/zplex-android/actions/runs/34755058380), puis construite, signée et vérifiée par [GitHub Actions n°16](https://github.com/Oks2199/zplex-android/actions/runs/34755317919). L'APK livrée se trouve dans `H:\Downloads\Movynex-1.0.4.apk`.
 
 ## Confidentialité et sécurité
 
