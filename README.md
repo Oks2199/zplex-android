@@ -8,7 +8,7 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 
 ## Version actuelle
 
-- Version du code courant : `1.0.4` (`versionCode = 8`)
+- Version du code courant : `1.0.5` (`versionCode = 9`)
 - Dernière APK livrée et vérifiée : `1.0.4` (`versionCode = 8`)
 - Package Android : `com.cursedcrew.movynex`
 - Android minimum : Android 12 / API 31
