@@ -4,7 +4,7 @@ Movynex est une application Android privée destinée à parcourir et lire une v
 
 Le projet est un fork familial de [ZPlex](https://github.com/ZPlexLabs/zplex-android). Il n'est pas destiné à être publié sur le Google Play Store.
 
-Pour reprendre le développement dans une nouvelle conversation, commencer par [`AGENTS.md`](AGENTS.md), puis lire le [`dossier de reprise`](PROJECT_CONTEXT.md) et [`progress.md`](progress.md).
+Pour reprendre le développement dans une nouvelle conversation, lire intégralement et dans cet ordre [`AGENTS.md`](AGENTS.md), [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md), [`progress.md`](progress.md), puis ce `README.md`, avant toute action sur le projet.
 
 ## Version actuelle
 
@@ -25,11 +25,16 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 - Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France.
 - Disponibilités françaises des films via TMDB/JustWatch : sortie cinéma récente, streaming par abonnement, location et achat.
 - Le bouton principal d'une fiche ne propose la lecture que lorsqu'un fichier Drive ou hors ligne est réellement disponible ; sinon il indique le type de disponibilité externe.
-- Les fiches de séries conservent l'accès à toutes les saisons et à tous les épisodes, tout en affichant les plateformes françaises au niveau de la série puis de la saison consultée.
-- Dans une saison, chaque épisode indique clairement s'il est téléchargé, présent sur le Drive ou disponible uniquement à titre informatif.
+- Le bouton « Saisons et épisodes » des fiches de séries conserve l'accès à toutes les saisons et à tous les épisodes, même lorsqu'aucun fichier n'est présent dans Movynex.
+- Les plateformes françaises sont affichées au niveau de la série puis de la saison consultée. Ces données TMDB/JustWatch décrivent les offres déclarées pour l'œuvre ou la saison en France et ne garantissent pas la disponibilité de chaque épisode.
+- Dans une saison, chaque épisode indique clairement s'il est téléchargé, présent sur le Drive ou absent du Drive. Un épisode absent reste consultable à titre informatif, mais ne lance pas le lecteur.
 - Interface française, y compris les réglages, le lecteur, les notifications, les téléchargements et les messages d'erreur à partir de la version 1.0.3.
 - Recherche, listes personnelles, saisons et épisodes.
 - Mode image dans l'image pris en charge par le lecteur.
+
+### Actualiser les informations mises en cache
+
+Les métadonnées et disponibilités externes sont mises en cache pour limiter les appels réseau. Dans les réglages, un appui long sur le compteur **Éléments en cache** ouvre la confirmation permettant de vider ce cache. Si les métadonnées d'un film ou d'une série déjà indexé restent anciennes, retirer ensuite ce média de la bibliothèque par glissement puis relancer l'indexation ; l'historique de lecture est conservé séparément.
 
 ## Organisation de Google Drive
 
@@ -98,10 +103,10 @@ Pages publiques associées à l'écran de consentement :
 1. Ouvrir les paramètres Google Drive de Movynex.
 2. Saisir le Client ID, le Client Secret et `http://127.0.0.1:53682/`.
 3. Vérifier que le scope affiché est `https://www.googleapis.com/auth/drive.readonly`.
-4. Appuyer sur **Sign in**, choisir le compte Google et accepter l'accès en lecture seule.
+4. Appuyer sur **Se connecter**, choisir le compte Google et accepter l'accès en lecture seule.
 5. Le navigateur finit sur une adresse `127.0.0.1` qui peut afficher « site inaccessible » : ce comportement est attendu.
 6. Copier l'adresse complète depuis la barre d'adresse du navigateur.
-7. Revenir dans Movynex, choisir **Enter authorization code?**, coller l'adresse complète puis valider.
+7. Revenir dans Movynex, choisir **Saisir le code d'autorisation ?**, coller l'adresse complète puis valider.
 8. Sélectionner les dossiers de films et de séries, puis lancer l'indexation.
 
 Le statut OAuth en production évite l'expiration automatique au bout de sept jours propre au mode de test. Comme l'application familiale n'est pas validée publiquement par Google, un avertissement « application non validée » peut apparaître lors de la première connexion et le projet reste soumis à une limite de 100 utilisateurs OAuth.

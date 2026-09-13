@@ -4,7 +4,7 @@ Dernière mise à jour : 13 septembre 2026
 
 ## Résumé
 
-Movynex 1.0.5 est construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit applicatif `df231c0`, se trouve dans `H:\Downloads\Movynex-1.0.5.apk`.
+Movynex 1.0.5 est construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit applicatif `df231c0`, se trouve dans `H:\Downloads\Movynex-1.0.5.apk`. Son installation et la validation visuelle des nouveautés séries sur le téléphone restent à confirmer.
 
 La 1.0.5 livre l'amélioration des séries intégrée au commit `7447e33` : exploration complète des saisons et épisodes, plateformes françaises par série et saison, résumé des épisodes disponibles et états explicites pour chaque épisode.
 
@@ -20,7 +20,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 
 - Version construite : **Movynex 1.0.5**, `versionCode = 9` et `versionName = 1.0.5`.
 - Commit applicatif livré sur `origin/main` : `df231c0`.
-- Validation fonctionnelle préalable : [pull request n°2](https://github.com/Oks2199/zplex-android/pull/2) et [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421).
+- Validation technique préalable : [pull request n°2](https://github.com/Oks2199/zplex-android/pull/2) et [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421).
 - Tests, APK debug et release ARM64 signée réussis : [GitHub Actions n°19](https://github.com/Oks2199/zplex-android/actions/runs/34760256778).
 - APK vérifiée : package `com.cursedcrew.movynex`, libellé Movynex, version 1.0.5/code 9 et architecture exclusive `arm64-v8a`.
 - Signature Cursed Crew vérifiée avec l'empreinte de certificat attendue ; signature APK v2 et alignement ZIP valides.
@@ -45,6 +45,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - Validation locale : ressources compilées par AAPT2 35.0.0 et `git diff --check` réussi. Gradle reste bloqué avant configuration par la limite Windows connue.
 - Validation distante réussie : [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421) a exécuté les tests unitaires, compilé l'APK debug ARM64 et téléversé l'artefact.
 - Validation après intégration réussie : [GitHub Actions n°18](https://github.com/Oks2199/zplex-android/actions/runs/34759881898) a exécuté les tests, construit l'APK debug et produit une release ARM64 signée.
+- Cette construction intermédiaire n°18 portait encore la version 1.0.4/code 8 et n'a pas été livrée.
 - La version finale 1.0.5/code 9 a été construite et livrée après cette validation.
 
 ## Movynex 1.0.4
@@ -128,8 +129,10 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - Ouverture et lecture d'un film via le lecteur OAuth direct opérationnelles.
 - Téléchargement hors ligne conservé dans le stockage privé de l'application.
 - Plantage `NumberFormatException` avec la locale française corrigé.
-- Tests unitaires debug et compilations debug/release de la 1.0.5 réussis dans GitHub Actions n°19.
-- Package, version, libellé, architecture et signature de l'APK finale contrôlés après téléchargement.
+- Tests unitaires et compilations debug/release de la 1.0.5 réussis dans GitHub Actions n°19.
+- Package, version, libellé, architecture ARM64, clés API, signature v2 et alignement ZIP de l'APK finale contrôlés après téléchargement.
+- Empreinte SHA-256 identique entre l'artefact vérifié et sa copie dans `H:\Downloads`.
+- Le fonctionnement des nouveaux écrans séries est couvert par les tests et la compilation, mais n'est pas encore validé visuellement sur le téléphone.
 
 ## Identité Movynex
 
@@ -137,7 +140,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - Package Android : `com.cursedcrew.movynex`.
 - Namespace Kotlin historique conservé en interne : `zechs.zplex`.
 - Mot-symbole bleu/violet affiché dans la barre supérieure de l'accueil.
-- Icône validée : grand **M** haute définition sur fond presque noir.
+- Icône livrée : grand **M** haute définition sur fond presque noir, réduit à 85 % dans la 1.0.4 pour préserver une marge dans les masques Android.
 - Toutes les densités release, debug et monochromes utilisent la nouvelle identité.
 - Les anciens visuels ZPlex ont été retirés des variantes debug.
 - Les identifiants publics du lecteur, des notifications et des téléchargements ont été renommés pour Movynex.
@@ -187,6 +190,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 ## Documentation de reprise
 
 - `PROJECT_CONTEXT.md` centralise désormais les informations nécessaires à une nouvelle conversation : dépôt et branches, identité Android, compilation locale et GitHub, clé Cursed Crew, secrets attendus, vérification de l'APK, Google Cloud, OAuth, Google Sites, connexion, stockage, conventions de nommage et décisions techniques.
+- La reprise doit commencer par la lecture intégrale et séquentielle de `AGENTS.md`, `PROJECT_CONTEXT.md`, `progress.md`, puis `README.md`, avant toute action sur le projet.
 - `LANGUAGE_AUDIT.md` conserve l'audit complet d'une éventuelle sélection Français / English / Système : architecture AndroidX, ressources, langue TMDB, cache, métadonnées persistantes, pièges de logique, plan d'implémentation et checklist de validation. Cette fonctionnalité est différée sans date au profit d'une interface française unique.
 - Le 12 septembre 2026, la procédure a été précisée après une reprise de session difficile : l'erreur Gradle `Unable to establish loopback connection` de l'environnement Codex, la validation par pull request, le comportement de `workflow_dispatch` et la séparation entre validation debug et livraison signée sont maintenant documentés explicitement.
 - La 1.0.3 a exceptionnellement été poussée directement sur `main` après l'accord de produire une nouvelle mise à jour. Les erreurs détectées par les exécutions n°12 et n°13 confirment qu'une prochaine modification applicative doit d'abord passer par une branche et une pull request lorsque la validation locale est bloquée.

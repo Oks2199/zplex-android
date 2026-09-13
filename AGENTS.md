@@ -4,7 +4,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 
 ## Reprise du projet
 
-- Lire `PROJECT_CONTEXT.md` et `progress.md` en entier avant de commencer une nouvelle session de travail.
+- Lire ce fichier (`AGENTS.md`) en entier, puis `PROJECT_CONTEXT.md`, `progress.md` et `README.md` en entier avant de commencer une nouvelle session de travail.
 - Traiter `PROJECT_CONTEXT.md` comme la source de vérité pour les chemins, la compilation, la signature, Google Cloud, Google Sites et l'historique technique.
 - Maintenir le dossier de reprise après toute modification de la procédure de build, de la signature, d'OAuth, des services externes ou des emplacements de livraison.
 - Ne jamais ajouter de valeur secrète au dossier de reprise, même pour faciliter une session future.
@@ -60,6 +60,9 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - La tentative basée sur le sélecteur Android SAF est conservée sur `codex/saf-migration`, mais elle n'est pas destinée à la release : le fournisseur Google Drive peut charger un MKV en entier avant de permettre les recherches nécessaires à MPV, ce qui provoque un long écran noir.
 - Ne pas réintroduire la migration SAF sans test concluant de lecture immédiate et de déplacement dans une vidéo distante.
 - Toute conversion de nombres doit être indépendante de la langue du téléphone, notamment avec la locale française.
+- Sur une fiche de série, conserver l'accès à toutes les saisons et à tous les épisodes, même lorsqu'aucun fichier n'est présent sur le Drive.
+- Seuls les épisodes associés à un fichier Drive ou hors ligne doivent lancer MPV ; un épisode absent doit rester consultable comme fiche informative.
+- Les disponibilités françaises des séries et saisons proviennent de TMDB/JustWatch, doivent conserver l'attribution JustWatch et ne doivent jamais être présentées comme une disponibilité garantie épisode par épisode.
 
 ## Clés API, jetons et signature
 
@@ -79,8 +82,9 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Ne pas pousser une modification applicative sur `main` sans accord explicite de l'utilisateur pour lancer la construction.
 - Pour une modification exclusivement documentaire, un commit contenant `[skip ci]` peut être utilisé afin d'éviter une construction inutile.
 - Avant une livraison, exécuter les tests unitaires et une compilation debug, puis vérifier la release signée produite par GitHub Actions.
-- Vérifier au minimum le package, `versionCode`, `versionName`, le libellé Movynex, l'architecture ARM64, les clés API et la signature Cursed Crew.
+- Vérifier au minimum le package, `versionCode`, `versionName`, le libellé Movynex, l'architecture ARM64, les clés API, l'alignement ZIP et la signature Cursed Crew.
 - Copier uniquement l'APK finale vérifiée dans `H:\Downloads` lorsque l'utilisateur demande une livraison.
+- Après la copie, vérifier que l'APK source et l'APK livrée possèdent exactement la même empreinte SHA-256.
 - Garder `dist/` hors de Git.
 
 ## Documentation et suivi
@@ -88,7 +92,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - `README.md` décrit l'installation, l'utilisation, le nommage des médias, OAuth et le développement.
 - `PROJECT_CONTEXT.md` contient toutes les informations nécessaires à la reprise du projet dans une nouvelle conversation.
 - `progress.md` décrit uniquement l'état réel, les livraisons vérifiées, les validations restantes et la dette connue.
-- Mettre ces deux fichiers à jour après une étape importante, sans y inscrire de secret.
+- Mettre `README.md`, `PROJECT_CONTEXT.md` et `progress.md` à jour après une étape importante, sans y inscrire de secret. Modifier `AGENTS.md` lorsque les règles persistantes ou la version livrée de référence changent.
 - Ne pas annoncer une modification comme publiée, testée ou installée sans preuve correspondante.
 
 ## Qualité des modifications

@@ -7,7 +7,7 @@ Ce document rassemble les informations nécessaires pour reprendre le projet dan
 1. Lire `AGENTS.md` avant toute modification.
 2. Lire ce fichier en entier.
 3. Lire `progress.md` pour connaître le dernier état livré et les validations restantes.
-4. Consulter `README.md` pour l'utilisation de l'application et les conventions de nommage des médias.
+4. Lire `README.md` en entier pour l'utilisation de l'application et les conventions de nommage des médias.
 5. Lire `LANGUAGE_AUDIT.md` avant toute modification liée aux langues, aux ressources, à TMDB ou au cache de métadonnées.
 6. Vérifier `git status`, la branche courante et les derniers commits avant d'écrire quoi que ce soit.
 
@@ -197,9 +197,13 @@ Avant livraison, vérifier au minimum :
 - `versionCode` et `versionName` attendus ;
 - libellé public `Movynex` ;
 - présence exclusive de l'ABI distribuée `arm64-v8a` ;
-- certificat Cursed Crew avec l'empreinte connue ;
+- présence des clés TMDB et OMDb sans afficher leurs valeurs ;
+- signature APK v2 avec le certificat Cursed Crew et son empreinte connue ;
+- alignement ZIP valide avec `zipalign` ;
 - absence des anciens visuels ZPlex ;
 - fonctionnement de la connexion Drive et de la lecture vidéo.
+
+Après la copie dans `H:\Downloads`, recalculer l'empreinte SHA-256 de la copie et vérifier qu'elle est strictement identique à celle de l'artefact contrôlé.
 
 Pour calculer l'empreinte du fichier sous PowerShell :
 
@@ -246,23 +250,6 @@ Release 1.0.3 vérifiée et livrée :
 - Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34718793281`
 - La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
 
-Release 1.0.5 vérifiée et livrée :
-
-- Commit applicatif livré : `df231c0`
-- Pull request de validation fonctionnelle : [n°2](https://github.com/Oks2199/zplex-android/pull/2), fusionnée au commit `7447e33`
-- APK livrée : `H:\Downloads\Movynex-1.0.5.apk`
-- Copie locale de l'artefact : `F:\Developpement\zplex-android\dist\run-34760256778-release\app-arm64-v8a-release.apk`
-- Taille : `39 285 591` octets
-- SHA-256 de l'APK : `BD0742C08C5FA14A5C3B6419A8DB11F1E7D259F215F3D6F4E0B0A3C651DD6CC8`
-- Package : `com.cursedcrew.movynex`
-- Version : `versionCode = 9`, `versionName = 1.0.5`
-- Libellé : `Movynex`
-- Architecture exclusive : `arm64-v8a`
-- Signature : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
-- Les clés TMDB et OMDb sont bien présentes dans la release ; leurs valeurs n'ont pas été affichées.
-- Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34760256778`
-- La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
-
 Release 1.0.4 vérifiée et livrée :
 
 - Commit applicatif livré : `16f1c55`
@@ -278,6 +265,23 @@ Release 1.0.4 vérifiée et livrée :
 - Signature : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
 - Les clés TMDB et OMDb sont bien présentes dans la release ; leurs valeurs n'ont pas été affichées.
 - Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34755317919`
+- La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
+
+Release 1.0.5 vérifiée et livrée :
+
+- Commit applicatif livré : `df231c0`
+- Pull request de validation technique : [n°2](https://github.com/Oks2199/zplex-android/pull/2), fusionnée au commit `7447e33`
+- APK livrée : `H:\Downloads\Movynex-1.0.5.apk`
+- Copie locale de l'artefact : `F:\Developpement\zplex-android\dist\run-34760256778-release\app-arm64-v8a-release.apk`
+- Taille : `39 285 591` octets
+- SHA-256 de l'APK : `BD0742C08C5FA14A5C3B6419A8DB11F1E7D259F215F3D6F4E0B0A3C651DD6CC8`
+- Package : `com.cursedcrew.movynex`
+- Version : `versionCode = 9`, `versionName = 1.0.5`
+- Libellé : `Movynex`
+- Architecture exclusive : `arm64-v8a`
+- Signature : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
+- Les clés TMDB et OMDb sont bien présentes dans la release ; leurs valeurs n'ont pas été affichées.
+- Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34760256778`
 - La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
 
 Le dossier `dist/` est local, non versionné et ne doit pas être ajouté à Git.
@@ -324,10 +328,10 @@ Le titre public est **Movynex**. Il a remplacé l'ancien titre **Nothing - Void 
 2. Saisir localement le Client ID et le Client Secret transmis en privé.
 3. Utiliser `http://127.0.0.1:53682/` comme URI de redirection.
 4. Vérifier le scope de lecture seule.
-5. Appuyer sur **Sign in** et autoriser l'accès Google Drive.
+5. Appuyer sur **Se connecter** et autoriser l'accès Google Drive.
 6. À la fin, la page `127.0.0.1` peut être inaccessible : c'est attendu, aucun serveur local n'écoute sur le téléphone.
 7. Copier l'URL complète affichée dans la barre d'adresse.
-8. Revenir dans Movynex, choisir **Enter authorization code?**, coller l'URL complète et valider.
+8. Revenir dans Movynex, choisir **Saisir le code d'autorisation ?**, coller l'URL complète et valider.
 9. Sélectionner les dossiers Films et Séries puis lancer l'indexation.
 
 Les identifiants et jetons sont conservés dans l'espace privé de l'application. Une mise à jour avec le même package et la même signature les conserve ; une désinstallation les efface.
@@ -390,9 +394,9 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.4 est publiée sur `origin/main` au commit applicatif `16f1c55`. Elle ajoute les disponibilités françaises des films, corrige le comportement du bouton principal lorsqu'aucun fichier n'est disponible et réduit le M de l'icône à 85 %. Elle conserve les traductions et le fonctionnement validé de la 1.0.3. Les journaux techniques invisibles restent en anglais.
+Movynex 1.0.5 est publiée sur `origin/main` au commit applicatif `df231c0` et son APK vérifiée est livrée dans `H:\Downloads\Movynex-1.0.5.apk`. Elle conserve les disponibilités françaises des films et l'icône corrigée de la 1.0.4, puis ajoute les disponibilités françaises des séries et des saisons, le récapitulatif des fichiers par saison et les états « Téléchargé », « Sur le Drive » ou « Pas sur le Drive » pour chaque épisode. L'installation de cette APK sur le téléphone et la validation visuelle finale de ces écrans restent à confirmer par l'utilisateur.
 
-Les deux premières exécutions de cette livraison ont détecté des erreurs simples : GitHub Actions n°12 a échoué à cause d'un import `R` manquant dans `CastViewModel`, puis n°13 à cause d'une attente anglaise obsolète dans `ConverterUtilsTest`. Les commits `4643428` et `2fae67b` ont corrigé ces deux points. GitHub Actions n°14 a ensuite réussi l'intégralité des tests, la compilation debug et la release ARM64 signée.
+Lors de la livraison 1.0.3, les deux premières exécutions ont détecté des erreurs simples : GitHub Actions n°12 a échoué à cause d'un import `R` manquant dans `CastViewModel`, puis n°13 à cause d'une attente anglaise obsolète dans `ConverterUtilsTest`. Les commits `4643428` et `2fae67b` ont corrigé ces deux points. GitHub Actions n°14 a ensuite réussi l'intégralité des tests, la compilation debug et la release ARM64 signée.
 
 Pour la 1.0.3, la demande de « nouvelle mise à jour » a été interprétée comme l'accord de pousser directement sur `main`, sans passer d'abord par la pull request de validation recommandée lorsque Gradle local est bloqué. Ne pas reproduire cet écart : pour une modification applicative suivante, valider d'abord une branche par pull request, puis intégrer sur `main` seulement après réussite et accord explicite de livraison.
 
