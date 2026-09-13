@@ -2,6 +2,7 @@ package zechs.zplex.ui.media.adapter
 
 import androidx.annotation.Keep
 import zechs.zplex.data.model.MovieAvailability
+import zechs.zplex.data.model.WatchAvailability
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.entities.WatchedMovie
@@ -9,6 +10,7 @@ import zechs.zplex.data.model.tmdb.entities.Cast
 import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.data.model.tmdb.entities.Season
 import zechs.zplex.data.model.tmdb.entities.Video
+import java.time.LocalDate
 
 sealed class MediaDataModel {
 
@@ -67,7 +69,9 @@ sealed class MediaDataModel {
 
     @Keep
     data class Availability(
-        val availability: MovieAvailability
+        val heading: String,
+        val availability: WatchAvailability,
+        val recentTheatricalDate: LocalDate? = null
     ) : MediaDataModel()
 
     @Keep

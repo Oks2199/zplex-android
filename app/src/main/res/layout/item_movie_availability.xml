@@ -10,10 +10,11 @@
     android:paddingBottom="8dp">
 
     <TextView
+        android:id="@+id/tvHeading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto_medium"
-        android:text="@string/where_to_watch_in_france"
+        android:text="@string/where_to_watch_movie_in_france"
         android:textColor="@color/textColor"
         android:textSize="19sp" />
 

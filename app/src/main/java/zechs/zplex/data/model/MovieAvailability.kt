@@ -14,6 +14,14 @@ data class MovieAvailability(
     val buyProviders: List<WatchProvider>,
     val tmdbLink: String?
 ) {
+    val watchAvailability: WatchAvailability
+        get() = WatchAvailability(
+            streamingProviders = streamingProviders,
+            rentProviders = rentProviders,
+            buyProviders = buyProviders,
+            tmdbLink = tmdbLink
+        )
+
     val hasInformation: Boolean
         get() = recentTheatricalDate != null ||
             streamingProviders.isNotEmpty() ||
@@ -43,19 +51,14 @@ object MovieAvailabilityMapper {
             .filter { !it.isAfter(today) && !it.isBefore(today.minusDays(RECENT_THEATRICAL_DAYS)) }
             .maxOrNull()
 
-        val frenchProviders = watchProviders?.results?.get(TMDB_REGION)
-        val streaming = (
-            frenchProviders?.flatrate.orEmpty() +
-                frenchProviders?.free.orEmpty() +
-                frenchProviders?.ads.orEmpty()
-            ).normalized()
+        val watchAvailability = WatchAvailabilityMapper.map(watchProviders)
 
         return MovieAvailability(
             recentTheatricalDate = recentTheatricalDate,
-            streamingProviders = streaming,
-            rentProviders = frenchProviders?.rent.orEmpty().normalized(),
-            buyProviders = frenchProviders?.buy.orEmpty().normalized(),
-            tmdbLink = frenchProviders?.link
+            streamingProviders = watchAvailability.streamingProviders,
+            rentProviders = watchAvailability.rentProviders,
+            buyProviders = watchAvailability.buyProviders,
+            tmdbLink = watchAvailability.tmdbLink
         )
     }
 
@@ -64,7 +67,4 @@ object MovieAvailabilityMapper {
     } catch (_: DateTimeParseException) {
         null
     }
-
-    private fun List<WatchProvider>.normalized(): List<WatchProvider> =
-        distinctBy { it.providerId }.sortedBy { it.displayPriority }
 }

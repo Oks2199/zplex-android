@@ -13,7 +13,6 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -76,5 +75,85 @@
         app:layout_constraintTop_toBottomOf="@+id/tvSeasonName"
         app:layout_constraintVertical_bias="0.0"
         tools:text="Thomas William Hiddleston (born 9 February 1981) is an English actor. He gained international fame portraying Loki in the Marvel Cinematic Universe (MCU), appearing in Thor (2011), The Avengers (2012), Thor: The Dark World (2013), Thor: Ragnarok (2017), Avengers: Infinity War (2018), Avengers: Endgame (2019), and in the Disney+ series Loki (2021)." />
+
+    <LinearLayout
+        android:id="@+id/seasonStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_card">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvSeasonLibrarySummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColor_87"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="6/10 épisodes sur le Drive · 2 téléchargés"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/seasonAvailabilityContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_medium"
+                android:text="@string/where_to_watch_season_in_france"
+                android:textColor="@color/textColor"
+                android:textSize="19sp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvSeasonStreaming"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/textColor_87"
+                android:textSize="15sp"
+                tools:text="Streaming : Netflix" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvSeasonRent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/textColor_87"
+                android:textSize="15sp"
+                tools:text="Location : Apple TV" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvSeasonBuy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/textColor_87"
+                android:textSize="15sp"
+                tools:text="Achat : Apple TV" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvSeasonAttribution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/watch_availability_attribution"
+                android:textColor="@color/colorAccentLight"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

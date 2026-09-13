@@ -14,6 +14,21 @@ La 1.0.4 ajoute les disponibilités françaises des films. Les fiches récupère
 
 La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, conformément à la correction explicite de l'utilisateur : le schéma de `zplex_db.db`, la navigation inférieure et le fonctionnement historique de `Ma liste` restent inchangés.
 
+## Amélioration des séries validée, en attente d'intégration
+
+- Branche : `codex/series-availability`, commit applicatif `b817a6b`.
+- Pull request de validation : [n°2](https://github.com/Oks2199/zplex-android/pull/2), non fusionnée.
+- Le bouton de la fiche série devient « Saisons et épisodes » et conserve l'accès complet aux saisons et épisodes, avec ou sans fichier Drive.
+- Les plateformes françaises sont affichées au niveau général de la série puis au niveau précis de la saison consultée, avec attribution JustWatch.
+- Les nouvelles entrées de plateformes sont conservées 24 heures dans le cache et sont couvertes par la remise à zéro existante.
+- La saison ouverte affiche le nombre d'épisodes présents sur le Drive et téléchargés sans analyser toutes les autres saisons.
+- Chaque épisode indique « Téléchargé », « Sur le Drive » ou « Pas sur le Drive ». Sans fichier, un toucher ouvre les informations de l'épisode sans imposer de connexion Drive.
+- Aucun schéma Room, stockage DataStore, réglage OAuth ou format de dossier Drive n'est modifié.
+- Tests ajoutés pour les plateformes françaises et les trois états des épisodes.
+- Validation locale : ressources compilées par AAPT2 35.0.0 et `git diff --check` réussi. Gradle reste bloqué avant configuration par la limite Windows connue.
+- Validation distante réussie : [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421) a exécuté les tests unitaires, compilé l'APK debug ARM64 et téléversé l'artefact.
+- Aucune release 1.0.5 n'est encore construite ou livrée ; la version de référence reste la 1.0.4.
+
 ## Movynex 1.0.4
 
 - Version construite : **Movynex 1.0.4**, `versionCode = 8` et `versionName = 1.0.4`.

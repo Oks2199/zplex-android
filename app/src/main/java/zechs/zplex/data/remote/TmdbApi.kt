@@ -33,6 +33,12 @@ interface TmdbApi {
         append_to_response: String?
     ): Response<TvResponse>
 
+    @GET("3/tv/{tv_id}/watch/providers")
+    suspend fun getShowWatchProviders(
+        @Path("tv_id") tvId: Int,
+        @Query("api_key") apiKey: String = TMDB_API_KEY
+    ): Response<MovieWatchProvidersResponse>
+
     @GET("3/tv/{tv_id}/season/{season_number}")
     suspend fun getSeason(
         @Path("tv_id")
@@ -44,6 +50,13 @@ interface TmdbApi {
         @Query("language")
         language: String = TMDB_LANGUAGE,
     ): Response<SeasonResponse>
+
+    @GET("3/tv/{tv_id}/season/{season_number}/watch/providers")
+    suspend fun getSeasonWatchProviders(
+        @Path("tv_id") tvId: Int,
+        @Path("season_number") seasonNumber: Int,
+        @Query("api_key") apiKey: String = TMDB_API_KEY
+    ): Response<MovieWatchProvidersResponse>
 
     @GET("3/tv/{tv_id}/season/{season_number}/episode/{episode_number}")
     suspend fun getEpisode(

@@ -23,6 +23,8 @@ import zechs.zplex.data.local.offline.OfflineShowDao
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.MovieAvailability
 import zechs.zplex.data.model.MovieAvailabilityMapper
+import zechs.zplex.data.model.WatchAvailability
+import zechs.zplex.data.model.WatchAvailabilityMapper
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.entities.WatchedMovie
@@ -198,7 +200,13 @@ class MediaViewModel @Inject constructor(
         tmdbId: Int
     ) = withContext(Dispatchers.IO) {
         val page = 1
-        val tv = tmdbRepository.getShow(tmdbId)
+        val tvDeferred = async { tmdbRepository.getShow(tmdbId) }
+        val watchProvidersDeferred = async { tmdbRepository.getShowWatchProviders(tmdbId) }
+        val tv = tvDeferred.await()
+        val watchProviders = watchProvidersDeferred.await()
+        val availability = WatchAvailabilityMapper.map(
+            watchProviders.body().takeIf { watchProviders.isSuccessful }
+        )
 
         if (tv.isSuccessful && tv.body() != null) {
             tv.body()!!.production_companies?.let { companies ->
@@ -210,7 +218,7 @@ class MediaViewModel @Inject constructor(
                         )
                     }
                     val handleTvResponse = handleTvResponse(
-                        tv, moreFromCompany.await()
+                        tv, moreFromCompany.await(), availability
                     )
                     _mediaResponse.postValue(handleTvResponse)
                     return@withContext
@@ -218,13 +226,16 @@ class MediaViewModel @Inject constructor(
             }
         }
 
-        _mediaResponse.postValue(handleTvResponse(tv, company = null))
+        _mediaResponse.postValue(
+            handleTvResponse(tv, company = null, availability = availability)
+        )
     }
 
 
     private suspend fun handleTvResponse(
         response: Response<TvResponse>,
-        company: Response<SearchResponse>?
+        company: Response<SearchResponse>?,
+        availability: WatchAvailability? = null
     ): Resource<List<MediaDataModel>> {
 
         if (response.isSuccessful && response.body() != null) {
@@ -282,6 +293,7 @@ class MediaViewModel @Inject constructor(
             )
 
             val seasonList = result.seasons?.toList() ?: listOf()
+            var latestSeasonItem: MediaDataModel.LatestSeason? = null
             result.last_episode_to_air?.let { ep ->
                 val season = seasonList.firstOrNull {
                     it.season_number == ep.season_number
@@ -319,8 +331,7 @@ class MediaViewModel @Inject constructor(
                         premiered
                     } else it.overview
 
-                    mediaDataModel.add(
-                        MediaDataModel.LatestSeason(
+                    latestSeasonItem = MediaDataModel.LatestSeason(
                             showTmdbId = result.id,
                             showName = result.name,
                             showPoster = result.poster_path,
@@ -330,7 +341,6 @@ class MediaViewModel @Inject constructor(
                             seasonPlot = seasonPlot,
                             seasonYearAndEpisodeCount = yearSeason,
                             seasons = seasonList
-                        )
                     )
                 }
             }
@@ -353,6 +363,17 @@ class MediaViewModel @Inject constructor(
                     seasons = seasonList
                 )
             )
+
+            availability?.takeIf { it.hasInformation }?.let {
+                mediaDataModel.add(
+                    MediaDataModel.Availability(
+                        heading = context.getString(R.string.where_to_watch_show_in_france),
+                        availability = it
+                    )
+                )
+            }
+
+            latestSeasonItem?.let(mediaDataModel::add)
 
             result.credits?.cast?.let {
                 if (it.isNotEmpty()) {
@@ -496,7 +517,13 @@ class MediaViewModel @Inject constructor(
             )
 
             availability?.takeIf { it.hasInformation }?.let {
-                mediaDataModel.add(MediaDataModel.Availability(it))
+                mediaDataModel.add(
+                    MediaDataModel.Availability(
+                        heading = context.getString(R.string.where_to_watch_movie_in_france),
+                        availability = it.watchAvailability,
+                        recentTheatricalDate = it.recentTheatricalDate
+                    )
+                )
             }
 
             result.credits?.cast?.let {

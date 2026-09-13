@@ -104,7 +104,7 @@ class MediaDataAdapter(
             }
 
             is MediaViewHolder.AvailabilityViewHolder -> {
-                holder.bind((item as MediaDataModel.Availability).availability)
+                holder.bind(item as MediaDataModel.Availability)
             }
 
             is MediaViewHolder.ListViewHolder -> {
