@@ -32,6 +32,7 @@ Le dépôt d'origine reste crédité et la licence MIT doit être conservée. Le
 - Release applicative 1.0.1 : commit `5b51e09`
 - Release applicative 1.0.2 : commit `302d08d`
 - Release applicative 1.0.3 : commit `2fae67b`
+- Version 1.0.4 en validation : branche `codex/movie-availability`
 - Première refonte générale de la documentation : commit `031be35`
 - Workflow : `.github/workflows/android.yml`
 - Page GitHub Actions : `https://github.com/Oks2199/zplex-android/actions`
@@ -46,6 +47,7 @@ Un push applicatif sur `main` déclenche les tests et la construction. Il faut l
 - Namespace Kotlin historique : `zechs.zplex`
 - Projet Gradle : `Movynex`
 - Version livrée : `versionCode = 7`, `versionName = 1.0.3`
+- Version préparée : `versionCode = 8`, `versionName = 1.0.4`
 - Android minimum : API 31
 - Android cible et compilation : API 36
 - Architecture distribuée : `arm64-v8a`
@@ -370,7 +372,7 @@ Pour actualiser les deux films déjà indexés après installation de la 1.0.3 :
 
 La compilation AAPT2 de toutes les ressources Android de ce passage français réussit avec la version 35.0.0. `git diff --check` ne relève aucune erreur. La tentative locale des tests et de l'assemblage debug avec le JDK 17 s'arrête avant la configuration du projet sur la limite connue `Unable to establish loopback connection` ; la validation complète a donc été effectuée par GitHub Actions n°14.
 
-Après validation de la 1.0.3, la capture du gestionnaire de fichiers Samsung a montré que le M de l'icône touchait visuellement les limites du masque rond. Une correction réduit exactement les calques de premier plan existants à 85 %, sans redessiner le monogramme, et les recentre sur leur canevas transparent. Elle concerne `ic_launcher_foreground.png`, `ic_launcher_debug_foreground.png` et `ic_launcher_debug_monochrome.png` dans les cinq dossiers de densité. AAPT2 35.0.0 compile ces ressources avec succès. Cette correction est regroupée avec les autres changements dans le commit applicatif `71e4e08` de la branche distante `codex/movie-availability`; elle n'est pas intégrée à `main` ni publiée et aucun numéro de version n'a été changé.
+Après validation de la 1.0.3, la capture du gestionnaire de fichiers Samsung a montré que le M de l'icône touchait visuellement les limites du masque rond. Une correction réduit exactement les calques de premier plan existants à 85 %, sans redessiner le monogramme, et les recentre sur leur canevas transparent. Elle concerne `ic_launcher_foreground.png`, `ic_launcher_debug_foreground.png` et `ic_launcher_debug_monochrome.png` dans les cinq dossiers de densité. AAPT2 35.0.0 compile ces ressources avec succès. Cette correction est regroupée avec les autres changements dans le commit applicatif `71e4e08` de la branche distante `codex/movie-availability`; elle n'est pas encore intégrée à `main` ni publiée. La branche prépare désormais Movynex 1.0.4 avec `versionCode = 8` et `versionName = 1.0.4`.
 
 Une seconde modification prépare les fiches de films à distinguer la lecture réelle des disponibilités externes en France. TMDB fournit les dates de sortie françaises et les plateformes issues de JustWatch. Les dates sont mises en cache 30 jours avec la clé `movie_<id>_release_dates_FR`; les plateformes sont mises en cache 24 heures avec la clé `movie_<id>_watch_providers_FR`. Le bouton de remise à zéro du cache efface également ces entrées. Cette modification est elle aussi dans `71e4e08`, poussé sur `origin/codex/movie-availability` pour validation avant toute intégration à `main`.
 
