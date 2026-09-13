@@ -21,6 +21,8 @@ import zechs.zplex.R
 import zechs.zplex.data.local.offline.OfflineMovieDao
 import zechs.zplex.data.local.offline.OfflineShowDao
 import zechs.zplex.data.model.MediaType
+import zechs.zplex.data.model.MovieAvailability
+import zechs.zplex.data.model.MovieAvailabilityMapper
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.entities.WatchedMovie
@@ -134,7 +136,17 @@ class MediaViewModel @Inject constructor(
         tmdbId: Int
     ) = withContext(Dispatchers.IO) {
         val page = 1
-        val movie = tmdbRepository.getMovie(tmdbId)
+        val movieDeferred = async { tmdbRepository.getMovie(tmdbId) }
+        val releaseDatesDeferred = async { tmdbRepository.getMovieReleaseDates(tmdbId) }
+        val watchProvidersDeferred = async { tmdbRepository.getMovieWatchProviders(tmdbId) }
+
+        val movie = movieDeferred.await()
+        val releaseDates = releaseDatesDeferred.await()
+        val watchProviders = watchProvidersDeferred.await()
+        val availability = MovieAvailabilityMapper.map(
+            releaseDates = releaseDates.body().takeIf { releaseDates.isSuccessful },
+            watchProviders = watchProviders.body().takeIf { watchProviders.isSuccessful }
+        )
 
         if (movie.isSuccessful && movie.body() != null) {
             movie.body()!!.production_companies?.let {
@@ -143,7 +155,7 @@ class MediaViewModel @Inject constructor(
                         it[0].id, page
                     )
                     val handleMovieResponse = handleMovieResponse(
-                        movie, moreFromCompany
+                        movie, moreFromCompany, availability
                     )
                     _mediaResponse.postValue(handleMovieResponse)
                     return@withContext
@@ -151,7 +163,9 @@ class MediaViewModel @Inject constructor(
             }
         }
 
-        _mediaResponse.postValue(handleMovieResponse(movie, company = null))
+        _mediaResponse.postValue(
+            handleMovieResponse(movie, company = null, availability = availability)
+        )
     }
 
     private suspend fun fetchShowLocal(
@@ -395,7 +409,8 @@ class MediaViewModel @Inject constructor(
 
     private suspend fun handleMovieResponse(
         response: Response<MovieResponse>,
-        company: Response<SearchResponse>?
+        company: Response<SearchResponse>?,
+        availability: MovieAvailability? = null
     ): Resource<List<MediaDataModel>> {
         if (response.isSuccessful && response.body() != null) {
             val result = response.body()!!
@@ -473,11 +488,16 @@ class MediaViewModel @Inject constructor(
                         modifiedTime = saved?.modifiedTime
                     ),
                     watchedMovie = watched,
+                    availability = availability,
                     imdbId = result.imdb_id,
                     year = year,
                     studio = result.production_companies?.firstOrNull()?.name
                 )
             )
+
+            availability?.takeIf { it.hasInformation }?.let {
+                mediaDataModel.add(MediaDataModel.Availability(it))
+            }
 
             result.credits?.cast?.let {
                 if (it.isNotEmpty()) {
@@ -577,6 +597,9 @@ class MediaViewModel @Inject constructor(
             _movieFile.postValue(Event(Resource.Success(playerMovie)))
         }
     }
+
+    fun isOfflineMovie(movie: Movie): Boolean =
+        movie.fileId?.startsWith(context.filesDir.path) == true
 
     fun movieWatchedState(tmdbId: Int): LiveData<WatchedMovie?> {
         return watchedRepository.observeWatchedMovie(tmdbId)

@@ -1,10 +1,15 @@
 package zechs.zplex.ui.media.adapter
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +20,7 @@ import coil.request.SuccessResult
 import coil.size.Precision
 import zechs.zplex.R
 import zechs.zplex.data.model.BackdropSize
+import zechs.zplex.data.model.MovieAvailability
 import zechs.zplex.data.model.PosterSize
 import zechs.zplex.databinding.ItemListWithHeadingBinding
 import zechs.zplex.databinding.ItemMediaButtonsBinding
@@ -22,12 +28,15 @@ import zechs.zplex.databinding.ItemMediaCollectionBinding
 import zechs.zplex.databinding.ItemMediaHeaderBinding
 import zechs.zplex.databinding.ItemMediaSeasonBinding
 import zechs.zplex.databinding.ItemMediaTitleBinding
+import zechs.zplex.databinding.ItemMovieAvailabilityBinding
 import zechs.zplex.ui.list.adapter.ListDataModel
 import zechs.zplex.ui.shared_adapters.casts.CastAdapter
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.ui.shared_adapters.video.VideoAdapter
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.util.SpannableTextView.spannablePlotText
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 sealed class MediaViewHolder(
     binding: ViewBinding
@@ -220,7 +229,7 @@ sealed class MediaViewHolder(
                     val btnWatchNowTag = "btnWatchNowTAG"
                     if (tag != btnWatchNowTag) {
                         listener.setButtonView(this)
-                        listener.setMovieWatchNowButton(this)
+                        listener.setMovieWatchNowButton(this, item.movie, item.availability)
                     }
                     tag = btnWatchNowTag
                 }
@@ -235,6 +244,69 @@ sealed class MediaViewHolder(
                 btnShare.setOnClickListener {
                     listener.movieShare(item.movie.id, item.movie.title, item.imdbId)
                 }
+            }
+        }
+    }
+
+    class AvailabilityViewHolder(
+        private val itemBinding: ItemMovieAvailabilityBinding
+    ) : MediaViewHolder(itemBinding) {
+
+        fun bind(item: MovieAvailability) {
+            val context = itemBinding.root.context
+            val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
+
+            itemBinding.tvCinema.apply {
+                isVisible = item.recentTheatricalDate != null
+                text = item.recentTheatricalDate?.let {
+                    context.getString(R.string.in_theatres_since, formatter.format(it))
+                }
+            }
+
+            bindProviderLine(
+                itemBinding.tvStreaming,
+                R.string.streaming_providers,
+                item.streamingProviders.map { it.providerName }
+            )
+            bindProviderLine(
+                itemBinding.tvRent,
+                R.string.rent_providers,
+                item.rentProviders.map { it.providerName }
+            )
+            bindProviderLine(
+                itemBinding.tvBuy,
+                R.string.buy_providers,
+                item.buyProviders.map { it.providerName }
+            )
+
+            val hasProviders = item.streamingProviders.isNotEmpty() ||
+                item.rentProviders.isNotEmpty() || item.buyProviders.isNotEmpty()
+            itemBinding.tvAttribution.apply {
+                isVisible = hasProviders
+                text = if (item.tmdbLink != null) {
+                    context.getString(R.string.watch_availability_attribution_with_link)
+                } else {
+                    context.getString(R.string.watch_availability_attribution)
+                }
+                isClickable = item.tmdbLink != null
+                setOnClickListener(
+                    item.tmdbLink?.let { link ->
+                        View.OnClickListener {
+                            try {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                            } catch (_: ActivityNotFoundException) {
+                                // No browser is available on the device.
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
+        private fun bindProviderLine(view: android.widget.TextView, label: Int, names: List<String>) {
+            view.isVisible = names.isNotEmpty()
+            if (names.isNotEmpty()) {
+                view.text = view.context.getString(label, names.joinToString(", "))
             }
         }
     }

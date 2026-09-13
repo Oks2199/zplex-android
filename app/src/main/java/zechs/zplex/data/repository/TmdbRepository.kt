@@ -15,6 +15,8 @@ import zechs.zplex.data.model.SortBy
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.tmdb.keyword.TmdbKeyword
+import zechs.zplex.data.model.tmdb.availability.MovieReleaseDatesResponse
+import zechs.zplex.data.model.tmdb.availability.MovieWatchProvidersResponse
 import zechs.zplex.data.model.tmdb.media.MovieResponse
 import zechs.zplex.data.model.tmdb.media.TvResponse
 import zechs.zplex.data.model.tmdb.search.SearchResponse
@@ -39,6 +41,7 @@ class TmdbRepository @Inject constructor(
     companion object {
         private const val TAG = "TmdbRepository"
         private const val THIRTY_DAYS_MILLIS = CACHE_TTL_IN_DAYS * 24 * 60 * 60 * 1000L
+        private const val ONE_DAY_MILLIS = 24 * 60 * 60 * 1000L
         private const val CACHE_ENABLED = true
     }
 
@@ -83,6 +86,7 @@ class TmdbRepository @Inject constructor(
 
     fun getSavedShowsAsLiveData() = showDao.getAllShowsAsLiveData()
     fun getSavedShows() = showDao.getAllShows()
+
 
     suspend fun getShow(
         tvId: Int,
@@ -202,6 +206,74 @@ class TmdbRepository @Inject constructor(
             return tmdbResponse
         } catch (e: Exception) {
             return Response.error(500, "Exception: ${e.message}".toResponseBody(null))
+        }
+    }
+
+    suspend fun getMovieReleaseDates(movieId: Int): Response<MovieReleaseDatesResponse> {
+        val cacheKey = "movie_${movieId}_release_dates_FR"
+        if (CACHE_ENABLED) {
+            val existingCache = apiCacheDao.getCacheById(cacheKey)
+            if (existingCache != null && existingCache.expiration >= System.currentTimeMillis()) {
+                try {
+                    return Response.success(
+                        parseCache(existingCache.classType, existingCache.body)
+                    )
+                } catch (e: Exception) {
+                    Log.d(TAG, "Release-date cache deserialization failed: ${e.message}")
+                    apiCacheDao.deleteCacheById(cacheKey)
+                }
+            }
+        }
+
+        return try {
+            val response = tmdbApi.getMovieReleaseDates(movieId)
+            response.body()?.takeIf { response.isSuccessful }?.let { body ->
+                apiCacheDao.addCache(
+                    ApiCache(
+                        id = cacheKey,
+                        body = gson.toJson(body),
+                        classType = MovieReleaseDatesResponse::class.java.name,
+                        expiration = System.currentTimeMillis() + THIRTY_DAYS_MILLIS
+                    )
+                )
+            }
+            response
+        } catch (e: Exception) {
+            Response.error(500, "Exception: ${e.message}".toResponseBody(null))
+        }
+    }
+
+    suspend fun getMovieWatchProviders(movieId: Int): Response<MovieWatchProvidersResponse> {
+        val cacheKey = "movie_${movieId}_watch_providers_FR"
+        if (CACHE_ENABLED) {
+            val existingCache = apiCacheDao.getCacheById(cacheKey)
+            if (existingCache != null && existingCache.expiration >= System.currentTimeMillis()) {
+                try {
+                    return Response.success(
+                        parseCache(existingCache.classType, existingCache.body)
+                    )
+                } catch (e: Exception) {
+                    Log.d(TAG, "Watch-provider cache deserialization failed: ${e.message}")
+                    apiCacheDao.deleteCacheById(cacheKey)
+                }
+            }
+        }
+
+        return try {
+            val response = tmdbApi.getMovieWatchProviders(movieId)
+            response.body()?.takeIf { response.isSuccessful }?.let { body ->
+                apiCacheDao.addCache(
+                    ApiCache(
+                        id = cacheKey,
+                        body = gson.toJson(body),
+                        classType = MovieWatchProvidersResponse::class.java.name,
+                        expiration = System.currentTimeMillis() + ONE_DAY_MILLIS
+                    )
+                )
+            }
+            response
+        } catch (e: Exception) {
+            Response.error(500, "Exception: ${e.message}".toResponseBody(null))
         }
     }
 

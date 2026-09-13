@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_medium"
+        android:text="@string/where_to_watch_in_france"
+        android:textColor="@color/textColor"
+        android:textSize="19sp" />
+
+    <TextView
+        android:id="@+id/tvCinema"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/textColor_87"
+        android:textSize="15sp"
+        tools:text="Au cinéma depuis le 9 septembre 2026" />
+
+    <TextView
+        android:id="@+id/tvStreaming"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/textColor_87"
+        android:textSize="15sp"
+        tools:text="Streaming : Netflix, Disney Plus" />
+
+    <TextView
+        android:id="@+id/tvRent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/textColor_87"
+        android:textSize="15sp"
+        tools:text="Location : Apple TV" />
+
+    <TextView
+        android:id="@+id/tvBuy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/textColor_87"
+        android:textSize="15sp"
+        tools:text="Achat : Apple TV" />
+
+    <TextView
+        android:id="@+id/tvAttribution"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/watch_availability_attribution"
+        android:textColor="@color/colorAccentLight"
+        android:textSize="13sp" />
+
+</LinearLayout>

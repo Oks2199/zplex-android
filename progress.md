@@ -1,12 +1,18 @@
 # Movynex — état d'avancement
 
-Dernière mise à jour : 12 septembre 2026
+Dernière mise à jour : 13 septembre 2026
 
 ## Résumé
 
 Movynex 1.0.3 est construite, signée et livrée. Le code applicatif correspondant est sur `origin/main` au commit `2fae67b`. L'APK finale vérifiée se trouve dans `H:\Downloads\Movynex-1.0.3.apk`.
 
-La 1.0.3 corrige le champ anglais repéré dans Recherche après l'installation de la 1.0.2 et termine le passage en français des textes visibles de l'application. GitHub Actions n°14 a validé les tests unitaires, l'APK debug et la release ARM64 signée. L'installation et le contrôle visuel de la 1.0.3 sur le téléphone restent à faire.
+La 1.0.3 corrige le champ anglais repéré dans Recherche après l'installation de la 1.0.2 et termine le passage en français des textes visibles de l'application. GitHub Actions n°14 a validé les tests unitaires, l'APK debug et la release ARM64 signée. Le 13 septembre 2026, l'utilisateur a confirmé que la 1.0.3 installée fonctionne correctement.
+
+Une correction graphique locale réduit le monogramme M de l'icône à 85 % de sa taille précédente afin qu'il ne touche plus les limites du masque rond Samsung. Les 15 ressources release, debug et monochrome des cinq densités ont été mises à jour. Leur compilation avec AAPT2 35.0.0 réussit. Cette correction n'est ni committée, ni poussée, ni publiée ; la version reste 1.0.3 en attendant les autres modifications prévues pour la prochaine mise à jour.
+
+Une modification applicative locale ajoute les disponibilités françaises des films. Les fiches récupèrent auprès de TMDB les sorties cinéma et les offres JustWatch de streaming, location et achat, avec des caches respectifs de 30 jours et 24 heures. Une section « Où voir ce film en France ? » détaille ces informations. Le bouton principal conserve `Regarder` ou `Continuer la lecture` uniquement lorsqu'un fichier Drive ou hors ligne est détecté ; sinon il indique cinéma, plateforme, location, achat ou indisponibilité. Les téléchargements locaux restent lisibles sans connexion Drive.
+
+La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, conformément à la correction explicite de l'utilisateur : le schéma de `zplex_db.db`, la navigation inférieure et le fonctionnement historique de `Ma liste` restent inchangés. Aucun numéro de version, commit ou push n'a encore été effectué. Les ressources passent AAPT2 35.0.0 et `git diff --check`. Les tests unitaires ont été ajoutés, mais leur exécution locale avec le JDK 17 est bloquée avant la configuration de Gradle par la limite connue `Unable to establish loopback connection`; une validation GitHub Actions sur branche reste nécessaire.
 
 ## Correction française livrée dans Movynex 1.0.3
 
@@ -139,10 +145,9 @@ La 1.0.3 corrige le champ anglais repéré dans Recherche après l'installation 
 
 ## Validation restante
 
-1. Installer `H:\Downloads\Movynex-1.0.3.apk` directement par-dessus la 1.0.2, sans désinstaller l'application.
-2. Vérifier sur le téléphone les écrans Recherche, OAuth/Drive, lecteur, distribution, historique, téléchargements et réglages.
-3. Réinitialiser le cache API puis réindexer les deux films si leurs anciennes métadonnées restent en cache.
-4. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
+1. Regrouper les autres modifications souhaitées par l'utilisateur avant de préparer la prochaine version.
+2. Vérifier l'icône réduite sur le téléphone dans les masques rond, carré arrondi et adaptatif lors de la prochaine APK.
+3. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
 
 ## Dette et améliorations futures
 

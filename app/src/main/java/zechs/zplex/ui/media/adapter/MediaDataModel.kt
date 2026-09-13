@@ -1,6 +1,7 @@
 package zechs.zplex.ui.media.adapter
 
 import androidx.annotation.Keep
+import zechs.zplex.data.model.MovieAvailability
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.entities.WatchedMovie
@@ -58,9 +59,15 @@ sealed class MediaDataModel {
     data class MovieButton(
         val movie: Movie,
         val watchedMovie: WatchedMovie?,
+        val availability: MovieAvailability?,
         val year: Int?,
         val imdbId: String?,
         val studio: String?
+    ) : MediaDataModel()
+
+    @Keep
+    data class Availability(
+        val availability: MovieAvailability
     ) : MediaDataModel()
 
     @Keep

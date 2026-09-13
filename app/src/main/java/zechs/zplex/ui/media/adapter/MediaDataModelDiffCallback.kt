@@ -33,6 +33,10 @@ class MediaDataModelDiffCallback : DiffUtil.ItemCallback<MediaDataModel>() {
                 is MediaDataModel.ShowButton && oldItem.show.id == newItem.show.id
             -> true
 
+        oldItem is MediaDataModel.Availability && newItem
+                is MediaDataModel.Availability
+            -> true
+
         oldItem is MediaDataModel.Casts && newItem
                 is MediaDataModel.Casts && oldItem.casts == newItem.casts
             -> true

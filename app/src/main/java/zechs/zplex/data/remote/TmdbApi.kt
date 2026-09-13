@@ -6,6 +6,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.tmdb.collection.CollectionsResponse
+import zechs.zplex.data.model.tmdb.availability.MovieReleaseDatesResponse
+import zechs.zplex.data.model.tmdb.availability.MovieWatchProvidersResponse
 import zechs.zplex.data.model.tmdb.entities.Episode
 import zechs.zplex.data.model.tmdb.keyword.KeywordResponse
 import zechs.zplex.data.model.tmdb.media.MovieResponse
@@ -82,6 +84,18 @@ interface TmdbApi {
         @Query("append_to_response")
         append_to_response: String?
     ): Response<MovieResponse>
+
+    @GET("3/movie/{movie_id}/release_dates")
+    suspend fun getMovieReleaseDates(
+        @Path("movie_id") movie_id: Int,
+        @Query("api_key") api_key: String = TMDB_API_KEY
+    ): Response<MovieReleaseDatesResponse>
+
+    @GET("3/movie/{movie_id}/watch/providers")
+    suspend fun getMovieWatchProviders(
+        @Path("movie_id") movie_id: Int,
+        @Query("api_key") api_key: String = TMDB_API_KEY
+    ): Response<MovieWatchProvidersResponse>
 
     @GET("3/collection/{collection_id}")
     suspend fun getCollection(

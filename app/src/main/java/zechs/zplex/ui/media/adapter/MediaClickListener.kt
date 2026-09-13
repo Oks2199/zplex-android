@@ -5,6 +5,7 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import com.google.android.material.button.MaterialButton
 import zechs.zplex.data.model.entities.Movie
+import zechs.zplex.data.model.MovieAvailability
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.tmdb.entities.Cast
 import zechs.zplex.data.model.tmdb.entities.Media
@@ -29,7 +30,11 @@ interface MediaClickListener {
 
     fun movieWatchNow(movie: Movie, year: Int?, studio :String?)
     fun movieLongClickWatchNow(movie: Movie, year: Int?)
-    fun setMovieWatchNowButton(view: MaterialButton)
+    fun setMovieWatchNowButton(
+        view: MaterialButton,
+        movie: Movie,
+        availability: MovieAvailability?
+    )
     fun movieWatchlist(view: MaterialButton, movie: Movie)
     fun movieShare(tmdbId: Int, title: String, imdbId: String?)
 

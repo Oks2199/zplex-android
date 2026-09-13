@@ -23,6 +23,8 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 - Téléchargement hors ligne dans l'espace privé de l'application.
 - Reprise de lecture et historique enregistrés localement.
 - Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France.
+- Disponibilités françaises des films via TMDB/JustWatch : sortie cinéma récente, streaming par abonnement, location et achat.
+- Le bouton principal d'une fiche ne propose la lecture que lorsqu'un fichier Drive ou hors ligne est réellement disponible ; sinon il indique le type de disponibilité externe.
 - Interface française, y compris les réglages, le lecteur, les notifications, les téléchargements et les messages d'erreur à partir de la version 1.0.3.
 - Recherche, listes personnelles, saisons et épisodes.
 - Mode image dans l'image pris en charge par le lecteur.
@@ -189,6 +191,7 @@ Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers
 - [ZPlex](https://github.com/ZPlexLabs/zplex-android) — projet d'origine
 - [DriveStream](https://github.com/itszechs/DriveStream) — idées liées à Google Drive et MPV
 - [TheMovieDB](https://www.themoviedb.org/) — métadonnées et recherche
+- [JustWatch](https://www.justwatch.com/) — données de disponibilité sur les plateformes fournies via TMDB
 - [OMDb API](https://www.omdbapi.com/) — métadonnées complémentaires
 - [FileBot](https://www.filebot.net/) — conventions de nommage
 - [Plex](https://www.plex.tv/) — inspiration du concept

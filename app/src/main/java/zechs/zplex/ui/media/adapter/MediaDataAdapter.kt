@@ -10,6 +10,7 @@ import zechs.zplex.databinding.ItemMediaCollectionBinding
 import zechs.zplex.databinding.ItemMediaHeaderBinding
 import zechs.zplex.databinding.ItemMediaSeasonBinding
 import zechs.zplex.databinding.ItemMediaTitleBinding
+import zechs.zplex.databinding.ItemMovieAvailabilityBinding
 
 class MediaDataAdapter(
     val mediaClickListener: MediaClickListener
@@ -66,12 +67,21 @@ class MediaDataAdapter(
             mediaDataAdapter = this
         )
 
+        val availabilityViewHolder = MediaViewHolder.AvailabilityViewHolder(
+            itemBinding = ItemMovieAvailabilityBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
+
         return when (viewType) {
             R.layout.item_media_header -> headerViewHolder
             R.layout.item_media_title -> titleViewHolder
             R.layout.item_media_season -> lastSeasonViewHolder
             R.layout.item_media_collection -> partOfCollectionViewHolder
             R.layout.item_media_buttons -> buttonViewHolder
+            R.layout.item_movie_availability -> availabilityViewHolder
             R.layout.item_list_with_heading -> listViewHolder
             else -> throw IllegalArgumentException("Invalid view type")
         }
@@ -91,6 +101,10 @@ class MediaDataAdapter(
                     is MediaDataModel.MovieButton -> holder.bindMovie(item)
                     else -> {}
                 }
+            }
+
+            is MediaViewHolder.AvailabilityViewHolder -> {
+                holder.bind((item as MediaDataModel.Availability).availability)
             }
 
             is MediaViewHolder.ListViewHolder -> {
@@ -115,6 +129,8 @@ class MediaDataAdapter(
             is MediaDataModel.ShowButton,
             is MediaDataModel.MovieButton
                 -> R.layout.item_media_buttons
+
+            is MediaDataModel.Availability -> R.layout.item_movie_availability
 
             is MediaDataModel.Casts,
             is MediaDataModel.Recommendations,

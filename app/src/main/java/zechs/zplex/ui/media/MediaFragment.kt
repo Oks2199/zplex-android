@@ -41,6 +41,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import zechs.zplex.R
 import zechs.zplex.data.model.MediaType
+import zechs.zplex.data.model.MoviePrimaryAction
+import zechs.zplex.data.model.MoviePrimaryActionResolver
+import zechs.zplex.data.model.MovieAvailability
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.offline.OfflineMovie
@@ -340,26 +343,88 @@ class MediaFragment : Fragment() {
                 navigateToCollection(collectionId)
             }
 
-            override fun setMovieWatchNowButton(view: MaterialButton) {
-                mediaViewModel.movieWatchedState(args.media.id)
-                    .observe(viewLifecycleOwner) { watchedMovie ->
-                        val continueWatching = watchedMovie != null && !watchedMovie.hasFinished()
-                        if (continueWatching) {
-                            view.text = getString(R.string.continue_watching)
-                            view.icon =
-                                ContextCompat.getDrawable(requireContext(), R.drawable.ic_resume_24)
-                        } else {
-                            view.text = getString(R.string.watch_now)
-                            view.icon = ContextCompat.getDrawable(
-                                requireContext(),
-                                R.drawable.ic_play_circle_24
-                            )
+            override fun setMovieWatchNowButton(
+                view: MaterialButton,
+                movie: Movie,
+                availability: MovieAvailability?
+            ) {
+                val action = MoviePrimaryActionResolver.resolve(
+                    hasFile = movie.fileId != null,
+                    availability = availability
+                )
+                if (action is MoviePrimaryAction.Playable) {
+                    view.isEnabled = true
+                    mediaViewModel.movieWatchedState(args.media.id)
+                        .observe(viewLifecycleOwner) { watchedMovie ->
+                            val continueWatching =
+                                watchedMovie != null && !watchedMovie.hasFinished()
+                            if (continueWatching) {
+                                view.text = getString(R.string.continue_watching)
+                                view.icon = ContextCompat.getDrawable(
+                                    requireContext(),
+                                    R.drawable.ic_resume_24
+                                )
+                            } else {
+                                view.text = getString(R.string.watch_now)
+                                view.icon = ContextCompat.getDrawable(
+                                    requireContext(),
+                                    R.drawable.ic_play_circle_24
+                                )
+                            }
                         }
+                    return
+                }
+
+                view.isEnabled = false
+                when (action) {
+                    MoviePrimaryAction.InTheatres -> {
+                        view.text = getString(R.string.in_theatres)
+                        view.icon = ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.ic_theaters_24
+                        )
                     }
+
+                    is MoviePrimaryAction.OnProvider -> {
+                        view.text = getString(
+                            R.string.available_on_provider,
+                            action.providerName
+                        )
+                        view.icon = ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.ic_tv_play
+                        )
+                    }
+
+                    MoviePrimaryAction.OnStreaming -> {
+                        view.text = getString(R.string.available_on_streaming)
+                        view.icon = ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.ic_tv_play
+                        )
+                    }
+
+                    MoviePrimaryAction.Rent -> {
+                        view.text = getString(R.string.available_to_rent)
+                        view.icon = null
+                    }
+
+                    MoviePrimaryAction.Buy -> {
+                        view.text = getString(R.string.available_to_buy)
+                        view.icon = null
+                    }
+
+                    MoviePrimaryAction.Unavailable -> {
+                        view.text = getString(R.string.currently_unavailable)
+                        view.icon = null
+                    }
+
+                    MoviePrimaryAction.Playable -> Unit
+                }
             }
 
             override fun movieWatchNow(movie: Movie, year: Int?, studio :String?) {
-                if (mediaViewModel.hasLoggedIn) {
+                if (mediaViewModel.hasLoggedIn || mediaViewModel.isOfflineMovie(movie)) {
                     mediaViewModel.playMovie(movie, year, studio)
                 } else {
                     val snackBar = Snackbar.make(
@@ -591,6 +656,7 @@ class MediaFragment : Fragment() {
                 mediaViewModel.saveShow(show)
                 updateSaved = true
             }
+
         }
     }
 
