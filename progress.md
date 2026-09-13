@@ -14,7 +14,23 @@ La 1.0.4 réduit le monogramme M de l'icône à 85 % de sa taille précédente a
 
 La 1.0.4 ajoute les disponibilités françaises des films. Les fiches récupèrent auprès de TMDB les sorties cinéma et les offres JustWatch de streaming, location et achat, avec des caches respectifs de 30 jours et 24 heures. Une section « Où voir ce film en France ? » détaille ces informations. Le bouton principal conserve `Regarder` ou `Continuer la lecture` uniquement lorsqu'un fichier Drive ou hors ligne est détecté ; sinon il indique cinéma, plateforme, location, achat ou indisponibilité. Les téléchargements locaux restent lisibles sans connexion Drive.
 
-La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, conformément à la correction explicite de l'utilisateur : le schéma de `zplex_db.db`, la navigation inférieure et le fonctionnement historique de `Ma liste` restent inchangés.
+La séparation de « Bibliothèque » et « À voir » n'avait pas été incluse dans la 1.0.4, conformément à la correction explicite de l'utilisateur : le schéma de `zplex_db.db`, la navigation inférieure et le fonctionnement historique de `Ma liste` étaient alors restés inchangés.
+
+Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vraie séparation entre **Bibliothèque** et **Ma liste**, tout en conservant seulement trois boutons dans la barre inférieure. L'implémentation est en cours de validation sur la branche `codex/watchlist-navigation` et n'est pas encore livrée.
+
+## Bibliothèque et Ma liste — implémentation en cours
+
+- Aucun changement de schéma Room : `fileId` distingue déjà une ligne de Bibliothèque d'une ligne de Ma liste.
+- L'écran Bibliothèque affiche uniquement les médias détectés sur Drive ; le nouvel écran Ma liste affiche uniquement les ajouts manuels absents du Drive.
+- Une indexation Drive transforme automatiquement une ligne de Ma liste en ligne de Bibliothèque en lui attribuant son `fileId`.
+- Le nettoyage de l'indexeur ignore désormais Ma liste, au lieu de pouvoir supprimer ses lignes sans `fileId`.
+- Le bouton des fiches distingue « Ajouter à ma liste », « Dans ma liste » et « Dans la bibliothèque » ; ce dernier état est protégé contre une suppression accidentelle.
+- La barre inférieure contient Accueil, Bibliothèque et Ma liste. La loupe de recherche est placée dans les barres supérieures et Recherche possède maintenant une flèche retour.
+- La déconnexion conserve la dernière Bibliothèque connue et Ma liste au lieu de transformer tous les médias Drive en éléments de Ma liste.
+- Tests unitaires ajoutés pour les trois états, le passage automatique vers la Bibliothèque et la protection du nettoyage Drive.
+- Contrôles locaux réussis : compilation AAPT2 35.0.0, compilation Kotlin de la logique pure et `git diff --check`.
+- Gradle local s'arrête avant la configuration sur la limite connue `Unable to establish loopback connection` avec le JDK 17 et `--stacktrace`.
+- Validation GitHub Actions, intégration dans `main`, incrément de version et APK restent à faire.
 
 ## Movynex 1.0.5
 
@@ -167,6 +183,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - `origin` : `https://github.com/Oks2199/zplex-android.git`.
 - `upstream` : `https://github.com/ZPlexLabs/zplex-android.git`.
 - `main` contient le build applicatif 1.0.5 au commit `df231c0`.
+- `codex/watchlist-navigation` contient la séparation Bibliothèque/Ma liste et la nouvelle navigation, en attente de validation distante.
 - `codex/oauth-restoration` conserve l'historique de restauration du lecteur OAuth direct.
 - `codex/saf-migration` au commit `cd27201` conserve l'expérience SAF abandonnée pour la lecture distante.
 - Le dossier `dist/` contient uniquement des artefacts locaux et reste hors de Git.
@@ -204,6 +221,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 2. Vérifier « Saisons et épisodes », les plateformes françaises de la série et de chaque saison, puis les badges « Téléchargé », « Sur le Drive » et « Pas sur le Drive ».
 3. Réinitialiser le cache API si les nouvelles disponibilités des séries n'apparaissent pas immédiatement.
 4. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
+5. Valider la branche `codex/watchlist-navigation` par pull request avant toute intégration ou nouvelle APK.
 
 ## Dette et améliorations futures
 

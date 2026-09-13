@@ -13,12 +13,6 @@
     <!--        android:icon="@drawable/ic_browse_24dp"-->
     <!--        android:title="@string/discover" />-->
 
-    <item
-        android:id="@+id/searchFragment"
-        android:enabled="true"
-        android:icon="@drawable/ic_search"
-        android:title="@string/search" />
-
     <!--    <item-->
     <!--        android:id="@+id/upcomingFragment"-->
     <!--        android:enabled="true"-->
@@ -30,5 +24,11 @@
         android:enabled="true"
         android:icon="@drawable/ic_library_24dp"
         android:title="@string/library" />
+
+    <item
+        android:id="@+id/watchlistFragment"
+        android:enabled="true"
+        android:icon="@drawable/ic_playlist_24"
+        android:title="@string/watchlist" />
 
 </menu>

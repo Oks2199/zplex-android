@@ -25,11 +25,14 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 - Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France.
 - Disponibilités françaises des films via TMDB/JustWatch : sortie cinéma récente, streaming par abonnement, location et achat.
 - Le bouton principal d'une fiche ne propose la lecture que lorsqu'un fichier Drive ou hors ligne est réellement disponible ; sinon il indique le type de disponibilité externe.
+- La Bibliothèque contient uniquement les films et séries détectés sur Google Drive. Ma liste contient les médias ajoutés manuellement qui ne sont pas encore présents sur le Drive.
+- Lorsqu'un média de Ma liste est détecté pendant l'indexation, il passe automatiquement dans la Bibliothèque sans doublon.
+- Sur une fiche, le bouton indique clairement « Ajouter à ma liste », « Dans ma liste » ou « Dans la bibliothèque ».
 - Le bouton « Saisons et épisodes » des fiches de séries conserve l'accès à toutes les saisons et à tous les épisodes, même lorsqu'aucun fichier n'est présent dans Movynex.
 - Les plateformes françaises sont affichées au niveau de la série puis de la saison consultée. Ces données TMDB/JustWatch décrivent les offres déclarées pour l'œuvre ou la saison en France et ne garantissent pas la disponibilité de chaque épisode.
 - Dans une saison, chaque épisode indique clairement s'il est téléchargé, présent sur le Drive ou absent du Drive. Un épisode absent reste consultable à titre informatif, mais ne lance pas le lecteur.
 - Interface française, y compris les réglages, le lecteur, les notifications, les téléchargements et les messages d'erreur à partir de la version 1.0.3.
-- Recherche, listes personnelles, saisons et épisodes.
+- Navigation principale à trois destinations : Accueil, Bibliothèque et Ma liste. La recherche est accessible par la loupe des barres supérieures.
 - Mode image dans l'image pris en charge par le lecteur.
 
 ### Actualiser les informations mises en cache

@@ -38,16 +38,22 @@ class MyShowsViewModel @Inject constructor(
         tmdbRepository.deleteMovie(tmdbId)
     }
 
-    val movies: LiveData<List<Movie>> = if (hasInternetConnection()) {
-        tmdbRepository.getSavedMoviesAsLiveData()
+    val libraryMovies: LiveData<List<Movie>> = if (hasInternetConnection()) {
+        tmdbRepository.getLibraryMoviesAsLiveData()
     } else {
         offlineMovieDao.getAllMovies().map { it.map { tv -> tv.toMovie() } }
     }
 
-    val shows: LiveData<List<Show>> = if (hasInternetConnection()) {
-        tmdbRepository.getSavedShowsAsLiveData()
+    val libraryShows: LiveData<List<Show>> = if (hasInternetConnection()) {
+        tmdbRepository.getLibraryShowsAsLiveData()
     } else {
         offlineShowDao.getAllShows().map { it.map { tv -> tv.toShow() } }
     }
+
+    val watchlistMovies: LiveData<List<Movie>> =
+        tmdbRepository.getWatchlistMoviesAsLiveData()
+
+    val watchlistShows: LiveData<List<Show>> =
+        tmdbRepository.getWatchlistShowsAsLiveData()
 
 }

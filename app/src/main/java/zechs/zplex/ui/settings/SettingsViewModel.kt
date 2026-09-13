@@ -4,20 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import zechs.zplex.data.local.api_cache.ApiCacheDao
-import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.service.IndexingStateFlow
 import zechs.zplex.utils.SessionManager
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val tmdbRepository: TmdbRepository,
     private val sessionManager: SessionManager,
     private val indexingStateFlow: IndexingStateFlow,
     private val apiCacheDao: ApiCacheDao
@@ -43,21 +39,6 @@ class SettingsViewModel @Inject constructor(
 
     fun logOut() = viewModelScope.launch(Dispatchers.IO) {
         _loading.value = true
-        val savedMovies = async {
-            tmdbRepository.getSavedMovies().map { movie ->
-                async { tmdbRepository.upsertMovie(movie.copy(fileId = null)) }
-            }.awaitAll()
-        }
-
-        val savedShows = async {
-            tmdbRepository.getSavedShows().map { show ->
-                async { tmdbRepository.upsertShow(show.copy(fileId = null)) }
-            }.awaitAll()
-        }
-
-        savedMovies.await()
-        savedShows.await()
-
         sessionManager.resetDataStore()
 
         _loading.value = false

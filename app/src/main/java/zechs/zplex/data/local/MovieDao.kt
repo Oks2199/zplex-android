@@ -13,14 +13,17 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertMovie(media: Movie): Long
 
-    @Query("SELECT * FROM movies ORDER BY CASE WHEN modifiedTime IS NULL THEN 1 ELSE 0 END, modifiedTime DESC")
-    fun getAllMoviesAsLiveData(): LiveData<List<Movie>>
+    @Query("SELECT * FROM movies WHERE fileId IS NOT NULL AND fileId != '' ORDER BY modifiedTime DESC")
+    fun getLibraryMoviesAsLiveData(): LiveData<List<Movie>>
 
-    @Query("SELECT * FROM movies ORDER BY CASE WHEN modifiedTime IS NULL THEN 1 ELSE 0 END, modifiedTime DESC")
-    fun getAllMovies(): List<Movie>
+    @Query("SELECT * FROM movies WHERE fileId IS NOT NULL AND fileId != '' ORDER BY modifiedTime DESC")
+    fun getLibraryMovies(): List<Movie>
 
-    @Query("SELECT EXISTS(SELECT * FROM movies WHERE id = :id)")
-    fun getMovie(id: Int): LiveData<Boolean>
+    @Query("SELECT * FROM movies WHERE fileId IS NULL OR fileId = '' ORDER BY title COLLATE NOCASE")
+    fun getWatchlistMoviesAsLiveData(): LiveData<List<Movie>>
+
+    @Query("SELECT * FROM movies WHERE id = :id LIMIT 1")
+    fun observeMovieById(id: Int): LiveData<Movie?>
 
     @Query("SELECT * FROM movies WHERE id = :id LIMIT 1")
     suspend fun getMovieById(id: Int): Movie?

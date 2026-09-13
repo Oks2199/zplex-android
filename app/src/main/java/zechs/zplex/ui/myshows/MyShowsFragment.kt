@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -31,11 +32,21 @@ import zechs.zplex.utils.MaterialMotionInterpolator
 import zechs.zplex.utils.ext.navigateSafe
 
 
-class MyShowsFragment : Fragment() {
+open class MyShowsFragment : Fragment() {
 
     companion object {
         const val TAG = "MyShowsFragment"
     }
+
+    protected enum class CollectionMode {
+        LIBRARY,
+        WATCHLIST
+    }
+
+    protected open val collectionMode = CollectionMode.LIBRARY
+
+    private val isWatchlist: Boolean
+        get() = collectionMode == CollectionMode.WATCHLIST
 
     private var _binding: FragmentMyShowsBinding? = null
     private val binding get() = _binding!!
@@ -83,6 +94,19 @@ class MyShowsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMyShowsBinding.bind(view)
         layoutManager = binding.rvMyShows.layoutManager
+
+        binding.toolbar.apply {
+            title = getString(if (isWatchlist) R.string.watchlist else R.string.my_library)
+            inflateMenu(R.menu.collection_menu)
+            setOnMenuItemClickListener { item ->
+                if (item.itemId == R.id.action_search) {
+                    findNavController().navigateSafe(R.id.action_global_searchFragment)
+                    true
+                } else {
+                    false
+                }
+            }
+        }
 
         setupRecyclerView()
 
@@ -160,7 +184,15 @@ class MyShowsFragment : Fragment() {
                 Log.d(TAG, "name=$name, mediaType=${media.media_type}")
 
                 val snackBar = Snackbar.make(
-                    view, getString(R.string.removed_from_library, name),
+                    view,
+                    getString(
+                        if (isWatchlist) {
+                            R.string.removed_from_watchlist
+                        } else {
+                            R.string.removed_from_library
+                        },
+                        name
+                    ),
                     Snackbar.LENGTH_SHORT
                 )
                 when (media.media_type) {
@@ -257,28 +289,48 @@ class MyShowsFragment : Fragment() {
     }
 
     private fun observeMovies() {
-        myShowsViewModel.movies.observe(viewLifecycleOwner) { media ->
-            handleLibrary(media)
+        val source = if (isWatchlist) {
+            myShowsViewModel.watchlistMovies
+        } else {
+            myShowsViewModel.libraryMovies
+        }
+        source.observe(viewLifecycleOwner) { media ->
+            handleCollection(media)
             mediaAdapter.submitList(media.map { it.toMedia() })
         }
-        myShowsViewModel.shows.removeObservers(viewLifecycleOwner)
+        removeShowObservers()
     }
 
     private fun observeShows() {
-        myShowsViewModel.shows.observe(viewLifecycleOwner) { media ->
-            handleLibrary(media)
+        val source = if (isWatchlist) {
+            myShowsViewModel.watchlistShows
+        } else {
+            myShowsViewModel.libraryShows
+        }
+        source.observe(viewLifecycleOwner) { media ->
+            handleCollection(media)
             mediaAdapter.submitList(media.map { it.toMedia() })
         }
 
-        myShowsViewModel.movies.removeObservers(viewLifecycleOwner)
+        removeMovieObservers()
     }
 
     private fun removeAllObservers() {
-        myShowsViewModel.shows.removeObservers(viewLifecycleOwner)
-        myShowsViewModel.movies.removeObservers(viewLifecycleOwner)
+        removeMovieObservers()
+        removeShowObservers()
     }
 
-    private fun handleLibrary(media: List<*>?) {
+    private fun removeMovieObservers() {
+        myShowsViewModel.libraryMovies.removeObservers(viewLifecycleOwner)
+        myShowsViewModel.watchlistMovies.removeObservers(viewLifecycleOwner)
+    }
+
+    private fun removeShowObservers() {
+        myShowsViewModel.libraryShows.removeObservers(viewLifecycleOwner)
+        myShowsViewModel.watchlistShows.removeObservers(viewLifecycleOwner)
+    }
+
+    private fun handleCollection(media: List<*>?) {
         val noShows = ContextCompat.getDrawable(requireContext(), R.drawable.ic_no_shows_24)
         val isEmpty = media?.isEmpty() ?: true
         binding.apply {
@@ -286,7 +338,13 @@ class MyShowsFragment : Fragment() {
             errorView.apply {
                 root.isVisible = isEmpty
                 retryBtn.isVisible = false
-                errorTxt.text = getString(R.string.your_library_is_empty)
+                errorTxt.text = getString(
+                    if (isWatchlist) {
+                        R.string.your_watchlist_is_empty
+                    } else {
+                        R.string.your_library_is_empty
+                    }
+                )
                 errorIcon.setImageDrawable(noShows)
             }
         }
@@ -325,8 +383,10 @@ class MyShowsFragment : Fragment() {
     }
 
     private fun navigateToMedia(media: Media) {
-        val action = MyShowsFragmentDirections.actionMyShowsFragmentToFragmentMedia(media)
-        findNavController().navigateSafe(action)
+        findNavController().navigateSafe(
+            R.id.action_global_fragmentMedia,
+            bundleOf("media" to media)
+        )
     }
 
     override fun onPause() {

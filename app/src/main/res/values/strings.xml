@@ -6,11 +6,15 @@
     <string name="home">Accueil</string>
     <string name="something_went_wrong">Une erreur est survenue</string>
     <string name="watchlist">Ma liste</string>
+    <string name="add_to_watchlist">Ajouter à ma liste</string>
+    <string name="in_watchlist">Dans ma liste</string>
+    <string name="in_library">Dans la bibliothèque</string>
     <string name="share">Partager</string>
     <string name="overview">Synopsis</string>
     <string name="guest_stars">Invités</string>
     <string name="discover">Découvrir</string>
     <string name="your_library_is_empty">Votre bibliothèque est vide</string>
+    <string name="your_watchlist_is_empty">Votre liste est vide</string>
     <string name="watch_now">Regarder</string>
     <string name="undo">Annuler</string>
     <string name="share_links">Partager des liens</string>
@@ -100,7 +104,7 @@
     <string name="change_shows_folder_title">Voulez-vous changer le dossier des séries ?</string>
     <string name="remove_shows_message">Toutes les séries seront retirées de la bibliothèque.</string>
     <string name="log_out">Se déconnecter</string>
-    <string name="revoke_credentials_and_clear_indexing">Révoquer la connexion Google Drive et effacer l’indexation de tous les médias</string>
+    <string name="revoke_credentials_and_clear_indexing">Révoquer la connexion Google Drive tout en conservant la bibliothèque connue et Ma liste</string>
     <string name="logout_title">Voulez-vous vraiment vous déconnecter ?</string>
     <string name="please_wait">Veuillez patienter…</string>
     <string name="scan_for_media">Analyser les médias</string>
@@ -187,6 +191,8 @@
     <string name="release_date_not_available">Date de sortie indisponible</string>
     <string name="added_to_library">%1$s a été ajouté à votre bibliothèque</string>
     <string name="removed_from_library">%1$s a été retiré de votre bibliothèque</string>
+    <string name="added_to_watchlist">%1$s a été ajouté à votre liste</string>
+    <string name="removed_from_watchlist">%1$s a été retiré de votre liste</string>
     <string name="playback_speed_set">Vitesse de lecture réglée sur %1$s×</string>
     <string name="playback_channel">Lecture multimédia</string>
     <string name="playback_controls">Commandes de lecture</string>

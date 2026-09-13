@@ -64,6 +64,15 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Seuls les épisodes associés à un fichier Drive ou hors ligne doivent lancer MPV ; un épisode absent doit rester consultable comme fiche informative.
 - Les disponibilités françaises des séries et saisons proviennent de TMDB/JustWatch, doivent conserver l'attribution JustWatch et ne doivent jamais être présentées comme une disponibilité garantie épisode par épisode.
 
+## Bibliothèque et Ma liste
+
+- Dans les tables historiques `movies` et `shows`, un média avec `fileId` appartient à la Bibliothèque Drive ; un média enregistré sans `fileId` appartient à Ma liste.
+- Une indexation qui détecte sur Drive un média de Ma liste doit lui attribuer son `fileId`, ce qui le déplace automatiquement vers la Bibliothèque sans créer de doublon.
+- La synchronisation Drive ne doit jamais supprimer les lignes de Ma liste et un média retiré du Drive ne doit pas être automatiquement réinscrit dans Ma liste.
+- Sur une fiche, le bouton Ma liste ne doit jamais permettre de supprimer un média de la Bibliothèque. Il doit distinguer « Ajouter à ma liste », « Dans ma liste » et « Dans la bibliothèque ».
+- La navigation principale conserve trois boutons : Accueil, Bibliothèque et Ma liste. La recherche reste accessible par la loupe des barres supérieures.
+- La déconnexion Google Drive doit conserver la dernière Bibliothèque connue et Ma liste ; elle ne doit pas convertir la Bibliothèque en éléments de Ma liste.
+
 ## Clés API, jetons et signature
 
 - TMDB et OMDb sont injectés depuis `local.properties` en local et depuis les secrets GitHub en CI.

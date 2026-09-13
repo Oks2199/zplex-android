@@ -62,6 +62,11 @@ class HomeFragment : Fragment() {
             inflateMenu(R.menu.main_menu)
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
+                    R.id.action_search -> {
+                        findNavController().navigateSafe(R.id.action_global_searchFragment)
+                        true
+                    }
+
                     R.id.action_settings -> {
                         findNavController().navigateSafe(R.id.action_homeFragment_to_settingsFragment)
                         true

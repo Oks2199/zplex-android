@@ -9,6 +9,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import zechs.zplex.R
+import zechs.zplex.data.model.MediaMembershipResolver
 import zechs.zplex.data.model.drive.DriveFile
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
@@ -177,12 +178,12 @@ class RemoteLibraryRepository @Inject constructor(
     }
 
     private suspend fun synchronizeLocalMoviesWithRemote(shows: List<DriveFile>) {
-        val savedMovies = tmdbRepository.getSavedMovies()
+        val savedMovies = tmdbRepository.getLibraryMovies()
 
         val remoteIds = shows.map { it.id }.toSet()
 
         savedMovies.forEach { savedMovie ->
-            if (savedMovie.fileId !in remoteIds) {
+            if (MediaMembershipResolver.isMissingFromRemote(savedMovie.fileId, remoteIds)) {
                 Log.d(TAG, "Deleting movie: ${savedMovie.title} from the database.")
                 updateNotification(
                     applicationContext.getString(R.string.indexing_deleting_movie, savedMovie.title)
@@ -318,12 +319,12 @@ class RemoteLibraryRepository @Inject constructor(
 
 
     private suspend fun synchronizeLocalShowsWithRemote(shows: List<DriveFile>) {
-        val savedShows = tmdbRepository.getSavedShows()
+        val savedShows = tmdbRepository.getLibraryShows()
 
         val remoteIds = shows.map { it.id }.toSet()
 
         savedShows.forEach { savedShow ->
-            if (savedShow.fileId !in remoteIds) {
+            if (MediaMembershipResolver.isMissingFromRemote(savedShow.fileId, remoteIds)) {
                 Log.d(TAG, "Deleting show: ${savedShow.name} from the database.")
                 updateNotification(
                     applicationContext.getString(R.string.indexing_deleting_show, savedShow.name)
