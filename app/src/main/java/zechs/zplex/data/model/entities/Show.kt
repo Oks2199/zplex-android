@@ -31,7 +31,8 @@ data class Show(
         overview = null,
         release_date = null,
         first_air_date = null,
-        fileId = fileId
+        fileId = fileId,
+        modifiedTime = modifiedTime
     )
 
 }

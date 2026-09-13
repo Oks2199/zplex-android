@@ -429,7 +429,11 @@ class TmdbRepository @Inject constructor(
         release_date_end = dateEnd
     )
 
-    suspend fun getPopularOnStreaming() = tmdbApi.getPopularOnStreaming()
+    suspend fun getNowPlaying() = tmdbApi.getNowPlaying()
+
+    suspend fun getStreamingMovies() = tmdbApi.getStreamingMovies()
+
+    suspend fun getStreamingShows() = tmdbApi.getStreamingShows()
 
     suspend fun getShowsFromCompany(
         companyId: Int,

@@ -4,6 +4,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import zechs.zplex.databinding.ItemHeadingBinding
+import zechs.zplex.databinding.ItemAttributionBinding
+import zechs.zplex.databinding.ItemDiscoveryHeadingBinding
 import zechs.zplex.databinding.ItemListBinding
 import zechs.zplex.ui.home.adapter.watched.WatchedDataAdapter
 import zechs.zplex.ui.shared_adapters.banner.BannerAdapter
@@ -21,6 +23,22 @@ sealed class HomeViewHolder(
         }
     }
 
+    class AttributionViewHolder(
+        private val itemBinding: ItemAttributionBinding
+    ) : HomeViewHolder(itemBinding) {
+        fun bind(item: HomeDataModel.Attribution) {
+            itemBinding.tvText.text = item.text
+        }
+    }
+
+    class DiscoveryTitleViewHolder(
+        private val itemBinding: ItemDiscoveryHeadingBinding
+    ) : HomeViewHolder(itemBinding) {
+        fun bind(item: HomeDataModel.DiscoveryTitle) {
+            itemBinding.tvText.text = item.text
+        }
+    }
+
     class ListViewHolder(
         private val itemBinding: ItemListBinding,
         homeDataAdapter: HomeDataAdapter
@@ -34,7 +52,7 @@ sealed class HomeViewHolder(
 
         private val bannerAdapter by lazy {
             BannerAdapter {
-                homeDataAdapter.homeClickListener.onClickMedia(it)
+                homeDataAdapter.homeClickListener.onClickMedia(it.media)
             }
         }
 
@@ -93,7 +111,7 @@ sealed class HomeViewHolder(
                     context, LinearLayoutManager.HORIZONTAL, false
                 )
             }
-            bannerAdapter.submitList(item.media)
+            bannerAdapter.submitList(item.banners)
         }
     }
 

@@ -4,6 +4,8 @@ Dernière mise à jour : 13 septembre 2026
 
 ## Résumé
 
+Le code courant prépare Movynex 1.0.6 (`versionCode = 10`) sur la branche `codex/watchlist-navigation`. Cette version regroupe la séparation Bibliothèque/Ma liste, la navigation à trois destinations, l'harmonisation des affiches, la restructuration complète de l'accueil et la nouvelle bannière verticale inspirée de Netflix. Elle n'est pas encore intégrée, construite ni livrée au moment de cette note.
+
 Movynex 1.0.5 est construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit applicatif `df231c0`, se trouve dans `H:\Downloads\Movynex-1.0.5.apk`. Son installation et la validation visuelle des nouveautés séries sur le téléphone restent à confirmer.
 
 La 1.0.5 livre l'amélioration des séries intégrée au commit `7447e33` : exploration complète des saisons et épisodes, plateformes françaises par série et saison, résumé des épisodes disponibles et états explicites pour chaque épisode.
@@ -32,6 +34,19 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - Contrôles locaux réussis : compilation AAPT2 35.0.0, compilation Kotlin de la logique pure et `git diff --check`.
 - Gradle local s'arrête avant la configuration sur la limite connue `Unable to establish loopback connection` avec le JDK 17 et `--stacktrace`.
 - Validation GitHub Actions, intégration dans `main`, incrément de version et APK restent à faire.
+
+## Restructuration de l'accueil — implémentation locale
+
+- Ordre dynamique implémenté : bannière, Continuer la lecture, Sur votre Drive, Ma liste, À découvrir, Tendances de la semaine, Actuellement au cinéma, puis Disponibles en streaming en France.
+- La bannière privilégie les ajouts Drive récents disposant d'une affiche TMDB. Elle adopte maintenant une grande carte verticale `2:3` inspirée de Netflix : affiche plein cadre, dégradé inférieur, titre, type, année, note et origine superposés, puis bouton « Voir la fiche ». L'ancien fond horizontal flouté et la carte imbriquée sont supprimés. Le libellé indique « Sur votre Drive », « Au cinéma » ou « Sur &lt;plateforme&gt; · JustWatch » selon la source.
+- Continuer la lecture exclut les progressions nulles ou terminées, les fichiers hors ligne supprimés et les contenus Drive qui ne sont plus indexés. Le média correspondant disparaît de Sur votre Drive afin d'éviter le doublon.
+- Les nouveaux historiques enregistrent le `fileId` exact et l'état hors ligne du film ou de l'épisode. `zplex_db.db` passe de la version 2 à la version 3 avec une migration non destructive préservant les réglages et l'historique existants.
+- Sur votre Drive fusionne films et séries par `modifiedTime`. Ma liste est masquée lorsqu'elle est vide et exclut aussi les téléchargements hors ligne encore présents.
+- L'ancien faux classement streaming fondé sur `tv/on_the_air` est remplacé par les découvertes TMDB films et séries filtrées sur `watch_region=FR` et `flatrate|free|ads`, fusionnées par popularité avec attribution JustWatch.
+- Les sorties utilisent `movie/now_playing` avec la région `FR`. Les tendances utilisent la fenêtre TMDB `week`, mondiale, avec les métadonnées françaises.
+- Tests unitaires ajoutés pour les règles de progression et de source lisible. AAPT2 35.0.0 compile toutes les ressources, y compris la nouvelle bannière, et la logique pure compile avec Kotlin.
+- La validation Gradle complète reste à effectuer par GitHub Actions : la tentative locale avec le runtime Android Studio et `--stacktrace` atteint la limite connue `Unable to establish loopback connection` avant la configuration.
+- Aucun commit, push, pull request, incrément de version ou APK n'a encore été produit pour cette restructuration.
 
 ## Movynex 1.0.5
 

@@ -74,6 +74,16 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - La navigation principale conserve trois boutons : Accueil, Bibliothèque et Ma liste. La recherche reste accessible par la loupe des barres supérieures.
 - La déconnexion Google Drive doit conserver la dernière Bibliothèque connue et Ma liste ; elle ne doit pas convertir la Bibliothèque en éléments de Ma liste.
 
+## Accueil
+
+- Conserver l'ordre logique suivant : bannière, Continuer la lecture, Sur votre Drive, Ma liste, séparateur À découvrir, Tendances de la semaine, Actuellement au cinéma, puis Disponibles en streaming en France. Toute section vide disparaît, sauf la bannière lorsqu'un candidat valable existe.
+- La bannière privilégie un média présent sur le Drive. Un média externe doit porter un libellé « Au cinéma » ou indiquer sa plateforme française ; toute donnée de plateforme conserve l'attribution JustWatch.
+- La bannière utilise une grande affiche TMDB verticale `2:3` inspirée de Netflix, sans arrière-plan flouté ni carte imbriquée. Le titre, le type, l'année, la note et l'origine sont superposés sur un dégradé ; son bouton « Voir la fiche » conserve la navigation vers les détails du média.
+- Continuer la lecture affiche uniquement une lecture réellement commencée, non terminée et encore associée à une source Drive ou hors ligne. Un épisode doit conserver la référence du fichier exact utilisé pour la lecture.
+- Sur votre Drive est trié par date d'ajout et exclut les médias déjà affichés dans Continuer la lecture. Ma liste contient uniquement les médias enregistrés qui ne sont présents ni sur le Drive ni hors ligne.
+- Les tendances TMDB sont mondiales et utilisent la fenêtre hebdomadaire avec des métadonnées françaises ; ne jamais les présenter comme des tendances spécifiquement françaises.
+- Les sorties cinéma utilisent la région `FR`. Les suggestions de streaming utilisent `watch_region=FR` et les modes `flatrate`, `free` ou `ads`, jamais l'endpoint des séries actuellement diffusées.
+
 ## Clés API, jetons et signature
 
 - TMDB et OMDb sont injectés depuis `local.properties` en local et depuis les secrets GitHub en CI.

@@ -16,6 +16,10 @@
     <string name="your_library_is_empty">Votre bibliothèque est vide</string>
     <string name="your_watchlist_is_empty">Votre liste est vide</string>
     <string name="watch_now">Regarder</string>
+    <string name="view_details">Voir la fiche</string>
+    <string name="movie_label">Film</string>
+    <string name="series_label">Série</string>
+    <string name="rating_out_of_five">%1$.1f/5</string>
     <string name="undo">Annuler</string>
     <string name="share_links">Partager des liens</string>
     <string name="library">Bibliothèque</string>
@@ -136,7 +140,11 @@
     <string name="confirm_delete_movie">Voulez-vous vraiment supprimer « %1$s » ?</string>
     <string name="confirm_download">Voulez-vous télécharger « %1$s » ?</string>
     <string name="trending_today">Tendances du jour</string>
-    <string name="popular_on_streaming">Populaires en streaming</string>
+    <string name="trending_this_week">Tendances de la semaine</string>
+    <string name="on_your_drive">Sur votre Drive</string>
+    <string name="to_discover">À découvrir</string>
+    <string name="currently_in_theatres">Actuellement au cinéma</string>
+    <string name="available_streaming_france">Disponibles en streaming en France</string>
     <string name="where_to_watch_movie_in_france">Où voir ce film en France ?</string>
     <string name="where_to_watch_show_in_france">Où voir cette série en France ?</string>
     <string name="where_to_watch_season_in_france">Où voir cette saison en France ?</string>
@@ -149,6 +157,8 @@
     <string name="in_theatres">Au cinéma</string>
     <string name="available_on_provider">Sur %1$s</string>
     <string name="available_on_streaming">Disponible en streaming</string>
+    <string name="available_on_provider_attributed">Sur %1$s · JustWatch</string>
+    <string name="available_on_streaming_attributed">Disponible en streaming · JustWatch</string>
     <string name="available_to_rent">Disponible à la location</string>
     <string name="available_to_buy">Disponible à l’achat</string>
     <string name="currently_unavailable">Indisponible actuellement</string>

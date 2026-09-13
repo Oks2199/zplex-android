@@ -78,7 +78,9 @@ class PlayerViewModel @Inject constructor(
         seasonNumber: Int,
         episodeNumber: Int,
         watchedDuration: Long,
-        totalDuration: Long
+        totalDuration: Long,
+        fileId: String,
+        offline: Boolean
     ) = viewModelScope.launch(Dispatchers.IO) {
         val lookUpWatched = watchedRepository.getWatchedShow(tmdbId, seasonNumber, episodeNumber)
         val watch = lookUpWatched?.copy(
@@ -88,13 +90,21 @@ class PlayerViewModel @Inject constructor(
             episodeNumber = episodeNumber,
             watchedDuration = watchedDuration,
             totalDuration = totalDuration,
-            createdAt = Calendar.getInstance().timeInMillis
+            createdAt = Calendar.getInstance().timeInMillis,
+            fileId = fileId,
+            offline = offline
         ) ?: WatchedShow(
-            tmdbId, name,
-            "tv", posterPath,
-            seasonNumber, episodeNumber,
-            watchedDuration, totalDuration,
-            Calendar.getInstance().timeInMillis
+            tmdbId = tmdbId,
+            name = name,
+            mediaType = "tv",
+            posterPath = posterPath,
+            seasonNumber = seasonNumber,
+            episodeNumber = episodeNumber,
+            watchedDuration = watchedDuration,
+            totalDuration = totalDuration,
+            createdAt = Calendar.getInstance().timeInMillis,
+            fileId = fileId,
+            offline = offline
         )
 
         watchedRepository.upsertWatchedShow(watch)
@@ -108,6 +118,8 @@ class PlayerViewModel @Inject constructor(
         posterPath: String?,
         watchedDuration: Long,
         totalDuration: Long,
+        fileId: String,
+        offline: Boolean
     ) = viewModelScope.launch(Dispatchers.IO) {
         val lookUpWatched = watchedRepository.getWatchedMovie(tmdbId)
         val watch = lookUpWatched?.copy(
@@ -115,11 +127,19 @@ class PlayerViewModel @Inject constructor(
             posterPath = posterPath,
             watchedDuration = watchedDuration,
             totalDuration = totalDuration,
-            createdAt = Calendar.getInstance().timeInMillis
+            createdAt = Calendar.getInstance().timeInMillis,
+            fileId = fileId,
+            offline = offline
         ) ?: WatchedMovie(
-            tmdbId, name,
-            "movie", posterPath,
-            watchedDuration, totalDuration, Calendar.getInstance().timeInMillis
+            tmdbId = tmdbId,
+            name = name,
+            mediaType = "movie",
+            posterPath = posterPath,
+            watchedDuration = watchedDuration,
+            totalDuration = totalDuration,
+            createdAt = Calendar.getInstance().timeInMillis,
+            fileId = fileId,
+            offline = offline
         )
         watchedRepository.upsertWatchedMovie(watch)
         Log.d(TAG, "Saving progress: $name at $watchedDuration/$totalDuration")
@@ -237,13 +257,13 @@ class PlayerViewModel @Inject constructor(
         if (playbackItem is Movie) {
             upsertWatchedMovie(
                 playbackItem.tmdbId, playbackItem.title, playbackItem.posterPath,
-                watchedDuration, totalDuration
+                watchedDuration, totalDuration, playbackItem.fileId, playbackItem.offline
             )
         } else if (playbackItem is Show) {
             upsertWatchedShow(
                 playbackItem.tmdbId, playbackItem.title, playbackItem.posterPath,
                 playbackItem.seasonNumber, playbackItem.episodeNumber,
-                watchedDuration, totalDuration
+                watchedDuration, totalDuration, playbackItem.fileId, playbackItem.offline
             )
         }
     }

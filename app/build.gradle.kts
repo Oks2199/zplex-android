@@ -30,8 +30,8 @@ android {
         applicationId = "com.cursedcrew.movynex"
         minSdk = 31
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.0.5"
+        versionCode = 10
+        versionName = "1.0.6"
 
         buildConfigField("String", "TMDB_API_KEY", "\"${tmdbApiKey}\"")
         buildConfigField("String", "OMDB_API_KEY", "\"${omdbApiKey}\"")

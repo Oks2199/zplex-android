@@ -8,7 +8,7 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 
 ## Version actuelle
 
-- Version du code courant : `1.0.5` (`versionCode = 9`)
+- Version du code courant : `1.0.6` (`versionCode = 10`), en cours de validation
 - Dernière APK livrée et vérifiée : `1.0.5` (`versionCode = 9`)
 - Package Android : `com.cursedcrew.movynex`
 - Android minimum : Android 12 / API 31
@@ -22,6 +22,7 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 - Lecture en streaming avec MPV.
 - Téléchargement hors ligne dans l'espace privé de l'application.
 - Reprise de lecture et historique enregistrés localement.
+- Accueil organisé autour du contenu personnel : grande bannière verticale `2:3` inspirée de Netflix et prioritairement issue du Drive, lectures réellement commencées, ajouts Drive récents et Ma liste lorsqu'elle n'est pas vide. Les suggestions séparées affichent ensuite les tendances TMDB de la semaine, les films actuellement au cinéma et les films ou séries disponibles en streaming en France.
 - Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France. Les affiches sont présentées dans des cadres `2:3` uniformes sans déformation.
 - Disponibilités françaises des films via TMDB/JustWatch : sortie cinéma récente, streaming par abonnement, location et achat.
 - Le bouton principal d'une fiche ne propose la lecture que lorsqu'un fichier Drive ou hors ligne est réellement disponible ; sinon il indique le type de disponibilité externe.
@@ -33,6 +34,7 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 - Dans une saison, chaque épisode indique clairement s'il est téléchargé, présent sur le Drive ou absent du Drive. Un épisode absent reste consultable à titre informatif, mais ne lance pas le lecteur.
 - Interface française, y compris les réglages, le lecteur, les notifications, les téléchargements et les messages d'erreur à partir de la version 1.0.3.
 - Navigation principale à trois destinations : Accueil, Bibliothèque et Ma liste. La recherche est accessible par la loupe des barres supérieures.
+- Les tendances hebdomadaires sont celles de TMDB à l'échelle mondiale, avec des métadonnées françaises. Les rangées cinéma et streaming sont en revanche filtrées sur la France ; les plateformes proviennent de TMDB/JustWatch et conservent leur attribution.
 - Mode image dans l'image pris en charge par le lecteur.
 
 ### Actualiser les informations mises en cache
