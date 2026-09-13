@@ -4,9 +4,9 @@ Dernière mise à jour : 13 septembre 2026
 
 ## Résumé
 
-Movynex 1.0.4 est construite, signée et livrée. L'APK finale vérifiée, basée sur le commit applicatif `16f1c55`, se trouve dans `H:\Downloads\Movynex-1.0.4.apk`.
+Movynex 1.0.5 est construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit applicatif `df231c0`, se trouve dans `H:\Downloads\Movynex-1.0.5.apk`.
 
-Le code applicatif de `origin/main` contient maintenant l'amélioration des séries au commit `7447e33`. Cette évolution est intégrée et validée, mais elle n'a pas encore reçu un nouveau numéro de version et n'a pas été livrée sur le téléphone.
+La 1.0.5 livre l'amélioration des séries intégrée au commit `7447e33` : exploration complète des saisons et épisodes, plateformes françaises par série et saison, résumé des épisodes disponibles et états explicites pour chaque épisode.
 
 La pull request n°1 a validé la 1.0.4 avec GitHub Actions n°15 avant son intégration à `main`. GitHub Actions n°16 a ensuite réussi les tests unitaires, l'APK debug et la release ARM64 signée. L'APK finale a été contrôlée puis copiée dans `H:\Downloads`.
 
@@ -16,7 +16,22 @@ La 1.0.4 ajoute les disponibilités françaises des films. Les fiches récupère
 
 La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, conformément à la correction explicite de l'utilisateur : le schéma de `zplex_db.db`, la navigation inférieure et le fonctionnement historique de `Ma liste` restent inchangés.
 
-## Amélioration des séries intégrée à main
+## Movynex 1.0.5
+
+- Version construite : **Movynex 1.0.5**, `versionCode = 9` et `versionName = 1.0.5`.
+- Commit applicatif livré sur `origin/main` : `df231c0`.
+- Validation fonctionnelle préalable : [pull request n°2](https://github.com/Oks2199/zplex-android/pull/2) et [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421).
+- Tests, APK debug et release ARM64 signée réussis : [GitHub Actions n°19](https://github.com/Oks2199/zplex-android/actions/runs/34760256778).
+- APK vérifiée : package `com.cursedcrew.movynex`, libellé Movynex, version 1.0.5/code 9 et architecture exclusive `arm64-v8a`.
+- Signature Cursed Crew vérifiée avec l'empreinte de certificat attendue ; signature APK v2 et alignement ZIP valides.
+- Les clés TMDB et OMDb sont présentes dans la release, sans que leurs valeurs aient été affichées.
+- Taille : `39 285 591` octets.
+- Empreinte SHA-256 : `BD0742C08C5FA14A5C3B6419A8DB11F1E7D259F215F3D6F4E0B0A3C651DD6CC8`.
+- Artefact vérifié : `F:\Developpement\zplex-android\dist\run-34760256778-release\app-arm64-v8a-release.apk`.
+- APK livrée : `H:\Downloads\Movynex-1.0.5.apk`, avec exactement la même empreinte.
+- Aucun schéma Room, stockage DataStore, réglage OAuth ou format de dossier Drive n'a été modifié ; l'installation peut remplacer la 1.0.4 sans désinstallation.
+
+## Amélioration des séries livrée dans la 1.0.5
 
 - Commit d'implémentation : `b817a6b` ; commit d'intégration dans `main` : `7447e33`.
 - Pull request de validation [n°2](https://github.com/Oks2199/zplex-android/pull/2), fusionnée le 13 septembre 2026.
@@ -30,8 +45,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - Validation locale : ressources compilées par AAPT2 35.0.0 et `git diff --check` réussi. Gradle reste bloqué avant configuration par la limite Windows connue.
 - Validation distante réussie : [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421) a exécuté les tests unitaires, compilé l'APK debug ARM64 et téléversé l'artefact.
 - Validation après intégration réussie : [GitHub Actions n°18](https://github.com/Oks2199/zplex-android/actions/runs/34759881898) a exécuté les tests, construit l'APK debug et produit une release ARM64 signée.
-- Cette release technique porte encore `versionName = 1.0.4` et `versionCode = 8` ; elle n'a pas été copiée dans `H:\Downloads` ni livrée sur le téléphone.
-- Une future livraison de cette évolution devra passer en 1.0.5 avec un `versionCode` supérieur. La référence effectivement livrée reste la 1.0.4 précédente.
+- La version finale 1.0.5/code 9 a été construite et livrée après cette validation.
 
 ## Movynex 1.0.4
 
@@ -95,17 +109,17 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 
 ## Release de référence
 
-- Nom : **Movynex 1.0.4**
-- `versionCode` : `8`
-- `versionName` : `1.0.4`
+- Nom : **Movynex 1.0.5**
+- `versionCode` : `9`
+- `versionName` : `1.0.5`
 - Package : `com.cursedcrew.movynex`
 - Libellé Android : `Movynex`
 - Architecture livrée : `arm64-v8a`
 - Signature : Cursed Crew
 - Empreinte SHA-256 du certificat : `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
-- Empreinte SHA-256 de l'APK : `B04F1809D6D715D79A2013C0F907B88923902E7262584DC5D71CC9F63D2E01D7`
-- Workflow : [GitHub Actions n°16](https://github.com/Oks2199/zplex-android/actions/runs/34755317919), terminé avec succès
-- Emplacement livré : `H:\Downloads\Movynex-1.0.4.apk`
+- Empreinte SHA-256 de l'APK : `BD0742C08C5FA14A5C3B6419A8DB11F1E7D259F215F3D6F4E0B0A3C651DD6CC8`
+- Workflow : [GitHub Actions n°19](https://github.com/Oks2199/zplex-android/actions/runs/34760256778), terminé avec succès
+- Emplacement livré : `H:\Downloads\Movynex-1.0.5.apk`
 
 ## Fonctionnement validé
 
@@ -114,7 +128,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - Ouverture et lecture d'un film via le lecteur OAuth direct opérationnelles.
 - Téléchargement hors ligne conservé dans le stockage privé de l'application.
 - Plantage `NumberFormatException` avec la locale française corrigé.
-- Tests unitaires debug et compilations debug/release de la 1.0.4 réussis dans GitHub Actions n°16.
+- Tests unitaires debug et compilations debug/release de la 1.0.5 réussis dans GitHub Actions n°19.
 - Package, version, libellé, architecture et signature de l'APK finale contrôlés après téléchargement.
 
 ## Identité Movynex
@@ -149,7 +163,7 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 
 - `origin` : `https://github.com/Oks2199/zplex-android.git`.
 - `upstream` : `https://github.com/ZPlexLabs/zplex-android.git`.
-- `main` contient le build applicatif 1.0.3 au commit `2fae67b`.
+- `main` contient le build applicatif 1.0.5 au commit `df231c0`.
 - `codex/oauth-restoration` conserve l'historique de restauration du lecteur OAuth direct.
 - `codex/saf-migration` au commit `cd27201` conserve l'expérience SAF abandonnée pour la lecture distante.
 - Le dossier `dist/` contient uniquement des artefacts locaux et reste hors de Git.
@@ -166,6 +180,9 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 - `7d19a0a` — passage complet de l'interface en français et préparation de Movynex 1.0.3.
 - `4643428` — correction de l'import de ressources détectée par GitHub Actions n°12.
 - `2fae67b` — mise à jour du test de temps relatif français ; commit applicatif livré en 1.0.3.
+- `16f1c55` — disponibilités françaises des films et préparation de Movynex 1.0.4.
+- `7447e33` — intégration des disponibilités françaises des séries et des états des épisodes.
+- `df231c0` — incrément de version et build applicatif livré en 1.0.5.
 
 ## Documentation de reprise
 
@@ -179,9 +196,9 @@ La séparation de « Bibliothèque » et « À voir » n'est pas implémentée, 
 
 ## Validation restante
 
-1. Installer `H:\Downloads\Movynex-1.0.4.apk` directement par-dessus la 1.0.3, sans désinstaller l'application.
-2. Vérifier l'icône réduite sur le téléphone ainsi que les libellés cinéma, streaming, location, achat et indisponibilité sur les fiches de films.
-3. Réinitialiser le cache API puis réindexer les deux films si les nouvelles disponibilités n'apparaissent pas immédiatement.
+1. Installer `H:\Downloads\Movynex-1.0.5.apk` directement par-dessus la 1.0.4, sans désinstaller l'application.
+2. Vérifier « Saisons et épisodes », les plateformes françaises de la série et de chaque saison, puis les badges « Téléchargé », « Sur le Drive » et « Pas sur le Drive ».
+3. Réinitialiser le cache API si les nouvelles disponibilités des séries n'apparaissent pas immédiatement.
 4. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
 
 ## Dette et améliorations futures

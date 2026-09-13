@@ -33,6 +33,7 @@ Le dépôt d'origine reste crédité et la licence MIT doit être conservée. Le
 - Release applicative 1.0.2 : commit `302d08d`
 - Release applicative 1.0.3 : commit `2fae67b`
 - Release applicative 1.0.4 : commit `16f1c55`
+- Release applicative 1.0.5 : commit `df231c0`
 - Première refonte générale de la documentation : commit `031be35`
 - Workflow : `.github/workflows/android.yml`
 - Page GitHub Actions : `https://github.com/Oks2199/zplex-android/actions`
@@ -46,7 +47,7 @@ Un push applicatif sur `main` déclenche les tests et la construction. Il faut l
 - Package installé : `com.cursedcrew.movynex`
 - Namespace Kotlin historique : `zechs.zplex`
 - Projet Gradle : `Movynex`
-- Version livrée : `versionCode = 8`, `versionName = 1.0.4`
+- Version livrée : `versionCode = 9`, `versionName = 1.0.5`
 - Android minimum : API 31
 - Android cible et compilation : API 36
 - Architecture distribuée : `arm64-v8a`
@@ -245,6 +246,23 @@ Release 1.0.3 vérifiée et livrée :
 - Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34718793281`
 - La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
 
+Release 1.0.5 vérifiée et livrée :
+
+- Commit applicatif livré : `df231c0`
+- Pull request de validation fonctionnelle : [n°2](https://github.com/Oks2199/zplex-android/pull/2), fusionnée au commit `7447e33`
+- APK livrée : `H:\Downloads\Movynex-1.0.5.apk`
+- Copie locale de l'artefact : `F:\Developpement\zplex-android\dist\run-34760256778-release\app-arm64-v8a-release.apk`
+- Taille : `39 285 591` octets
+- SHA-256 de l'APK : `BD0742C08C5FA14A5C3B6419A8DB11F1E7D259F215F3D6F4E0B0A3C651DD6CC8`
+- Package : `com.cursedcrew.movynex`
+- Version : `versionCode = 9`, `versionName = 1.0.5`
+- Libellé : `Movynex`
+- Architecture exclusive : `arm64-v8a`
+- Signature : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
+- Les clés TMDB et OMDb sont bien présentes dans la release ; leurs valeurs n'ont pas été affichées.
+- Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34760256778`
+- La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
+
 Release 1.0.4 vérifiée et livrée :
 
 - Commit applicatif livré : `16f1c55`
@@ -406,4 +424,6 @@ La liste complète des saisons n'analyse pas tous les dossiers Drive à l'avance
 
 Cette évolution ne modifie ni Room, ni DataStore, ni OAuth, ni le format des dossiers Drive. Les tests ajoutés couvrent le filtrage français, le classement et la déduplication des plateformes, ainsi que les trois états d'un épisode. AAPT2 35.0.0 compile les ressources et `git diff --check` réussit. Gradle local reste bloqué avant configuration sur la limite connue `Unable to establish loopback connection`, mais GitHub Actions n°17 a réussi les tests unitaires et l'APK debug ARM64 sur la pull request n°2 : `https://github.com/Oks2199/zplex-android/actions/runs/34757127421`.
 
-La pull request n°2 a ensuite été fusionnée dans `main` au commit applicatif `7447e33`. GitHub Actions n°18 a réussi les tests unitaires, l'APK debug et la release ARM64 signée : `https://github.com/Oks2199/zplex-android/actions/runs/34759881898`. Le numéro Android n'a pas encore été incrémenté : cet artefact porte toujours `versionName = 1.0.4` et `versionCode = 8`. Il n'a pas été copié dans `H:\Downloads` et ne remplace pas l'APK 1.0.4 déjà livrée. Une future livraison de cette évolution devra donc d'abord passer en 1.0.5 avec un `versionCode` supérieur.
+La pull request n°2 a ensuite été fusionnée dans `main` au commit applicatif `7447e33`. GitHub Actions n°18 a réussi les tests unitaires, l'APK debug et la release ARM64 signée : `https://github.com/Oks2199/zplex-android/actions/runs/34759881898`. Cette première construction d'intégration portait encore `versionName = 1.0.4` et `versionCode = 8` et n'a pas été livrée.
+
+Le commit `df231c0` a ensuite préparé Movynex 1.0.5 avec `versionCode = 9`. GitHub Actions n°19 a réussi les tests unitaires, l'APK debug et la release ARM64 signée. L'APK a été vérifiée avec AAPT, `zipalign` et `apksigner`, puis copiée dans `H:\Downloads\Movynex-1.0.5.apk`. L'artefact et la copie livrée partagent l'empreinte SHA-256 `BD0742C08C5FA14A5C3B6419A8DB11F1E7D259F215F3D6F4E0B0A3C651DD6CC8`.
