@@ -34,6 +34,7 @@ Le dépôt d'origine reste crédité et la licence MIT doit être conservée. Le
 - Release applicative 1.0.3 : commit `2fae67b`
 - Release applicative 1.0.4 : commit `16f1c55`
 - Release applicative 1.0.5 : commit `df231c0`
+- Release applicative 1.0.6 : commit de fusion `fdf4e01`
 - Première refonte générale de la documentation : commit `031be35`
 - Workflow : `.github/workflows/android.yml`
 - Page GitHub Actions : `https://github.com/Oks2199/zplex-android/actions`
@@ -47,7 +48,7 @@ Un push applicatif sur `main` déclenche les tests et la construction. Il faut l
 - Package installé : `com.cursedcrew.movynex`
 - Namespace Kotlin historique : `zechs.zplex`
 - Projet Gradle : `Movynex`
-- Version livrée : `versionCode = 9`, `versionName = 1.0.5`
+- Version livrée : `versionCode = 10`, `versionName = 1.0.6`
 - Android minimum : API 31
 - Android cible et compilation : API 36
 - Architecture distribuée : `arm64-v8a`
@@ -284,6 +285,24 @@ Release 1.0.5 vérifiée et livrée :
 - Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34760256778`
 - La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
 
+Release 1.0.6 vérifiée et livrée :
+
+- Commit applicatif livré : `fdf4e01`
+- Pull request de validation : [n°3](https://github.com/Oks2199/zplex-android/pull/3), fusionnée après réussite de GitHub Actions n°21
+- APK livrée : `H:\Downloads\Movynex-1.0.6.apk`
+- Copie locale de l'artefact : `F:\Developpement\zplex-android\dist\run-34784568126-release\app-arm64-v8a-release.apk`
+- Taille : `39 328 401` octets
+- SHA-256 de l'APK : `A7ECD57F9DDA9D0AA9A8737ED0BE540405F37BC8839EAB70384105E70951C971`
+- Package : `com.cursedcrew.movynex`
+- Version : `versionCode = 10`, `versionName = 1.0.6`
+- Libellé : `Movynex`
+- Architecture exclusive : `arm64-v8a`
+- Signature APK v2 : certificat Cursed Crew attendu, empreinte `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
+- Les clés TMDB et OMDb sont bien présentes dans la release ; leurs valeurs n'ont pas été affichées.
+- Alignement ZIP vérifié avec `zipalign`.
+- Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34784568126`
+- La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
+
 Le dossier `dist/` est local, non versionné et ne doit pas être ajouté à Git.
 
 ## Google Cloud et OAuth
@@ -394,7 +413,7 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.5 est publiée sur `origin/main` au commit applicatif `df231c0` et son APK vérifiée est livrée dans `H:\Downloads\Movynex-1.0.5.apk`. Elle conserve les disponibilités françaises des films et l'icône corrigée de la 1.0.4, puis ajoute les disponibilités françaises des séries et des saisons, le récapitulatif des fichiers par saison et les états « Téléchargé », « Sur le Drive » ou « Pas sur le Drive » pour chaque épisode. L'installation de cette APK sur le téléphone et la validation visuelle finale de ces écrans restent à confirmer par l'utilisateur.
+Movynex 1.0.6 est publiée sur `origin/main` au commit de fusion `fdf4e01` et son APK vérifiée est livrée dans `H:\Downloads\Movynex-1.0.6.apk`. Elle ajoute la séparation entre Bibliothèque et Ma liste, la nouvelle navigation à trois boutons, l'accueil restructuré, la bannière verticale inspirée de Netflix et le cadrage uniforme des affiches TMDB en `2:3`. L'installation de cette APK sur le téléphone et la validation visuelle finale de ces nouveautés restent à confirmer par l'utilisateur.
 
 Lors de la livraison 1.0.3, les deux premières exécutions ont détecté des erreurs simples : GitHub Actions n°12 a échoué à cause d'un import `R` manquant dans `CastViewModel`, puis n°13 à cause d'une attente anglaise obsolète dans `ConverterUtilsTest`. Les commits `4643428` et `2fae67b` ont corrigé ces deux points. GitHub Actions n°14 a ensuite réussi l'intégralité des tests, la compilation debug et la release ARM64 signée.
 
@@ -438,7 +457,7 @@ La barre inférieure de cette branche contient Accueil, Bibliothèque et Ma list
 
 Un audit visuel effectué sur cette branche a relevé que les composants `item_watched.xml` et `item_media.xml` laissaient leur hauteur dépendre du ratio du fichier TMDB. Le cas observé opposait l'affiche française de Vaiana en `680 × 1020` (`2:3`) à celle de The Mandalorian and Grogu en `810 × 1080` (`3:4`). Le CDN `w342` conserve ce ratio d'origine. Les deux composants imposent désormais un cadre `2:3` avec `centerCrop`; les autres affiches fixes ont été harmonisées au même ratio et les usages de `fitXY` concernés ont été remplacés afin d'éviter toute déformation. Cette règle couvre l'accueil, « Continuer la lecture », la recherche, l'exploration, la Bibliothèque, Ma liste, les recommandations, la filmographie, les fiches et les saisons.
 
-Les ressources de cette évolution compilent avec AAPT2 35.0.0 et la logique pure d'appartenance compile avec le compilateur Kotlin. Les tests Gradle et l'APK debug restent à valider sur GitHub Actions, car la tentative locale avec le JDK 17 et `--stacktrace` rencontre encore la limite connue `Unable to establish loopback connection`. Cette évolution n'est pas encore intégrée à `main`, versionnée ni livrée dans une APK.
+Les ressources de cette évolution compilent avec AAPT2 35.0.0 et la logique pure d'appartenance compile avec le compilateur Kotlin. La tentative locale avec le JDK 17 et `--stacktrace` rencontre encore la limite connue `Unable to establish loopback connection`. La validation distante et la livraison finale sont consignées ci-dessous avec la restructuration de l'accueil.
 
 Le 13 septembre 2026, la page d'accueil a été restructurée localement sur `codex/watchlist-navigation`. Son ordre est désormais dynamique : bannière, Continuer la lecture, Sur votre Drive, Ma liste, séparateur À découvrir, Tendances de la semaine, Actuellement au cinéma et Disponibles en streaming en France. Les sections vides sont omises. Le ViewModel compose toutes les sources locales et distantes au lieu d'insérer Continuer la lecture à des positions dépendant d'un nombre fixe de lignes ; les contenus locaux restent donc affichables même si une requête TMDB échoue.
 
@@ -450,4 +469,6 @@ Continuer la lecture ne conserve que les progressions strictement positives et a
 
 La rangée cinéma utilise maintenant `GET /3/movie/now_playing` avec `region=FR`. La rangée streaming remplace l'ancien appel trompeur à `GET /3/tv/on_the_air` par deux découvertes, film et série, filtrées avec `watch_region=FR` et `with_watch_monetization_types=flatrate|free|ads`, puis fusionnées par popularité. L'attribution JustWatch est affichée sous le titre de cette rangée. Les tendances utilisent `GET /3/trending/all/week` : elles sont mondiales, mais les métadonnées restent demandées en français, et ne sont jamais présentées comme spécifiquement françaises.
 
-Pour cette restructuration, AAPT2 35.0.0 compile toutes les ressources et `HomePlaybackRules.kt` compile avec le compilateur Kotlin d'Android Studio. Une tentative Gradle avec le runtime Android Studio et `--stacktrace` s'arrête avant la configuration sur la limite connue `Unable to establish loopback connection`. Les tests unitaires complets, la génération Room/KSP et l'APK debug doivent donc encore être validés par une pull request avant intégration. Cette évolution n'est pas commitée, poussée, intégrée à `main`, versionnée ni livrée à ce stade.
+Pour cette restructuration, AAPT2 35.0.0 compile toutes les ressources et `HomePlaybackRules.kt` compile avec le compilateur Kotlin d'Android Studio. Une tentative Gradle avec le runtime Android Studio et `--stacktrace` s'arrête avant la configuration sur la limite connue `Unable to establish loopback connection`. La première exécution de la pull request n°3, GitHub Actions n°20, a détecté que les nouvelles actions globales exigeaient un identifiant sur la racine du graphe Navigation. Le commit `a106c1b` a ajouté `@+id/zplex_graph`; GitHub Actions n°21 a ensuite réussi les tests unitaires, la génération Room/KSP et l'APK debug.
+
+La pull request n°3 a été fusionnée dans `main` au commit `fdf4e01`. GitHub Actions n°22 a réussi les tests unitaires, l'APK debug et la release ARM64 signée : `https://github.com/Oks2199/zplex-android/actions/runs/34784568126`. L'APK finale 1.0.6/code 10 a été contrôlée avec AAPT, `zipalign` et `apksigner`, puis copiée dans `H:\Downloads\Movynex-1.0.6.apk`. Son package, son libellé, son architecture ARM64 exclusive, les deux clés API injectées et la signature Cursed Crew sont conformes. L'artefact et la copie livrée partagent l'empreinte SHA-256 `A7ECD57F9DDA9D0AA9A8737ED0BE540405F37BC8839EAB70384105E70951C971`.

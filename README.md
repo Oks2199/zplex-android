@@ -8,8 +8,8 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 
 ## Version actuelle
 
-- Version du code courant : `1.0.6` (`versionCode = 10`), en cours de validation
-- Dernière APK livrée et vérifiée : `1.0.5` (`versionCode = 9`)
+- Version du code courant : `1.0.6` (`versionCode = 10`)
+- Dernière APK livrée et vérifiée : `H:\Downloads\Movynex-1.0.6.apk`
 - Package Android : `com.cursedcrew.movynex`
 - Android minimum : Android 12 / API 31
 - APK de référence : ARM64, signée avec la clé Cursed Crew
@@ -188,7 +188,7 @@ Le workflow [`.github/workflows/android.yml`](.github/workflows/android.yml) :
 - construit une APK release ARM64 signée lors des exécutions hors pull request ;
 - récupère TMDB, OMDb et la signature depuis les secrets GitHub.
 
-Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers `main` exécute les tests et construit le debug, mais ignore volontairement la release signée. Un lancement manuel ne teste que le contenu déjà poussé sur la branche distante sélectionnée : il n'inclut jamais les modifications non committées du poste local. Movynex 1.0.5 a d'abord été validée par la pull request n°2 et [GitHub Actions n°17](https://github.com/Oks2199/zplex-android/actions/runs/34757127421), puis construite, signée et vérifiée par [GitHub Actions n°19](https://github.com/Oks2199/zplex-android/actions/runs/34760256778). L'APK livrée se trouve dans `H:\Downloads\Movynex-1.0.5.apk`.
+Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers `main` exécute les tests et construit le debug, mais ignore volontairement la release signée. Un lancement manuel ne teste que le contenu déjà poussé sur la branche distante sélectionnée : il n'inclut jamais les modifications non committées du poste local. Movynex 1.0.6 a été validée par la [pull request n°3](https://github.com/Oks2199/zplex-android/pull/3) et [GitHub Actions n°21](https://github.com/Oks2199/zplex-android/actions/runs/34784323576), puis construite, signée et vérifiée par [GitHub Actions n°22](https://github.com/Oks2199/zplex-android/actions/runs/34784568126). L'APK livrée se trouve dans `H:\Downloads\Movynex-1.0.6.apk`.
 
 ## Confidentialité et sécurité
 

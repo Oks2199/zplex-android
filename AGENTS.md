@@ -30,7 +30,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 
 ## Version et compatibilité
 
-- Version livrée de référence : `versionCode = 9`, `versionName = 1.0.5`.
+- Version livrée de référence : `versionCode = 10`, `versionName = 1.0.6`.
 - Android minimum : API 31 ; compilation et cible : API 36.
 - Incrémenter `versionCode` pour chaque APK destinée à remplacer une version déjà installée.
 - Utiliser un `versionName` au format `MAJEUR.MINEUR.CORRECTIF`.

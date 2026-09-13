@@ -4,9 +4,9 @@ Dernière mise à jour : 13 septembre 2026
 
 ## Résumé
 
-Le code courant prépare Movynex 1.0.6 (`versionCode = 10`) sur la branche `codex/watchlist-navigation`. Cette version regroupe la séparation Bibliothèque/Ma liste, la navigation à trois destinations, l'harmonisation des affiches, la restructuration complète de l'accueil et la nouvelle bannière verticale inspirée de Netflix. Elle n'est pas encore intégrée, construite ni livrée au moment de cette note.
+Movynex 1.0.6 (`versionCode = 10`) est intégrée à `main`, construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit de fusion `fdf4e01`, se trouve dans `H:\Downloads\Movynex-1.0.6.apk`. Cette version regroupe la séparation Bibliothèque/Ma liste, la navigation à trois destinations, l'harmonisation des affiches, la restructuration complète de l'accueil et la nouvelle bannière verticale inspirée de Netflix. Son installation et sa validation visuelle sur le téléphone restent à confirmer.
 
-Movynex 1.0.5 est construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit applicatif `df231c0`, se trouve dans `H:\Downloads\Movynex-1.0.5.apk`. Son installation et la validation visuelle des nouveautés séries sur le téléphone restent à confirmer.
+Movynex 1.0.5 reste la dernière version dont le bon fonctionnement a été confirmé par l'utilisateur avant cette livraison. Elle avait ajouté les disponibilités françaises des séries et des saisons, le récapitulatif des fichiers par saison et les états des épisodes.
 
 La 1.0.5 livre l'amélioration des séries intégrée au commit `7447e33` : exploration complète des saisons et épisodes, plateformes françaises par série et saison, résumé des épisodes disponibles et états explicites pour chaque épisode.
 
@@ -18,9 +18,9 @@ La 1.0.4 ajoute les disponibilités françaises des films. Les fiches récupère
 
 La séparation de « Bibliothèque » et « À voir » n'avait pas été incluse dans la 1.0.4, conformément à la correction explicite de l'utilisateur : le schéma de `zplex_db.db`, la navigation inférieure et le fonctionnement historique de `Ma liste` étaient alors restés inchangés.
 
-Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vraie séparation entre **Bibliothèque** et **Ma liste**, tout en conservant seulement trois boutons dans la barre inférieure. L'implémentation est en cours de validation sur la branche `codex/watchlist-navigation` et n'est pas encore livrée.
+Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vraie séparation entre **Bibliothèque** et **Ma liste**, tout en conservant seulement trois boutons dans la barre inférieure. L'implémentation est livrée dans Movynex 1.0.6.
 
-## Bibliothèque et Ma liste — implémentation en cours
+## Bibliothèque et Ma liste — livrées dans Movynex 1.0.6
 
 - Aucun changement de schéma Room : `fileId` distingue déjà une ligne de Bibliothèque d'une ligne de Ma liste.
 - L'écran Bibliothèque affiche uniquement les médias détectés sur Drive ; le nouvel écran Ma liste affiche uniquement les ajouts manuels absents du Drive.
@@ -33,9 +33,9 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - Les affiches TMDB sont harmonisées au ratio `2:3` avec `centerCrop`. Cela corrige les hauteurs variables dans « Continuer la lecture » et dans le composant partagé par l'accueil, la recherche, l'exploration, la Bibliothèque, Ma liste, les recommandations et la filmographie, tout en évitant l'étirement des rares affiches atypiques sur les fiches et saisons.
 - Contrôles locaux réussis : compilation AAPT2 35.0.0, compilation Kotlin de la logique pure et `git diff --check`.
 - Gradle local s'arrête avant la configuration sur la limite connue `Unable to establish loopback connection` avec le JDK 17 et `--stacktrace`.
-- Validation GitHub Actions, intégration dans `main`, incrément de version et APK restent à faire.
+- Validation distante réussie par la [pull request n°3](https://github.com/Oks2199/zplex-android/pull/3) et GitHub Actions n°21, puis intégration dans `main` et livraison avec la release 1.0.6.
 
-## Restructuration de l'accueil — implémentation locale
+## Restructuration de l'accueil — livrée dans Movynex 1.0.6
 
 - Ordre dynamique implémenté : bannière, Continuer la lecture, Sur votre Drive, Ma liste, À découvrir, Tendances de la semaine, Actuellement au cinéma, puis Disponibles en streaming en France.
 - La bannière privilégie les ajouts Drive récents disposant d'une affiche TMDB. Elle adopte maintenant une grande carte verticale `2:3` inspirée de Netflix : affiche plein cadre, dégradé inférieur, titre, type, année, note et origine superposés, puis bouton « Voir la fiche ». L'ancien fond horizontal flouté et la carte imbriquée sont supprimés. Le libellé indique « Sur votre Drive », « Au cinéma » ou « Sur &lt;plateforme&gt; · JustWatch » selon la source.
@@ -45,8 +45,25 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - L'ancien faux classement streaming fondé sur `tv/on_the_air` est remplacé par les découvertes TMDB films et séries filtrées sur `watch_region=FR` et `flatrate|free|ads`, fusionnées par popularité avec attribution JustWatch.
 - Les sorties utilisent `movie/now_playing` avec la région `FR`. Les tendances utilisent la fenêtre TMDB `week`, mondiale, avec les métadonnées françaises.
 - Tests unitaires ajoutés pour les règles de progression et de source lisible. AAPT2 35.0.0 compile toutes les ressources, y compris la nouvelle bannière, et la logique pure compile avec Kotlin.
-- La validation Gradle complète reste à effectuer par GitHub Actions : la tentative locale avec le runtime Android Studio et `--stacktrace` atteint la limite connue `Unable to establish loopback connection` avant la configuration.
-- Aucun commit, push, pull request, incrément de version ou APK n'a encore été produit pour cette restructuration.
+- La tentative Gradle locale avec le runtime Android Studio et `--stacktrace` atteint la limite connue `Unable to establish loopback connection` avant la configuration.
+- La première exécution de la pull request n°3 a détecté l'identifiant manquant du graphe Navigation pour les nouvelles actions globales. Le commit `a106c1b` a corrigé ce point ; GitHub Actions n°21 a ensuite validé les tests unitaires, Room/KSP et l'APK debug.
+- Après fusion, [GitHub Actions n°22](https://github.com/Oks2199/zplex-android/actions/runs/34784568126) a réussi les tests, l'APK debug et la release ARM64 signée.
+
+## Movynex 1.0.6
+
+- Version construite : **Movynex 1.0.6**, `versionCode = 10` et `versionName = 1.0.6`.
+- Pull request de validation : [n°3](https://github.com/Oks2199/zplex-android/pull/3).
+- Commit applicatif livré sur `origin/main` : `fdf4e01`.
+- Validation debug réussie après correctif : [GitHub Actions n°21](https://github.com/Oks2199/zplex-android/actions/runs/34784323576).
+- Tests, APK debug et release ARM64 signée réussis : [GitHub Actions n°22](https://github.com/Oks2199/zplex-android/actions/runs/34784568126).
+- APK vérifiée : package `com.cursedcrew.movynex`, libellé Movynex, version 1.0.6/code 10 et architecture exclusive `arm64-v8a`.
+- Signature Cursed Crew vérifiée avec l'empreinte de certificat attendue ; signature APK v2 et alignement ZIP valides.
+- Les clés TMDB et OMDb sont présentes dans la release, sans que leurs valeurs aient été affichées.
+- Taille : `39 328 401` octets.
+- Empreinte SHA-256 : `A7ECD57F9DDA9D0AA9A8737ED0BE540405F37BC8839EAB70384105E70951C971`.
+- Artefact vérifié : `F:\Developpement\zplex-android\dist\run-34784568126-release\app-arm64-v8a-release.apk`.
+- APK livrée : `H:\Downloads\Movynex-1.0.6.apk`, avec exactement la même empreinte.
+- La migration `MIGRATION_2_3` ajoute uniquement les informations de source aux historiques de lecture et préserve les données existantes ; le package, la signature, les réglages, OAuth et les formats des dossiers Drive restent compatibles avec une mise à jour par-dessus la 1.0.5.
 
 ## Movynex 1.0.5
 
@@ -142,17 +159,17 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 
 ## Release de référence
 
-- Nom : **Movynex 1.0.5**
-- `versionCode` : `9`
-- `versionName` : `1.0.5`
+- Nom : **Movynex 1.0.6**
+- `versionCode` : `10`
+- `versionName` : `1.0.6`
 - Package : `com.cursedcrew.movynex`
 - Libellé Android : `Movynex`
 - Architecture livrée : `arm64-v8a`
 - Signature : Cursed Crew
 - Empreinte SHA-256 du certificat : `88bc4c54789d5bc00a921425ea7a92e2d66aa72c29d37d25c63e9cb242b76832`
-- Empreinte SHA-256 de l'APK : `BD0742C08C5FA14A5C3B6419A8DB11F1E7D259F215F3D6F4E0B0A3C651DD6CC8`
-- Workflow : [GitHub Actions n°19](https://github.com/Oks2199/zplex-android/actions/runs/34760256778), terminé avec succès
-- Emplacement livré : `H:\Downloads\Movynex-1.0.5.apk`
+- Empreinte SHA-256 de l'APK : `A7ECD57F9DDA9D0AA9A8737ED0BE540405F37BC8839EAB70384105E70951C971`
+- Workflow : [GitHub Actions n°22](https://github.com/Oks2199/zplex-android/actions/runs/34784568126), terminé avec succès
+- Emplacement livré : `H:\Downloads\Movynex-1.0.6.apk`
 
 ## Fonctionnement validé
 
@@ -161,10 +178,11 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - Ouverture et lecture d'un film via le lecteur OAuth direct opérationnelles.
 - Téléchargement hors ligne conservé dans le stockage privé de l'application.
 - Plantage `NumberFormatException` avec la locale française corrigé.
-- Tests unitaires et compilations debug/release de la 1.0.5 réussis dans GitHub Actions n°19.
+- Tests unitaires et compilations debug/release de la 1.0.6 réussis dans GitHub Actions n°22.
 - Package, version, libellé, architecture ARM64, clés API, signature v2 et alignement ZIP de l'APK finale contrôlés après téléchargement.
 - Empreinte SHA-256 identique entre l'artefact vérifié et sa copie dans `H:\Downloads`.
-- Le fonctionnement des nouveaux écrans séries est couvert par les tests et la compilation, mais n'est pas encore validé visuellement sur le téléphone.
+- Le fonctionnement des nouveaux écrans séries de la 1.0.5 a été confirmé par l'utilisateur.
+- La navigation Bibliothèque/Ma liste, l'accueil restructuré et la nouvelle bannière de la 1.0.6 sont couverts par les tests et la compilation, mais ne sont pas encore validés visuellement sur le téléphone.
 
 ## Identité Movynex
 
@@ -198,8 +216,8 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 
 - `origin` : `https://github.com/Oks2199/zplex-android.git`.
 - `upstream` : `https://github.com/ZPlexLabs/zplex-android.git`.
-- `main` contient le build applicatif 1.0.5 au commit `df231c0`.
-- `codex/watchlist-navigation` contient la séparation Bibliothèque/Ma liste et la nouvelle navigation, en attente de validation distante.
+- `main` contient le build applicatif 1.0.6 au commit de fusion `fdf4e01`.
+- `codex/watchlist-navigation` conserve la branche ayant servi à la pull request n°3 ; son contenu est intégré dans `main`.
 - `codex/oauth-restoration` conserve l'historique de restauration du lecteur OAuth direct.
 - `codex/saf-migration` au commit `cd27201` conserve l'expérience SAF abandonnée pour la lecture distante.
 - Le dossier `dist/` contient uniquement des artefacts locaux et reste hors de Git.
@@ -219,6 +237,9 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - `16f1c55` — disponibilités françaises des films et préparation de Movynex 1.0.4.
 - `7447e33` — intégration des disponibilités françaises des séries et des états des épisodes.
 - `df231c0` — incrément de version et build applicatif livré en 1.0.5.
+- `e6cb8ef` — séparation Bibliothèque/Ma liste, accueil restructuré, affiches `2:3` et préparation de Movynex 1.0.6.
+- `a106c1b` — identifiant du graphe Navigation requis par les actions globales.
+- `fdf4e01` — fusion de la pull request n°3 et build applicatif livré en 1.0.6.
 
 ## Documentation de reprise
 
@@ -233,11 +254,12 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 
 ## Validation restante
 
-1. Installer `H:\Downloads\Movynex-1.0.5.apk` directement par-dessus la 1.0.4, sans désinstaller l'application.
-2. Vérifier « Saisons et épisodes », les plateformes françaises de la série et de chaque saison, puis les badges « Téléchargé », « Sur le Drive » et « Pas sur le Drive ».
-3. Réinitialiser le cache API si les nouvelles disponibilités des séries n'apparaissent pas immédiatement.
-4. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
-5. Valider la branche `codex/watchlist-navigation` par pull request avant toute intégration ou nouvelle APK.
+1. Installer `H:\Downloads\Movynex-1.0.6.apk` directement par-dessus la 1.0.5, sans désinstaller l'application.
+2. Vérifier la barre Accueil/Bibliothèque/Ma liste, la loupe en haut, les transitions automatiques entre Ma liste et le Drive et la conservation de la Bibliothèque après déconnexion.
+3. Vérifier l'ordre et la disparition des sections vides de l'accueil, le contenu de Continuer la lecture, l'absence de doublons avec Sur votre Drive et les disponibilités françaises.
+4. Vérifier visuellement la nouvelle bannière verticale et le cadrage uniforme `2:3` des affiches, notamment dans Continuer la lecture.
+5. Réinitialiser le cache API si les nouvelles disponibilités n'apparaissent pas immédiatement.
+6. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
 
 ## Dette et améliorations futures
 
