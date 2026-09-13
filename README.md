@@ -25,6 +25,8 @@ Pour reprendre le développement dans une nouvelle conversation, commencer par [
 - Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France.
 - Disponibilités françaises des films via TMDB/JustWatch : sortie cinéma récente, streaming par abonnement, location et achat.
 - Le bouton principal d'une fiche ne propose la lecture que lorsqu'un fichier Drive ou hors ligne est réellement disponible ; sinon il indique le type de disponibilité externe.
+- Les fiches de séries conservent l'accès à toutes les saisons et à tous les épisodes, tout en affichant les plateformes françaises au niveau de la série puis de la saison consultée.
+- Dans une saison, chaque épisode indique clairement s'il est téléchargé, présent sur le Drive ou disponible uniquement à titre informatif.
 - Interface française, y compris les réglages, le lecteur, les notifications, les téléchargements et les messages d'erreur à partir de la version 1.0.3.
 - Recherche, listes personnelles, saisons et épisodes.
 - Mode image dans l'image pris en charge par le lecteur.

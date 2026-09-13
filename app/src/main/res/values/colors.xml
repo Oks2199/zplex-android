@@ -16,6 +16,11 @@
     <color name="colorOnSuccessContainer">#004d00</color>
     <color name="colorSuccessContainer">#b9f6ca</color>
 
+    <color name="colorOnDriveContainer">#2c135f</color>
+    <color name="colorDriveContainer">#d7ccff</color>
+    <color name="colorOnUnavailableContainer">#deffffff</color>
+    <color name="colorUnavailableContainer">#3a3a40</color>
+
     <color name="colorOnFinaleContainer">#5a1a00</color>
     <color name="colorFinaleContainer">#ffccbc</color>
 

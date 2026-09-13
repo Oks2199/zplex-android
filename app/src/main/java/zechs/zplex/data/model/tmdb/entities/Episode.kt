@@ -17,6 +17,19 @@ data class Episode(
     val offline: Boolean = false,
     val progress: Int = 0
 ) {
+    val availabilityState: EpisodeAvailabilityState
+        get() = when {
+            offline -> EpisodeAvailabilityState.DOWNLOADED
+            fileId != null -> EpisodeAvailabilityState.ON_DRIVE
+            else -> EpisodeAvailabilityState.INFORMATION_ONLY
+        }
+
     val isSeasonFinale: Boolean
         get() = episode_type.equals("finale", ignoreCase = true)
+}
+
+enum class EpisodeAvailabilityState {
+    DOWNLOADED,
+    ON_DRIVE,
+    INFORMATION_ONLY
 }

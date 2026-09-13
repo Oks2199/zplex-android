@@ -14,6 +14,8 @@ import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,6 +33,8 @@ import zechs.zplex.data.local.offline.OfflineEpisodeDao
 import zechs.zplex.data.local.offline.OfflineSeasonDao
 import zechs.zplex.data.local.offline.OfflineShowDao
 import zechs.zplex.data.model.MediaType
+import zechs.zplex.data.model.WatchAvailability
+import zechs.zplex.data.model.WatchAvailabilityMapper
 import zechs.zplex.data.model.drive.DriveFile
 import zechs.zplex.data.model.drive.File
 import zechs.zplex.data.model.entities.WatchedShow
@@ -46,7 +50,6 @@ import zechs.zplex.ui.BaseAndroidViewModel
 import zechs.zplex.ui.episodes.EpisodesFragment.Companion.TAG
 import zechs.zplex.ui.player.PlaybackItem
 import zechs.zplex.ui.player.Show
-import zechs.zplex.utils.SessionManager
 import zechs.zplex.utils.ext.deleteIfExistsSafely
 import zechs.zplex.utils.ext.ifNullOrEmpty
 import zechs.zplex.utils.state.Resource
@@ -65,7 +68,6 @@ class EpisodesViewModel @Inject constructor(
     private val tmdbRepository: TmdbRepository,
     private val watchedRepository: WatchedRepository,
     private val driveRepository: DriveRepository,
-    private val sessionManager: SessionManager,
     private val offlineShowDao: OfflineShowDao,
     private val offlineSeasonDao: OfflineSeasonDao,
     private val offlineEpisodeDao: OfflineEpisodeDao,
@@ -84,29 +86,30 @@ class EpisodesViewModel @Inject constructor(
     var showPoster: String? = null
         private set
 
-    var hasLoggedIn = false
-        private set
-
     init {
         this@EpisodesViewModel.showName = savedStateHandle["showName"]
         this@EpisodesViewModel.showPoster = savedStateHandle["showPoster"]
         this@EpisodesViewModel.tmdbId = savedStateHandle.get<Int>("tmdbId") ?: 0
     }
 
-    fun updateStatus() = viewModelScope.launch {
-        hasLoggedIn = getLoginStatus()
-    }
-
-    private suspend fun getLoginStatus(): Boolean {
-        sessionManager.fetchClient() ?: return false
-        sessionManager.fetchRefreshToken() ?: return false
-        return true
-    }
-
     private val _playlist = mutableListOf<PlaybackItem>()
 
     val playlist: List<PlaybackItem>
         get() = _playlist.toList()
+
+    private val _seasonAvailability = MutableLiveData<WatchAvailability?>()
+    val seasonAvailability: LiveData<WatchAvailability?>
+        get() = _seasonAvailability
+
+    data class SeasonLibrarySummary(
+        val totalEpisodes: Int,
+        val driveEpisodes: Int,
+        val downloadedEpisodes: Int
+    )
+
+    private val _seasonLibrarySummary = MutableLiveData<SeasonLibrarySummary?>()
+    val seasonLibrarySummary: LiveData<SeasonLibrarySummary?>
+        get() = _seasonLibrarySummary
 
     fun setShowData(
         tmdbId: Int,
@@ -130,6 +133,8 @@ class EpisodesViewModel @Inject constructor(
     private val _selectedSeason = MutableStateFlow(initialSeason)
 
     fun selectSeason(seasonNumber: Int) {
+        _seasonAvailability.value = null
+        _seasonLibrarySummary.value = null
         _selectedSeason.value = tmdbId to seasonNumber
         savedStateHandle["seasonNumber"] = seasonNumber
     }
@@ -154,10 +159,22 @@ class EpisodesViewModel @Inject constructor(
         emit(Resource.Loading())
         try {
             if (hasInternetConnection()) {
-                val tmdbSeason = tmdbRepository.getSeason(tmdbId, seasonNumber)
+                val (tmdbSeason, providers) = coroutineScope {
+                    val seasonDeferred = async { tmdbRepository.getSeason(tmdbId, seasonNumber) }
+                    val providersDeferred = async {
+                        tmdbRepository.getSeasonWatchProviders(tmdbId, seasonNumber)
+                    }
+                    seasonDeferred.await() to providersDeferred.await()
+                }
+                _seasonAvailability.postValue(
+                    WatchAvailabilityMapper.map(
+                        providers.body().takeIf { providers.isSuccessful }
+                    ).takeIf { it.hasInformation }
+                )
                 emit((handleSeasonResponse(tmdbId, tmdbSeason)))
                 getLastWatchedEpisode(tmdbId, seasonNumber)
             } else {
+                _seasonAvailability.postValue(null)
                 val offlineSeason = offlineSeasonDao.getSeasonById(tmdbId, seasonNumber)
                 if (offlineSeason != null) {
                     val gson = GsonBuilder()
@@ -226,11 +243,20 @@ class EpisodesViewModel @Inject constructor(
                     }
             }
 
+            _seasonLibrarySummary.postValue(
+                SeasonLibrarySummary(
+                    totalEpisodes = episodesDataModel.size,
+                    driveEpisodes = episodesDataModel.count { it.fileId != null && !it.offline },
+                    downloadedEpisodes = episodesDataModel.count { it.offline }
+                )
+            )
+
             Log.d(TAG, "Combined episodes with watched successfully")
             return Resource.Success(episodesDataModel.toList())
         }
 
         Log.d(TAG, "Episodes resource is not Success")
+        _seasonLibrarySummary.postValue(null)
         return episodes
     }
 

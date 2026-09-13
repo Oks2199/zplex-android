@@ -277,6 +277,59 @@ class TmdbRepository @Inject constructor(
         }
     }
 
+    suspend fun getShowWatchProviders(showId: Int): Response<MovieWatchProvidersResponse> {
+        val cacheKey = "tv_${showId}_watch_providers_FR"
+        return getWatchProviders(cacheKey) {
+            tmdbApi.getShowWatchProviders(showId)
+        }
+    }
+
+    suspend fun getSeasonWatchProviders(
+        showId: Int,
+        seasonNumber: Int
+    ): Response<MovieWatchProvidersResponse> {
+        val cacheKey = "tv_${showId}_season_${seasonNumber}_watch_providers_FR"
+        return getWatchProviders(cacheKey) {
+            tmdbApi.getSeasonWatchProviders(showId, seasonNumber)
+        }
+    }
+
+    private suspend fun getWatchProviders(
+        cacheKey: String,
+        fetch: suspend () -> Response<MovieWatchProvidersResponse>
+    ): Response<MovieWatchProvidersResponse> {
+        if (CACHE_ENABLED) {
+            val existingCache = apiCacheDao.getCacheById(cacheKey)
+            if (existingCache != null && existingCache.expiration >= System.currentTimeMillis()) {
+                try {
+                    return Response.success(
+                        parseCache(existingCache.classType, existingCache.body)
+                    )
+                } catch (e: Exception) {
+                    Log.d(TAG, "Watch-provider cache deserialization failed: ${e.message}")
+                    apiCacheDao.deleteCacheById(cacheKey)
+                }
+            }
+        }
+
+        return try {
+            val response = fetch()
+            response.body()?.takeIf { response.isSuccessful }?.let { body ->
+                apiCacheDao.addCache(
+                    ApiCache(
+                        id = cacheKey,
+                        body = gson.toJson(body),
+                        classType = MovieWatchProvidersResponse::class.java.name,
+                        expiration = System.currentTimeMillis() + ONE_DAY_MILLIS
+                    )
+                )
+            }
+            response
+        } catch (e: Exception) {
+            Response.error(500, "Exception: ${e.message}".toResponseBody(null))
+        }
+    }
+
     suspend fun getSeason(
         tvId: Int,
         seasonNumber: Int

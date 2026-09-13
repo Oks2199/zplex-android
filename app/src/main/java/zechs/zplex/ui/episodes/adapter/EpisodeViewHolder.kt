@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Precision
@@ -11,6 +12,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import zechs.zplex.R
 import zechs.zplex.data.model.StillSize
 import zechs.zplex.data.model.tmdb.entities.Episode
+import zechs.zplex.data.model.tmdb.entities.EpisodeAvailabilityState
 import zechs.zplex.databinding.ItemEpisodeBinding
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.ext.ifNullOrEmpty
@@ -49,7 +51,28 @@ class EpisodeViewHolder(
                     watchProgress.progress = episode.progress
                 }
             }
-            offlineBadge.isGone = !episode.offline
+            offlineBadge.apply {
+                isGone = false
+                when (episode.availabilityState) {
+                    EpisodeAvailabilityState.DOWNLOADED -> {
+                        text = context.getString(R.string.downloaded)
+                        setBackgroundColor(ContextCompat.getColor(context, R.color.colorSuccessContainer))
+                        setTextColor(ContextCompat.getColor(context, R.color.colorOnSuccessContainer))
+                    }
+
+                    EpisodeAvailabilityState.ON_DRIVE -> {
+                        text = context.getString(R.string.on_drive)
+                        setBackgroundColor(ContextCompat.getColor(context, R.color.colorDriveContainer))
+                        setTextColor(ContextCompat.getColor(context, R.color.colorOnDriveContainer))
+                    }
+
+                    EpisodeAvailabilityState.INFORMATION_ONLY -> {
+                        text = context.getString(R.string.not_on_drive)
+                        setBackgroundColor(ContextCompat.getColor(context, R.color.colorUnavailableContainer))
+                        setTextColor(ContextCompat.getColor(context, R.color.colorOnUnavailableContainer))
+                    }
+                }
+            }
             finaleBadge.isInvisible = !episode.isSeasonFinale
 
             root.setOnClickListener {

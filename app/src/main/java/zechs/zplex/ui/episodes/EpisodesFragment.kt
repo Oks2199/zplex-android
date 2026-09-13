@@ -1,6 +1,8 @@
 package zechs.zplex.ui.episodes
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -17,6 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -33,7 +36,6 @@ import coil.load
 import coil.size.Precision
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -83,24 +85,12 @@ class EpisodesFragment : Fragment() {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }.also { startActivity(it) }
                 } else {
-                    if (!episodesViewModel.hasLoggedIn) {
-                        val snackBar = Snackbar.make(
-                            binding.root,
-                            getString(R.string.login_to_google_drive),
-                            Snackbar.LENGTH_SHORT
-                        )
-                        snackBar.setAction(getString(R.string.go_to_settings)) {
-                            findNavController().navigateSafe(R.id.action_episodesListFragment_to_settingsFragment)
-                        }
-                        snackBar.show()
-                    } else {
-                        episodeViewModel.setShowEpisode(
-                            episodesViewModel.tmdbId,
-                            episode.season_number,
-                            episode.episode_number
-                        )
-                        findNavController().navigateSafe(R.id.action_episodesListFragment_to_watchFragment)
-                    }
+                    episodeViewModel.setShowEpisode(
+                        episodesViewModel.tmdbId,
+                        episode.season_number,
+                        episode.episode_number
+                    )
+                    findNavController().navigateSafe(R.id.action_episodesListFragment_to_watchFragment)
                 }
             },
             episodeOnLongPress = { episode ->
@@ -306,6 +296,82 @@ class EpisodesFragment : Fragment() {
                 })
             }
         }
+
+        episodesViewModel.seasonLibrarySummary.observe(viewLifecycleOwner) { summary ->
+            binding.seasonHeader.tvSeasonLibrarySummary.apply {
+                isVisible = summary != null
+                text = summary?.let {
+                    val parts = mutableListOf<String>()
+                    if (it.driveEpisodes > 0) {
+                        parts += resources.getQuantityString(
+                            R.plurals.episodes_on_drive_count,
+                            it.totalEpisodes,
+                            it.driveEpisodes,
+                            it.totalEpisodes
+                        )
+                    }
+                    if (it.downloadedEpisodes > 0) {
+                        parts += resources.getQuantityString(
+                            R.plurals.downloaded_episode_count,
+                            it.downloadedEpisodes,
+                            it.downloadedEpisodes
+                        )
+                    }
+                    parts.takeIf { values -> values.isNotEmpty() }
+                        ?.joinToString(" · ")
+                        ?: getString(R.string.no_episode_in_movynex)
+                }
+            }
+        }
+
+        episodesViewModel.seasonAvailability.observe(viewLifecycleOwner) { availability ->
+            val itemBinding = binding.seasonHeader
+            itemBinding.seasonAvailabilityContainer.isVisible = availability != null
+            if (availability == null) return@observe
+
+            bindProviderLine(
+                itemBinding.tvSeasonStreaming,
+                R.string.streaming_providers,
+                availability.streamingProviders.map { it.providerName }
+            )
+            bindProviderLine(
+                itemBinding.tvSeasonRent,
+                R.string.rent_providers,
+                availability.rentProviders.map { it.providerName }
+            )
+            bindProviderLine(
+                itemBinding.tvSeasonBuy,
+                R.string.buy_providers,
+                availability.buyProviders.map { it.providerName }
+            )
+
+            itemBinding.tvSeasonAttribution.apply {
+                text = if (availability.tmdbLink != null) {
+                    getString(R.string.watch_availability_attribution_with_link)
+                } else {
+                    getString(R.string.watch_availability_attribution)
+                }
+                isClickable = availability.tmdbLink != null
+                setOnClickListener(
+                    availability.tmdbLink?.let { link ->
+                        View.OnClickListener {
+                            try {
+                                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                            } catch (_: ActivityNotFoundException) {
+                                // No browser is available on the device.
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    private fun bindProviderLine(view: android.widget.TextView, label: Int, names: List<String>) {
+        view.isVisible = names.isNotEmpty()
+        if (names.isNotEmpty()) {
+            view.text = getString(label, names.joinToString(", "))
+        }
     }
 
     private val continueWatchingFab = View.generateViewId()
@@ -455,11 +521,6 @@ class EpisodesFragment : Fragment() {
         super.onDestroyView()
         binding.rvList.adapter = null
         _binding = null
-    }
-
-    override fun onStart() {
-        super.onStart()
-        episodesViewModel.updateStatus()
     }
 
     companion object {

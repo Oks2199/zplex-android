@@ -20,7 +20,6 @@ import coil.request.SuccessResult
 import coil.size.Precision
 import zechs.zplex.R
 import zechs.zplex.data.model.BackdropSize
-import zechs.zplex.data.model.MovieAvailability
 import zechs.zplex.data.model.PosterSize
 import zechs.zplex.databinding.ItemListWithHeadingBinding
 import zechs.zplex.databinding.ItemMediaButtonsBinding
@@ -252,9 +251,11 @@ sealed class MediaViewHolder(
         private val itemBinding: ItemMovieAvailabilityBinding
     ) : MediaViewHolder(itemBinding) {
 
-        fun bind(item: MovieAvailability) {
+        fun bind(item: MediaDataModel.Availability) {
             val context = itemBinding.root.context
             val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
+
+            itemBinding.tvHeading.text = item.heading
 
             itemBinding.tvCinema.apply {
                 isVisible = item.recentTheatricalDate != null
@@ -266,31 +267,30 @@ sealed class MediaViewHolder(
             bindProviderLine(
                 itemBinding.tvStreaming,
                 R.string.streaming_providers,
-                item.streamingProviders.map { it.providerName }
+                item.availability.streamingProviders.map { it.providerName }
             )
             bindProviderLine(
                 itemBinding.tvRent,
                 R.string.rent_providers,
-                item.rentProviders.map { it.providerName }
+                item.availability.rentProviders.map { it.providerName }
             )
             bindProviderLine(
                 itemBinding.tvBuy,
                 R.string.buy_providers,
-                item.buyProviders.map { it.providerName }
+                item.availability.buyProviders.map { it.providerName }
             )
 
-            val hasProviders = item.streamingProviders.isNotEmpty() ||
-                item.rentProviders.isNotEmpty() || item.buyProviders.isNotEmpty()
+            val hasProviders = item.availability.hasInformation
             itemBinding.tvAttribution.apply {
                 isVisible = hasProviders
-                text = if (item.tmdbLink != null) {
+                text = if (item.availability.tmdbLink != null) {
                     context.getString(R.string.watch_availability_attribution_with_link)
                 } else {
                     context.getString(R.string.watch_availability_attribution)
                 }
-                isClickable = item.tmdbLink != null
+                isClickable = item.availability.tmdbLink != null
                 setOnClickListener(
-                    item.tmdbLink?.let { link ->
+                    item.availability.tmdbLink?.let { link ->
                         View.OnClickListener {
                             try {
                                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
