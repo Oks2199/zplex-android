@@ -69,7 +69,7 @@ class MediaViewModel @Inject constructor(
         tmdbRepository.deleteShow(tmdbId)
     }
 
-    fun getShow(id: Int) = tmdbRepository.fetchShow(id)
+    fun observeShow(id: Int) = tmdbRepository.observeShow(id)
 
     fun saveMovie(movie: Movie) = viewModelScope.launch {
         tmdbRepository.upsertMovie(movie)
@@ -79,7 +79,7 @@ class MediaViewModel @Inject constructor(
         tmdbRepository.deleteMovie(tmdbId)
     }
 
-    fun getMovie(id: Int) = tmdbRepository.fetchMovie(id)
+    fun observeMovie(id: Int) = tmdbRepository.observeMovie(id)
 
     fun setDominantColor(color: Int) {
         if (_dominantColor.value == color) return

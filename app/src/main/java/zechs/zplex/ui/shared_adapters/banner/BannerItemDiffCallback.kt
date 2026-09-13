@@ -1,5 +1,13 @@
 package zechs.zplex.ui.shared_adapters.banner
 
-import zechs.zplex.ui.shared_adapters.media.MediaItemDiffCallback
+import androidx.recyclerview.widget.DiffUtil
 
-class BannerItemDiffCallback : MediaItemDiffCallback()
+class BannerItemDiffCallback : DiffUtil.ItemCallback<BannerItem>() {
+
+    override fun areItemsTheSame(oldItem: BannerItem, newItem: BannerItem) =
+        oldItem.media.id == newItem.media.id &&
+            oldItem.media.media_type == newItem.media.media_type
+
+    override fun areContentsTheSame(oldItem: BannerItem, newItem: BannerItem) =
+        oldItem == newItem
+}

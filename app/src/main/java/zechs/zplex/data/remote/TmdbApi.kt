@@ -180,14 +180,54 @@ interface TmdbApi {
         language: String = TMDB_LANGUAGE
     ): Response<SearchResponse>
 
-    @GET("3/tv/on_the_air")
-    suspend fun getPopularOnStreaming(
+    @GET("3/movie/now_playing")
+    suspend fun getNowPlaying(
         @Query("api_key")
         api_key: String = TMDB_API_KEY,
         @Query("language")
         language: String = TMDB_LANGUAGE,
         @Query("page")
         page: Int = 1,
+        @Query("region")
+        region: String = TMDB_REGION
+    ): Response<SearchResponse>
+
+    @GET("3/discover/movie")
+    suspend fun getStreamingMovies(
+        @Query("api_key")
+        api_key: String = TMDB_API_KEY,
+        @Query("language")
+        language: String = TMDB_LANGUAGE,
+        @Query("page")
+        page: Int = 1,
+        @Query("include_adult")
+        include_adult: Boolean = false,
+        @Query("include_video")
+        include_video: Boolean = false,
+        @Query("sort_by")
+        sort_by: String = "popularity.desc",
+        @Query("watch_region")
+        watch_region: String = TMDB_REGION,
+        @Query("with_watch_monetization_types")
+        with_watch_monetization_types: String = "flatrate|free|ads"
+    ): Response<SearchResponse>
+
+    @GET("3/discover/tv")
+    suspend fun getStreamingShows(
+        @Query("api_key")
+        api_key: String = TMDB_API_KEY,
+        @Query("language")
+        language: String = TMDB_LANGUAGE,
+        @Query("page")
+        page: Int = 1,
+        @Query("include_adult")
+        include_adult: Boolean = false,
+        @Query("sort_by")
+        sort_by: String = "popularity.desc",
+        @Query("watch_region")
+        watch_region: String = TMDB_REGION,
+        @Query("with_watch_monetization_types")
+        with_watch_monetization_types: String = "flatrate|free|ads"
     ): Response<SearchResponse>
 
     @GET("3/discover/{media_type}")

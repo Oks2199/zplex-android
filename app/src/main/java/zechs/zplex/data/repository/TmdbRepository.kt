@@ -57,16 +57,17 @@ class TmdbRepository @Inject constructor(
         id: Int
     ) = movieDao.getMovieById(id)
 
-    fun fetchMovie(
+    fun observeMovie(
         id: Int
-    ) = movieDao.getMovie(id)
+    ) = movieDao.observeMovieById(id)
 
     suspend fun deleteMovie(
         tmdbId: Int
     ) = movieDao.deleteMovieById(tmdbId)
 
-    fun getSavedMoviesAsLiveData() = movieDao.getAllMoviesAsLiveData()
-    fun getSavedMovies() = movieDao.getAllMovies()
+    fun getLibraryMoviesAsLiveData() = movieDao.getLibraryMoviesAsLiveData()
+    fun getWatchlistMoviesAsLiveData() = movieDao.getWatchlistMoviesAsLiveData()
+    fun getLibraryMovies() = movieDao.getLibraryMovies()
 
     suspend fun upsertShow(
         show: Show
@@ -76,16 +77,17 @@ class TmdbRepository @Inject constructor(
         id: Int
     ) = showDao.getShowById(id)
 
-    fun fetchShow(
+    fun observeShow(
         id: Int
-    ) = showDao.getShow(id)
+    ) = showDao.observeShowById(id)
 
     suspend fun deleteShow(
         tmdbId: Int
     ) = showDao.deleteShowById(tmdbId)
 
-    fun getSavedShowsAsLiveData() = showDao.getAllShowsAsLiveData()
-    fun getSavedShows() = showDao.getAllShows()
+    fun getLibraryShowsAsLiveData() = showDao.getLibraryShowsAsLiveData()
+    fun getWatchlistShowsAsLiveData() = showDao.getWatchlistShowsAsLiveData()
+    fun getLibraryShows() = showDao.getLibraryShows()
 
 
     suspend fun getShow(
@@ -427,7 +429,11 @@ class TmdbRepository @Inject constructor(
         release_date_end = dateEnd
     )
 
-    suspend fun getPopularOnStreaming() = tmdbApi.getPopularOnStreaming()
+    suspend fun getNowPlaying() = tmdbApi.getNowPlaying()
+
+    suspend fun getStreamingMovies() = tmdbApi.getStreamingMovies()
+
+    suspend fun getStreamingShows() = tmdbApi.getStreamingShows()
 
     suspend fun getShowsFromCompany(
         companyId: Int,

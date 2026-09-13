@@ -17,10 +17,10 @@ interface WatchedMovieDao {
     @Query("SELECT * FROM `watched_movies`")
     fun getAllWatchedMovies(): LiveData<List<WatchedMovie>>
 
-    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId LIMIT 1")
+    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId ORDER BY createdAt DESC LIMIT 1")
     suspend fun getWatchedMovie(tmdbId: Int): WatchedMovie?
 
-    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId LIMIT 1")
+    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId ORDER BY createdAt DESC LIMIT 1")
     fun observeWatchedMovie(tmdbId: Int): LiveData<WatchedMovie?>
 
     @Query("DELETE FROM `watched_movies` WHERE tmdbId = :tmdbId")

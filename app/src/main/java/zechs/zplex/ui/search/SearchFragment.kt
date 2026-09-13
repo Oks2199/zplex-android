@@ -67,6 +67,11 @@ class SearchFragment : Fragment() {
 
         setupRecyclerView()
 
+        binding.topAppBar.setNavigationOnClickListener {
+            Keyboard.hide(binding.searchBar)
+            findNavController().navigateUp()
+        }
+
         binding.searchBar.setupClearButtonWithAction()
         var job: Job? = null
 

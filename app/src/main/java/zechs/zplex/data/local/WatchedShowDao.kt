@@ -22,6 +22,7 @@ interface WatchedShowDao {
                 "WHERE tmdbId = :tmdbId " +
                 "AND seasonNumber = :season " +
                 "AND episodeNumber = :episode " +
+                "ORDER BY createdAt DESC " +
                 "LIMIT 1"
     )
     suspend fun getWatchedShow(tmdbId: Int, season: Int, episode: Int): WatchedShow?

@@ -40,6 +40,8 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import zechs.zplex.R
+import zechs.zplex.data.model.MediaMembership
+import zechs.zplex.data.model.MediaMembershipResolver
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.MoviePrimaryAction
 import zechs.zplex.data.model.MoviePrimaryActionResolver
@@ -612,35 +614,53 @@ class MediaFragment : Fragment() {
 
     private fun setupShowDatabaseObserver(show: Show, view: MaterialButton) {
         var updateSaved = false
-        Log.d(TAG, "${UUID.randomUUID()} getShow(), invoked")
+        Log.d(TAG, "${UUID.randomUUID()} observeShow(), invoked")
 
-        mediaViewModel.getShow(show.id).observe(viewLifecycleOwner) { isSaved ->
-            Log.d(TAG, "${UUID.randomUUID()} getShow(), isSaved=$isSaved")
+        mediaViewModel.observeShow(show.id).observe(viewLifecycleOwner) { savedShow ->
+            val membership = MediaMembershipResolver.resolve(
+                isSaved = savedShow != null,
+                fileId = savedShow?.fileId
+            )
+            val isInLibrary = membership == MediaMembership.LIBRARY
+            val isInWatchlist = membership == MediaMembership.WATCHLIST
+            Log.d(
+                TAG,
+                "${UUID.randomUUID()} observeShow(), " +
+                    "isInLibrary=$isInLibrary, isInWatchlist=$isInWatchlist"
+            )
 
+            view.isEnabled = !isInLibrary
+            view.text = getString(
+                when {
+                    isInLibrary -> R.string.in_library
+                    isInWatchlist -> R.string.in_watchlist
+                    else -> R.string.add_to_watchlist
+                }
+            )
             view.icon = ContextCompat.getDrawable(
                 view.context,
-                if (isSaved) {
+                if (isInLibrary || isInWatchlist) {
                     R.drawable.ic_saved_24
                 } else R.drawable.ic_add_24
             )
 
             view.setOnClickListener {
-                if (isSaved) {
+                if (isInWatchlist) {
                     mediaViewModel.deleteShow(show.id)
                     val snackBar = Snackbar.make(
-                        binding.rvList, getString(R.string.removed_from_library, show.name),
+                        binding.rvList, getString(R.string.removed_from_watchlist, show.name),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(
                         R.string.undo
                     ) {
-                        mediaViewModel.saveShow(show)
+                        mediaViewModel.saveShow(show.copy(fileId = null, modifiedTime = null))
                     }
                     snackBar.show()
-                } else {
-                    mediaViewModel.saveShow(show)
+                } else if (!isInLibrary) {
+                    mediaViewModel.saveShow(show.copy(fileId = null, modifiedTime = null))
                     val snackBar = Snackbar.make(
-                        binding.rvList, getString(R.string.added_to_library, show.name),
+                        binding.rvList, getString(R.string.added_to_watchlist, show.name),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(
@@ -652,8 +672,13 @@ class MediaFragment : Fragment() {
                 }
             }
 
-            if (isSaved && !updateSaved) {
-                mediaViewModel.saveShow(show)
+            if (savedShow != null && !updateSaved) {
+                mediaViewModel.saveShow(
+                    show.copy(
+                        fileId = savedShow.fileId,
+                        modifiedTime = savedShow.modifiedTime
+                    )
+                )
                 updateSaved = true
             }
 
@@ -662,35 +687,54 @@ class MediaFragment : Fragment() {
 
     private fun setupMovieDatabaseObserver(movie: Movie, view: MaterialButton) {
         var updateSaved = false
-        Log.d(TAG, "${UUID.randomUUID()} getMovie(), invoked")
+        Log.d(TAG, "${UUID.randomUUID()} observeMovie(), invoked")
 
-        mediaViewModel.getMovie(movie.id).observe(viewLifecycleOwner) { isSaved ->
-            Log.d(TAG, "${UUID.randomUUID()} getMovie(), isSaved=$isSaved")
+        mediaViewModel.observeMovie(movie.id).observe(viewLifecycleOwner) { savedMovie ->
+            val membership = MediaMembershipResolver.resolve(
+                isSaved = savedMovie != null,
+                fileId = savedMovie?.fileId,
+                isOffline = mediaViewModel.isOfflineMovie(movie)
+            )
+            val isInLibrary = membership == MediaMembership.LIBRARY
+            val isInWatchlist = membership == MediaMembership.WATCHLIST
+            Log.d(
+                TAG,
+                "${UUID.randomUUID()} observeMovie(), " +
+                    "isInLibrary=$isInLibrary, isInWatchlist=$isInWatchlist"
+            )
 
+            view.isEnabled = !isInLibrary
+            view.text = getString(
+                when {
+                    isInLibrary -> R.string.in_library
+                    isInWatchlist -> R.string.in_watchlist
+                    else -> R.string.add_to_watchlist
+                }
+            )
             view.icon = ContextCompat.getDrawable(
                 view.context,
-                if (isSaved) {
+                if (isInLibrary || isInWatchlist) {
                     R.drawable.ic_saved_24
                 } else R.drawable.ic_add_24
             )
 
             view.setOnClickListener {
-                if (isSaved) {
+                if (isInWatchlist) {
                     mediaViewModel.deleteMovie(movie.id)
                     val snackBar = Snackbar.make(
-                        binding.rvList, getString(R.string.removed_from_library, movie.title),
+                        binding.rvList, getString(R.string.removed_from_watchlist, movie.title),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(
                         R.string.undo
                     ) {
-                        mediaViewModel.saveMovie(movie)
+                        mediaViewModel.saveMovie(movie.copy(fileId = null, modifiedTime = null))
                     }
                     snackBar.show()
-                } else {
-                    mediaViewModel.saveMovie(movie)
+                } else if (!isInLibrary) {
+                    mediaViewModel.saveMovie(movie.copy(fileId = null, modifiedTime = null))
                     val snackBar = Snackbar.make(
-                        binding.rvList, getString(R.string.added_to_library, movie.title),
+                        binding.rvList, getString(R.string.added_to_watchlist, movie.title),
                         Snackbar.LENGTH_SHORT
                     )
                     snackBar.setAction(
@@ -701,8 +745,13 @@ class MediaFragment : Fragment() {
                     snackBar.show()
                 }
             }
-            if (isSaved && !updateSaved) {
-                mediaViewModel.saveMovie(movie)
+            if (savedMovie != null && !updateSaved) {
+                mediaViewModel.saveMovie(
+                    movie.copy(
+                        fileId = savedMovie.fileId,
+                        modifiedTime = savedMovie.modifiedTime
+                    )
+                )
                 updateSaved = true
             }
         }

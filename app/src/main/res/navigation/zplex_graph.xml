@@ -2,7 +2,16 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/zplex_graph"
     app:startDestination="@id/homeFragment">
+
+    <action
+        android:id="@+id/action_global_searchFragment"
+        app:destination="@id/searchFragment" />
+
+    <action
+        android:id="@+id/action_global_fragmentMedia"
+        app:destination="@id/fragmentMedia" />
 
     <fragment
         android:id="@+id/homeFragment"
@@ -52,6 +61,12 @@
             android:id="@+id/action_myShowsFragment_to_fragmentMedia"
             app:destination="@id/fragmentMedia" />
     </fragment>
+
+    <fragment
+        android:id="@+id/watchlistFragment"
+        android:name="zechs.zplex.ui.watchlist.WatchlistFragment"
+        android:label="Watchlist"
+        tools:layout="@layout/fragment_my_shows" />
 
     <fragment
         android:id="@+id/bigImageFragment"

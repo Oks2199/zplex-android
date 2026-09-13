@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 import zechs.zplex.data.model.offline.OfflineEpisode
 
@@ -18,6 +19,9 @@ interface OfflineEpisodeDao {
 
     @Query("SELECT * FROM episodes WHERE tmdbId = :tmdbId AND seasonNumber = :seasonNumber")
     fun getAllEpisodesAsFlow(tmdbId: Int, seasonNumber: Int): Flow<List<OfflineEpisode>>
+
+    @Query("SELECT * FROM episodes")
+    fun getAllEpisodesAsLiveData(): LiveData<List<OfflineEpisode>>
 
     @Query(
         "SELECT EXISTS(SELECT * FROM episodes WHERE tmdbId = :tmdbId AND seasonNumber = :seasonNumber AND episodeNumber = :episodeNumber)"

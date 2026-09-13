@@ -26,6 +26,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Le mot-symbole horizontal est `app/src/main/res/drawable-nodpi/movynex_wordmark.png`.
 - Sur l'accueil, afficher le mot-symbole dans la barre supérieure. Sur les autres écrans, conserver les titres fonctionnels.
 - Toute ressource de marque doit rester lisible sur fond sombre et dans les masques Android ronds, carrés ou adaptatifs.
+- Afficher les affiches et portraits TMDB dans un cadre vertical `2:3` avec `centerCrop` : les rares sources dans un autre ratio doivent être recadrées, jamais étirées ni autorisées à modifier la hauteur d'une carte.
 
 ## Version et compatibilité
 
@@ -63,6 +64,25 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Sur une fiche de série, conserver l'accès à toutes les saisons et à tous les épisodes, même lorsqu'aucun fichier n'est présent sur le Drive.
 - Seuls les épisodes associés à un fichier Drive ou hors ligne doivent lancer MPV ; un épisode absent doit rester consultable comme fiche informative.
 - Les disponibilités françaises des séries et saisons proviennent de TMDB/JustWatch, doivent conserver l'attribution JustWatch et ne doivent jamais être présentées comme une disponibilité garantie épisode par épisode.
+
+## Bibliothèque et Ma liste
+
+- Dans les tables historiques `movies` et `shows`, un média avec `fileId` appartient à la Bibliothèque Drive ; un média enregistré sans `fileId` appartient à Ma liste.
+- Une indexation qui détecte sur Drive un média de Ma liste doit lui attribuer son `fileId`, ce qui le déplace automatiquement vers la Bibliothèque sans créer de doublon.
+- La synchronisation Drive ne doit jamais supprimer les lignes de Ma liste et un média retiré du Drive ne doit pas être automatiquement réinscrit dans Ma liste.
+- Sur une fiche, le bouton Ma liste ne doit jamais permettre de supprimer un média de la Bibliothèque. Il doit distinguer « Ajouter à ma liste », « Dans ma liste » et « Dans la bibliothèque ».
+- La navigation principale conserve trois boutons : Accueil, Bibliothèque et Ma liste. La recherche reste accessible par la loupe des barres supérieures.
+- La déconnexion Google Drive doit conserver la dernière Bibliothèque connue et Ma liste ; elle ne doit pas convertir la Bibliothèque en éléments de Ma liste.
+
+## Accueil
+
+- Conserver l'ordre logique suivant : bannière, Continuer la lecture, Sur votre Drive, Ma liste, séparateur À découvrir, Tendances de la semaine, Actuellement au cinéma, puis Disponibles en streaming en France. Toute section vide disparaît, sauf la bannière lorsqu'un candidat valable existe.
+- La bannière privilégie un média présent sur le Drive. Un média externe doit porter un libellé « Au cinéma » ou indiquer sa plateforme française ; toute donnée de plateforme conserve l'attribution JustWatch.
+- La bannière utilise une grande affiche TMDB verticale `2:3` inspirée de Netflix, sans arrière-plan flouté ni carte imbriquée. Le titre, le type, l'année, la note et l'origine sont superposés sur un dégradé ; son bouton « Voir la fiche » conserve la navigation vers les détails du média.
+- Continuer la lecture affiche uniquement une lecture réellement commencée, non terminée et encore associée à une source Drive ou hors ligne. Un épisode doit conserver la référence du fichier exact utilisé pour la lecture.
+- Sur votre Drive est trié par date d'ajout et exclut les médias déjà affichés dans Continuer la lecture. Ma liste contient uniquement les médias enregistrés qui ne sont présents ni sur le Drive ni hors ligne.
+- Les tendances TMDB sont mondiales et utilisent la fenêtre hebdomadaire avec des métadonnées françaises ; ne jamais les présenter comme des tendances spécifiquement françaises.
+- Les sorties cinéma utilisent la région `FR`. Les suggestions de streaming utilisent `watch_region=FR` et les modes `flatrate`, `free` ou `ads`, jamais l'endpoint des séries actuellement diffusées.
 
 ## Clés API, jetons et signature
 

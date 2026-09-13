@@ -1,6 +1,7 @@
 package zechs.zplex.data.model.entities
 
 import androidx.annotation.Keep
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -16,7 +17,10 @@ data class WatchedShow(
     val watchedDuration: Long,
     val totalDuration: Long,
     val createdAt: Long,
-    @PrimaryKey(autoGenerate = true) val id: Int? = null
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val fileId: String? = null,
+    @ColumnInfo(defaultValue = "0")
+    val offline: Boolean = false
 ) {
 
     fun watchProgress() = ((watchedDuration.toDouble() / totalDuration) * 100).toInt()

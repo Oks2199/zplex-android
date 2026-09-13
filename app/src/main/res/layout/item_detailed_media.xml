@@ -17,7 +17,7 @@
         <ImageView
             android:id="@+id/iv_poster"
             android:layout_width="104dp"
-            android:layout_height="160dp"
+            android:layout_height="156dp"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"

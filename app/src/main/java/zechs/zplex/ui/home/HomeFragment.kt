@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.launch
 import zechs.zplex.R
 import zechs.zplex.data.model.entities.WatchedShow
 import zechs.zplex.data.model.tmdb.entities.Media
@@ -62,6 +60,11 @@ class HomeFragment : Fragment() {
             inflateMenu(R.menu.main_menu)
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
+                    R.id.action_search -> {
+                        findNavController().navigateSafe(R.id.action_global_searchFragment)
+                        true
+                    }
+
                     R.id.action_settings -> {
                         findNavController().navigateSafe(R.id.action_homeFragment_to_settingsFragment)
                         true
@@ -136,50 +139,6 @@ class HomeFragment : Fragment() {
 
     private fun homeMediaSuccess(listResponse: List<HomeDataModel>) {
         homeDataAdapter.submitList(listResponse)
-
-        homeViewModel.watchedMedia.observe(viewLifecycleOwner) { watchedList ->
-            watchedList?.let {
-                val sortedList = it.sortedByDescending { watchedData ->
-                    when (watchedData) {
-                        is WatchedDataModel.Show -> watchedData.show.createdAt
-                        is WatchedDataModel.Movie -> watchedData.movie.createdAt
-                    }
-                }
-                setupWatchedList(sortedList)
-            }
-        }
-    }
-
-    private fun setupWatchedList(
-        watchedList: List<WatchedDataModel>
-    ) = viewLifecycleOwner.lifecycleScope.launch {
-        val currentList = homeDataAdapter.currentList.toMutableList()
-        Log.d(TAG, "WatchedDataModel=$watchedList")
-        Log.d(TAG, "currentListSize=${homeDataAdapter.itemCount}")
-        Log.d(TAG, "currentList.size=${currentList.size}")
-        currentList.forEachIndexed { i, a ->
-            Log.d(TAG, "currentList[$i]=$a")
-        }
-        when (homeDataAdapter.itemCount) {
-            5 -> {
-                if (watchedList.isNotEmpty()) {
-                    currentList.add(1, HomeDataModel.Header(getString(R.string.continue_watching)))
-                    currentList.add(2, HomeDataModel.Watched(watchedList))
-                }
-            }
-
-            7 -> {
-                currentList.removeAt(1)
-                currentList.removeAt(1)
-                if (watchedList.isNotEmpty()) {
-                    currentList.add(1, HomeDataModel.Header(getString(R.string.continue_watching)))
-                    currentList.add(2, HomeDataModel.Watched(watchedList))
-                }
-            }
-
-            else -> {}
-        }
-        homeDataAdapter.submitList(currentList)
     }
 
     private fun setupRecyclerView() {

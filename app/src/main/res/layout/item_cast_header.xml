@@ -22,7 +22,7 @@
             android:layout_width="134dp"
             android:layout_height="201dp"
             android:contentDescription="@null"
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             tools:srcCompat="@drawable/no_poster" />
 
     </com.google.android.material.card.MaterialCardView>
