@@ -1,12 +1,10 @@
 # Movynex — état d'avancement
 
-Dernière mise à jour : 13 septembre 2026
+Dernière mise à jour : 14 septembre 2026
 
 ## Résumé
 
-Movynex 1.0.6 (`versionCode = 10`) est intégrée à `main`, construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit de fusion `fdf4e01`, se trouve dans `H:\Downloads\Movynex-1.0.6.apk`. Cette version regroupe la séparation Bibliothèque/Ma liste, la navigation à trois destinations, l'harmonisation des affiches, la restructuration complète de l'accueil et la nouvelle bannière verticale inspirée de Netflix. Son installation et sa validation visuelle sur le téléphone restent à confirmer.
-
-Movynex 1.0.5 reste la dernière version dont le bon fonctionnement a été confirmé par l'utilisateur avant cette livraison. Elle avait ajouté les disponibilités françaises des séries et des saisons, le récapitulatif des fichiers par saison et les états des épisodes.
+Movynex 1.0.6 (`versionCode = 10`) est intégrée à `main`, construite, signée, vérifiée et livrée. L'APK finale, basée sur le commit de fusion `fdf4e01`, se trouve dans `H:\Downloads\Movynex-1.0.6.apk`. Cette version regroupe la séparation Bibliothèque/Ma liste, la navigation à trois destinations, l'harmonisation des affiches, la restructuration complète de l'accueil et la nouvelle bannière verticale inspirée de Netflix. Le 14 septembre 2026, l'utilisateur a confirmé que la mise à jour installée fonctionne correctement.
 
 La 1.0.5 livre l'amélioration des séries intégrée au commit `7447e33` : exploration complète des saisons et épisodes, plateformes françaises par série et saison, résumé des épisodes disponibles et états explicites pour chaque épisode.
 
@@ -64,6 +62,7 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - Artefact vérifié : `F:\Developpement\zplex-android\dist\run-34784568126-release\app-arm64-v8a-release.apk`.
 - APK livrée : `H:\Downloads\Movynex-1.0.6.apk`, avec exactement la même empreinte.
 - La migration `MIGRATION_2_3` ajoute uniquement les informations de source aux historiques de lecture et préserve les données existantes ; le package, la signature, les réglages, OAuth et les formats des dossiers Drive restent compatibles avec une mise à jour par-dessus la 1.0.5.
+- Installation et fonctionnement général confirmés par l'utilisateur le 14 septembre 2026.
 
 ## Movynex 1.0.5
 
@@ -182,7 +181,7 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 - Package, version, libellé, architecture ARM64, clés API, signature v2 et alignement ZIP de l'APK finale contrôlés après téléchargement.
 - Empreinte SHA-256 identique entre l'artefact vérifié et sa copie dans `H:\Downloads`.
 - Le fonctionnement des nouveaux écrans séries de la 1.0.5 a été confirmé par l'utilisateur.
-- La navigation Bibliothèque/Ma liste, l'accueil restructuré et la nouvelle bannière de la 1.0.6 sont couverts par les tests et la compilation, mais ne sont pas encore validés visuellement sur le téléphone.
+- La navigation Bibliothèque/Ma liste, l'accueil restructuré, la nouvelle bannière et le fonctionnement général de la 1.0.6 ont été validés sur le téléphone par l'utilisateur le 14 septembre 2026.
 
 ## Identité Movynex
 
@@ -254,12 +253,8 @@ Cette décision a évolué le 13 septembre 2026 : l'utilisateur a validé une vr
 
 ## Validation restante
 
-1. Installer `H:\Downloads\Movynex-1.0.6.apk` directement par-dessus la 1.0.5, sans désinstaller l'application.
-2. Vérifier la barre Accueil/Bibliothèque/Ma liste, la loupe en haut, les transitions automatiques entre Ma liste et le Drive et la conservation de la Bibliothèque après déconnexion.
-3. Vérifier l'ordre et la disparition des sections vides de l'accueil, le contenu de Continuer la lecture, l'absence de doublons avec Sur votre Drive et les disponibilités françaises.
-4. Vérifier visuellement la nouvelle bannière verticale et le cadrage uniforme `2:3` des affiches, notamment dans Continuer la lecture.
-5. Réinitialiser le cache API si les nouvelles disponibilités n'apparaissent pas immédiatement.
-6. Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
+- Aucune validation fonctionnelle ne reste à effectuer pour Movynex 1.0.6.
+- Ne reprendre le chantier bilingue de `LANGUAGE_AUDIT.md` que si le besoin familial évolue.
 
 ## Dette et améliorations futures
 

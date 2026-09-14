@@ -302,6 +302,7 @@ Release 1.0.6 vérifiée et livrée :
 - Alignement ZIP vérifié avec `zipalign`.
 - Tests unitaires, APK debug et release signée réussis : `https://github.com/Oks2199/zplex-android/actions/runs/34784568126`
 - La copie livrée possède exactement la même empreinte SHA-256 que l'artefact vérifié.
+- Installation sur le téléphone et fonctionnement général de la version 1.0.6 confirmés par l'utilisateur le 14 septembre 2026.
 
 Le dossier `dist/` est local, non versionné et ne doit pas être ajouté à Git.
 
@@ -413,7 +414,7 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.6 est publiée sur `origin/main` au commit de fusion `fdf4e01` et son APK vérifiée est livrée dans `H:\Downloads\Movynex-1.0.6.apk`. Elle ajoute la séparation entre Bibliothèque et Ma liste, la nouvelle navigation à trois boutons, l'accueil restructuré, la bannière verticale inspirée de Netflix et le cadrage uniforme des affiches TMDB en `2:3`. L'installation de cette APK sur le téléphone et la validation visuelle finale de ces nouveautés restent à confirmer par l'utilisateur.
+Movynex 1.0.6 est publiée sur `origin/main` au commit de fusion `fdf4e01` et son APK vérifiée est livrée dans `H:\Downloads\Movynex-1.0.6.apk`. Elle ajoute la séparation entre Bibliothèque et Ma liste, la nouvelle navigation à trois boutons, l'accueil restructuré, la bannière verticale inspirée de Netflix et le cadrage uniforme des affiches TMDB en `2:3`. Le 14 septembre 2026, l'utilisateur a confirmé que la mise à jour installée fonctionne correctement.
 
 Lors de la livraison 1.0.3, les deux premières exécutions ont détecté des erreurs simples : GitHub Actions n°12 a échoué à cause d'un import `R` manquant dans `CastViewModel`, puis n°13 à cause d'une attente anglaise obsolète dans `ConverterUtilsTest`. Les commits `4643428` et `2fae67b` ont corrigé ces deux points. GitHub Actions n°14 a ensuite réussi l'intégralité des tests, la compilation debug et la release ARM64 signée.
 
