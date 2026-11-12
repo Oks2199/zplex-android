@@ -5,8 +5,10 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import androidx.core.view.allViews
 import androidx.core.view.doOnNextLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import zechs.zplex.R
 
 val Context.isTelevision: Boolean
@@ -18,6 +20,13 @@ val Context.televisionGridColumns: Int
 
 interface TelevisionFocusNavigation {
     fun moveTelevisionFocusUp(focused: View): Boolean
+}
+
+fun View.enableTelevisionAppBarFocus() {
+    allViews.filterIsInstance<AppBarLayout>().forEach { appBar ->
+        appBar.touchscreenBlocksFocus = false
+        appBar.isKeyboardNavigationCluster = false
+    }
 }
 
 fun RecyclerView.isInFirstTelevisionRow(focused: View, firstRowCount: Int): Boolean {

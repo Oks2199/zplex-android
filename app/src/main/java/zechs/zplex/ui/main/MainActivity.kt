@@ -23,6 +23,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -40,6 +42,7 @@ import zechs.zplex.service.RemoteLibraryIndexingService
 import zechs.zplex.utils.Constants.CACHE_TTL_IN_DAYS
 import zechs.zplex.utils.MaterialMotionInterpolator
 import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.enableTelevisionAppBarFocus
 import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.showTelevisionFocus
 import java.util.concurrent.TimeUnit
@@ -68,6 +71,19 @@ class MainActivity : AppCompatActivity() {
         navHost = supportFragmentManager.findFragmentById(
             R.id.mainNavHostFragment
         ) as NavHostFragment
+        if (television) {
+            navHost.childFragmentManager.registerFragmentLifecycleCallbacks(
+                object : FragmentManager.FragmentLifecycleCallbacks() {
+                    override fun onFragmentViewCreated(
+                        fm: FragmentManager, fragment: Fragment, view: View, savedInstanceState: Bundle?
+                    ) {
+                        view.enableTelevisionAppBarFocus()
+                    }
+                },
+                true
+            )
+            navHost.view?.enableTelevisionAppBarFocus()
+        }
         navController = navHost.navController
         binding.bottomNavigationView.setupWithNavController(navController)
 
