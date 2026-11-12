@@ -16,7 +16,17 @@ val Context.isTelevision: Boolean
 val Context.televisionGridColumns: Int
     get() = ((resources.configuration.screenWidthDp - 180) / 148).coerceIn(3, 8)
 
-fun View.showTelevisionFocus() {
+fun RecyclerView.isMovingAboveTelevisionRow(
+    focused: View,
+    direction: Int,
+    firstRowCount: Int
+): Boolean {
+    if (!context.isTelevision || direction != View.FOCUS_UP) return false
+    val position = findContainingViewHolder(focused)?.adapterPosition ?: RecyclerView.NO_POSITION
+    return position in 0 until firstRowCount
+}
+
+fun View.showTelevisionFocus(excluded: View? = null) {
     val stroke = resources.getDimensionPixelSize(R.dimen.tv_focus_stroke)
     val outline = GradientDrawable().apply {
         setColor(Color.TRANSPARENT)
@@ -27,6 +37,7 @@ fun View.showTelevisionFocus() {
         outline.setBounds(0, 0, view.width, view.height)
     }
     fun show(view: View) {
+        if (view === excluded) return
         outline.setBounds(0, 0, view.width, view.height)
         view.overlay.add(outline)
         view.addOnLayoutChangeListener(resize)

@@ -25,6 +25,7 @@ import zechs.zplex.databinding.FragmentSearchBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.Constants.SEARCH_DELAY_AMOUNT
 import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.isMovingAboveTelevisionRow
 import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.rememberTelevisionFocus
@@ -200,6 +201,13 @@ class SearchFragment : Fragment() {
         }
         val gridLayoutManager =
             object : GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false) {
+                override fun onInterceptFocusSearch(focused: View, direction: Int): View? {
+                    if (binding.rvSearch.isMovingAboveTelevisionRow(focused, direction, spanCount)) {
+                        return binding.searchBar
+                    }
+                    return super.onInterceptFocusSearch(focused, direction)
+                }
+
                 override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
                     return lp?.let {
                         it.width = (widthRatio * width).toInt()

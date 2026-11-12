@@ -179,7 +179,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         player = binding.player
         controller = binding.controller
         if (isTelevision) {
-            binding.root.showTelevisionFocus()
+            binding.root.showTelevisionFocus(excluded = player)
             controller.btnRotate.isVisible = false
             controller.btnLock.isVisible = false
             controller.btnPlayPause.requestFocus()
@@ -573,6 +573,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         if (state == PlaybackState.BUFFERING) {
             binding.buffering.isInvisible = false
+            if (isTelevision && controller.btnPlayPause.hasFocus()) {
+                controller.progressBar.requestFocus()
+            }
             controller.btnPlayPause.isInvisible = true
         } else {
             binding.buffering.isInvisible = true

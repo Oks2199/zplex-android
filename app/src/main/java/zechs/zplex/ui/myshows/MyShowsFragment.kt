@@ -31,6 +31,7 @@ import zechs.zplex.databinding.FragmentMyShowsBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.MaterialMotionInterpolator
 import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.isMovingAboveTelevisionRow
 import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.rememberTelevisionFocus
@@ -117,6 +118,11 @@ open class MyShowsFragment : Fragment() {
         }
 
         setupRecyclerView()
+        if (requireContext().isTelevision) {
+            repeat(binding.tabLayout.tabCount) { index ->
+                binding.tabLayout.getTabAt(index)?.view?.nextFocusUpId = R.id.action_search
+            }
+        }
 
         savedInstanceState?.let {
             // Restore scroll states for all tabs
@@ -402,6 +408,13 @@ open class MyShowsFragment : Fragment() {
         }
         val gridLayoutManager =
             object : GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false) {
+                override fun onInterceptFocusSearch(focused: View, direction: Int): View? {
+                    if (binding.rvMyShows.isMovingAboveTelevisionRow(focused, direction, spanCount)) {
+                        return binding.tabLayout.getTabAt(selectedTabIndex)?.view
+                    }
+                    return super.onInterceptFocusSearch(focused, direction)
+                }
+
                 override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
                     return lp?.let {
                         it.width = (widthRatio * width).toInt()
