@@ -6,6 +6,7 @@
     <color name="tv_accent">#C4C3FF</color>
     <color name="tv_accent_ink">#181544</color>
     <color name="tv_focus">#DAD8FF</color>
+    <color name="tv_focus_on_light">#5751C8</color>
     <dimen name="tv_safe_horizontal">48dp</dimen>
     <dimen name="tv_safe_vertical">24dp</dimen>
     <dimen name="tv_focus_stroke">2dp</dimen>

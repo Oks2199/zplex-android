@@ -9,10 +9,12 @@ import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.allViews
 import androidx.core.view.doOnNextLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationBarItemView
 import com.google.android.material.shape.Shapeable
 import zechs.zplex.R
@@ -45,13 +47,18 @@ fun RecyclerView.isInFirstTelevisionRow(focused: View, firstRowCount: Int): Bool
 fun View.showTelevisionFocus(excluded: View? = null) {
     val stroke = resources.getDimensionPixelSize(R.dimen.tv_focus_stroke)
     val fallbackRadius = resources.getDimension(R.dimen.tv_focus_radius)
-    val outline = GradientDrawable().apply {
-        setColor(Color.TRANSPARENT)
-        setStroke(stroke, context.getColor(R.color.tv_focus))
-    }
+    val focusColor = context.getColor(R.color.tv_focus)
+    val focusOnLight = context.getColor(R.color.tv_focus_on_light)
+    val outline = GradientDrawable().apply { setColor(Color.TRANSPARENT) }
     val surface = Outline()
     val bounds = Rect()
     fun positionOutline(view: View) {
+        val buttonTint = (view as? MaterialButton)?.backgroundTintList
+            ?.getColorForState(view.drawableState, Color.TRANSPARENT)
+        val color = if (buttonTint != null && Color.alpha(buttonTint) == 255 &&
+            ColorUtils.calculateContrast(focusColor, buttonTint) < 3.0
+        ) focusOnLight else focusColor
+        outline.setStroke(stroke, color)
         surface.setEmpty()
         if (view is Shapeable) view.background?.getOutline(surface)
         if (surface.getRect(bounds) && !bounds.isEmpty) {

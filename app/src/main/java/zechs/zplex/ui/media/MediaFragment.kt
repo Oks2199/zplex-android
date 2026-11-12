@@ -81,6 +81,7 @@ class MediaFragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
+    private var hasPlacedInitialTelevisionFocus = false
 
     // View models
     private val seasonViewModel by activityViewModels<SeasonViewModel>()
@@ -148,11 +149,16 @@ class MediaFragment : Fragment() {
                     mediaDataAdapter.submitList(response.data) {
                         val current = _binding ?: return@submitList
                         val list = current.rvList
-                        if (list.context.isTelevision && !list.hasFocus()) {
+                        if (list.context.isTelevision && !hasPlacedInitialTelevisionFocus) {
                             list.doOnNextLayout {
-                                if (list.hasFocus()) return@doOnNextLayout
+                                if (hasPlacedInitialTelevisionFocus) return@doOnNextLayout
+                                hasPlacedInitialTelevisionFocus = true
+                                val focused = list.findFocus()
+                                if (focused != null && focused.id != R.id.ivBackdrop) return@doOnNextLayout
                                 val primary = list.findViewById<View>(R.id.btn_watch_now)
-                                if (primary?.requestFocus() != true) current.toolbar.requestFocus()
+                                if (primary?.requestFocus() != true && focused == null) {
+                                    current.toolbar.requestFocus()
+                                }
                             }
                         }
                     }
