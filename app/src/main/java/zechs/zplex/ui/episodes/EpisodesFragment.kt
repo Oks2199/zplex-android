@@ -31,6 +31,8 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import coil.load
@@ -57,7 +59,7 @@ import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.state.Resource
 
 @AndroidEntryPoint
-class EpisodesFragment : Fragment() {
+class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
 
     private var _binding: FragmentEpisodesBinding? = null
     private val binding get() = _binding!!
@@ -517,6 +519,12 @@ class EpisodesFragment : Fragment() {
             message ?: resources.getString(R.string.something_went_wrong),
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    override fun moveTelevisionFocusUp(focused: View): Boolean {
+        val current = _binding ?: return false
+        val columns = (current.rvList.layoutManager as? GridLayoutManager)?.spanCount ?: return false
+        return current.rvList.isInFirstTelevisionRow(focused, columns) && current.toolbar.requestFocus()
     }
 
     override fun onDestroyView() {

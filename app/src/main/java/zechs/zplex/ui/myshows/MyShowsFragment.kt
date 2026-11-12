@@ -31,7 +31,8 @@ import zechs.zplex.databinding.FragmentMyShowsBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.MaterialMotionInterpolator
 import zechs.zplex.utils.ext.TvListFocus
-import zechs.zplex.utils.ext.isMovingAboveTelevisionRow
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
 import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.rememberTelevisionFocus
@@ -39,7 +40,7 @@ import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.ext.televisionGridColumns
 
 
-open class MyShowsFragment : Fragment() {
+open class MyShowsFragment : Fragment(), TelevisionFocusNavigation {
 
     companion object {
         const val TAG = "MyShowsFragment"
@@ -118,11 +119,6 @@ open class MyShowsFragment : Fragment() {
         }
 
         setupRecyclerView()
-        if (requireContext().isTelevision) {
-            repeat(binding.tabLayout.tabCount) { index ->
-                binding.tabLayout.getTabAt(index)?.view?.nextFocusUpId = R.id.action_search
-            }
-        }
 
         savedInstanceState?.let {
             // Restore scroll states for all tabs
@@ -408,13 +404,6 @@ open class MyShowsFragment : Fragment() {
         }
         val gridLayoutManager =
             object : GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false) {
-                override fun onInterceptFocusSearch(focused: View, direction: Int): View? {
-                    if (binding.rvMyShows.isMovingAboveTelevisionRow(focused, direction, spanCount)) {
-                        return binding.tabLayout.getTabAt(selectedTabIndex)?.view
-                    }
-                    return super.onInterceptFocusSearch(focused, direction)
-                }
-
                 override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
                     return lp?.let {
                         it.width = (widthRatio * width).toInt()
@@ -429,6 +418,16 @@ open class MyShowsFragment : Fragment() {
             adapter = mediaAdapter
             layoutManager = gridLayoutManager
         }
+    }
+
+    override fun moveTelevisionFocusUp(focused: View): Boolean {
+        val current = _binding ?: return false
+        val columns = (current.rvMyShows.layoutManager as? GridLayoutManager)?.spanCount ?: return false
+        if (current.rvMyShows.isInFirstTelevisionRow(focused, columns)) {
+            return current.tabLayout.getTabAt(selectedTabIndex)?.view?.requestFocus() == true
+        }
+        return current.tabLayout.hasFocus() &&
+            current.toolbar.findViewById<View>(R.id.action_search)?.requestFocus() == true
     }
 
     private fun navigateToMedia(media: Media) {

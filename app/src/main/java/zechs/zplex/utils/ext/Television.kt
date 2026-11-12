@@ -16,12 +16,11 @@ val Context.isTelevision: Boolean
 val Context.televisionGridColumns: Int
     get() = ((resources.configuration.screenWidthDp - 180) / 148).coerceIn(3, 8)
 
-fun RecyclerView.isMovingAboveTelevisionRow(
-    focused: View,
-    direction: Int,
-    firstRowCount: Int
-): Boolean {
-    if (!context.isTelevision || direction != View.FOCUS_UP) return false
+interface TelevisionFocusNavigation {
+    fun moveTelevisionFocusUp(focused: View): Boolean
+}
+
+fun RecyclerView.isInFirstTelevisionRow(focused: View, firstRowCount: Int): Boolean {
     val position = findContainingViewHolder(focused)?.adapterPosition ?: RecyclerView.NO_POSITION
     return position in 0 until firstRowCount
 }

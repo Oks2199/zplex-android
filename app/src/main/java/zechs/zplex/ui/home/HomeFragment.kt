@@ -23,14 +23,15 @@ import zechs.zplex.ui.home.adapter.watched.WatchedDataModel
 import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
 import zechs.zplex.utils.ext.isTelevision
-import zechs.zplex.utils.ext.isMovingAboveTelevisionRow
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
 import zechs.zplex.utils.ext.rememberTelevisionFocus
 import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), TelevisionFocusNavigation {
 
     companion object {
         const val TAG = "HomeFragment"
@@ -164,21 +165,19 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.rvList.apply {
             adapter = homeDataAdapter
-            layoutManager = object : LinearLayoutManager(
+            layoutManager = LinearLayoutManager(
                 activity, LinearLayoutManager.VERTICAL, false
-            ) {
-                override fun onInterceptFocusSearch(focused: View, direction: Int): View? {
-                    val firstRow = homeDataAdapter.currentList.indexOfFirst {
-                        it is HomeDataModel.Banner || it is HomeDataModel.Media ||
-                            it is HomeDataModel.Watched
-                    }
-                    if (binding.rvList.isMovingAboveTelevisionRow(focused, direction, firstRow + 1)) {
-                        return binding.toolbar.findViewById(R.id.action_search)
-                    }
-                    return super.onInterceptFocusSearch(focused, direction)
-                }
-            }
+            )
         }
+    }
+
+    override fun moveTelevisionFocusUp(focused: View): Boolean {
+        val current = _binding ?: return false
+        val firstRow = homeDataAdapter.currentList.indexOfFirst {
+            it is HomeDataModel.Banner || it is HomeDataModel.Media || it is HomeDataModel.Watched
+        }
+        return current.rvList.isInFirstTelevisionRow(focused, firstRow + 1) &&
+            current.toolbar.findViewById<View>(R.id.action_search)?.requestFocus() == true
     }
 
     private fun navigateToSeason(show: WatchedShow) {

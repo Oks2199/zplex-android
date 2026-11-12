@@ -25,7 +25,8 @@ import zechs.zplex.databinding.FragmentSearchBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.Constants.SEARCH_DELAY_AMOUNT
 import zechs.zplex.utils.ext.TvListFocus
-import zechs.zplex.utils.ext.isMovingAboveTelevisionRow
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
 import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.rememberTelevisionFocus
@@ -36,7 +37,7 @@ import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Keyboard
 
 
-class SearchFragment : Fragment() {
+class SearchFragment : Fragment(), TelevisionFocusNavigation {
 
     companion object {
         const val TAG = "SearchFragment"
@@ -201,13 +202,6 @@ class SearchFragment : Fragment() {
         }
         val gridLayoutManager =
             object : GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false) {
-                override fun onInterceptFocusSearch(focused: View, direction: Int): View? {
-                    if (binding.rvSearch.isMovingAboveTelevisionRow(focused, direction, spanCount)) {
-                        return binding.searchBar
-                    }
-                    return super.onInterceptFocusSearch(focused, direction)
-                }
-
                 override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
                     return lp?.let {
                         it.width = (widthRatio * width).toInt()
@@ -220,6 +214,12 @@ class SearchFragment : Fragment() {
             layoutManager = gridLayoutManager
             addOnScrollListener(this@SearchFragment.scrollListener)
         }
+    }
+
+    override fun moveTelevisionFocusUp(focused: View): Boolean {
+        val current = _binding ?: return false
+        val columns = (current.rvSearch.layoutManager as? GridLayoutManager)?.spanCount ?: return false
+        return current.rvSearch.isInFirstTelevisionRow(focused, columns) && current.searchBar.requestFocus()
     }
 
     private fun navigateToMedia(media: Media) {

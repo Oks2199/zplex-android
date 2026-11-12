@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
@@ -38,6 +39,7 @@ import zechs.zplex.service.CacheCleanupWorker
 import zechs.zplex.service.RemoteLibraryIndexingService
 import zechs.zplex.utils.Constants.CACHE_TTL_IN_DAYS
 import zechs.zplex.utils.MaterialMotionInterpolator
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
 import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.showTelevisionFocus
 import java.util.concurrent.TimeUnit
@@ -48,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+    private lateinit var navHost: NavHostFragment
 
     @Inject
     lateinit var workManager: WorkManager
@@ -62,10 +65,10 @@ class MainActivity : AppCompatActivity() {
         val television = isTelevision
         if (television) binding.root.showTelevisionFocus()
 
-        val navHostFragment = supportFragmentManager.findFragmentById(
+        navHost = supportFragmentManager.findFragmentById(
             R.id.mainNavHostFragment
         ) as NavHostFragment
-        navController = navHostFragment.navController
+        navController = navHost.navController
         binding.bottomNavigationView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -108,6 +111,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         scheduleCacheCleanup()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DPAD_UP &&
+            isTelevision && ::navHost.isInitialized
+        ) {
+            val destination = navHost.childFragmentManager.primaryNavigationFragment
+            val focused = currentFocus
+            if (focused != null && destination is TelevisionFocusNavigation &&
+                destination.moveTelevisionFocusUp(focused)
+            ) return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun scheduleCacheCleanup() {
