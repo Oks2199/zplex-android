@@ -20,6 +20,7 @@
     <string name="tv_read_biography">Lire la biographie</string>
     <string name="tv_biography">Biographie</string>
     <string name="tv_open_portrait">Agrandir le portrait</string>
+    <string name="tv_full_image">Image agrandie</string>
     <string name="tv_episode_details">Détail de l’épisode</string>
     <string name="tv_select_folder">Sélectionner ce dossier</string>
     <string name="tv_seasons_unavailable">Impossible d’afficher les saisons.</string>

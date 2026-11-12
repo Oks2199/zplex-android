@@ -104,6 +104,7 @@ fun View.showTelevisionFocus(excluded: View? = null) {
         if (view === excluded || !view.hasWindowFocus()) return
         view.defaultFocusHighlightEnabled = false
         if (view is NavigationBarItemView) return
+        if (view is ViewGroup && !view.isClickable && !view.isLongClickable) return
         positionOutline(view)
         view.overlay.add(outline)
         view.addOnLayoutChangeListener(resize)

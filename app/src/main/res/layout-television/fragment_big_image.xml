@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
         android:layout_gravity="center"
+        android:contentDescription="@string/tv_full_image"
         android:scaleType="fitCenter"
         tools:src="@drawable/no_poster"
         tools:viewBindingType="android.widget.ImageView" />
