@@ -51,13 +51,20 @@ class SeasonsBottomSheetFragment : BottomSheetDialogFragment() {
         super.onStart()
         if (!requireContext().isTelevision) return
         val window = dialog?.window ?: return
+        window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        resizeTelevisionDialog(seasonsAdapter.itemCount)
+    }
+
+    private fun resizeTelevisionDialog(seasonCount: Int) {
+        val window = dialog?.window ?: return
         val density = resources.displayMetrics.density
         val screen = resources.configuration
         val horizontal = resources.getDimensionPixelSize(R.dimen.tv_safe_horizontal)
         val vertical = resources.getDimensionPixelSize(R.dimen.tv_safe_vertical)
-        val width = minOf((screen.screenWidthDp * density).toInt() - horizontal * 2, (840 * density).toInt())
-        val height = minOf((screen.screenHeightDp * density).toInt() - vertical * 2, (420 * density).toInt())
-        window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val maxWidth = if (seasonCount == 1) 560 else 840
+        val maxHeight = if (seasonCount <= 2) 288 else 420
+        val width = minOf((screen.screenWidthDp * density).toInt() - horizontal * 2, (maxWidth * density).toInt())
+        val height = minOf((screen.screenHeightDp * density).toInt() - vertical * 2, (maxHeight * density).toInt())
         window.setLayout(width, height)
     }
 
@@ -93,6 +100,8 @@ class SeasonsBottomSheetFragment : BottomSheetDialogFragment() {
                     seasonsAdapter.submitList(seasons) {
                         val list = _binding?.rvList ?: return@submitList
                         if (!list.context.isTelevision || seasons.isNullOrEmpty()) return@submitList
+                        (list.layoutManager as GridLayoutManager).spanCount = minOf(2, seasons.size)
+                        resizeTelevisionDialog(seasons.size)
                         val selected = seasons.indexOfFirst { season ->
                             season.season_number == sharedViewModel.selectedSeasonNumber.value
                         }.coerceAtLeast(0)

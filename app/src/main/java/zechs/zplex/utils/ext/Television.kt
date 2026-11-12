@@ -94,19 +94,29 @@ fun View.showTelevisionFocus(excluded: View? = null) {
     val resize = View.OnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
         positionOutline(view)
     }
+    var outlinedView: View? = null
+    fun clear() {
+        outlinedView?.removeOnLayoutChangeListener(resize)
+        outlinedView?.overlay?.remove(outline)
+        outlinedView = null
+    }
     fun show(view: View) {
-        if (view === excluded) return
+        if (view === excluded || !view.hasWindowFocus()) return
         view.defaultFocusHighlightEnabled = false
         if (view is NavigationBarItemView) return
         positionOutline(view)
         view.overlay.add(outline)
         view.addOnLayoutChangeListener(resize)
+        outlinedView = view
     }
     findFocus()?.let(::show)
-    viewTreeObserver.addOnGlobalFocusChangeListener { previous, current ->
-        previous?.removeOnLayoutChangeListener(resize)
-        previous?.overlay?.remove(outline)
+    viewTreeObserver.addOnGlobalFocusChangeListener { _, current ->
+        clear()
         current?.let(::show)
+    }
+    viewTreeObserver.addOnWindowFocusChangeListener { focused ->
+        clear()
+        if (focused) findFocus()?.let(::show)
     }
 }
 
