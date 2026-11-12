@@ -9,11 +9,13 @@ import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.annotation.DimenRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.allViews
 import androidx.core.view.children
 import androidx.core.view.doOnNextLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
@@ -27,6 +29,17 @@ val Context.isTelevision: Boolean
 
 val Context.televisionGridColumns: Int
     get() = ((resources.configuration.screenWidthDp - 180) / 148).coerceIn(3, 8)
+
+fun Context.televisionCarousel(@DimenRes itemWidth: Int): LinearLayoutManager {
+    val widthPx = resources.getDimensionPixelSize(itemWidth)
+    return object : LinearLayoutManager(this, HORIZONTAL, false) {
+        override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
+            if (lp == null) return super.checkLayoutParams(lp)
+            lp.width = widthPx
+            return true
+        }
+    }
+}
 
 interface TelevisionFocusNavigation {
     fun moveTelevisionFocusUp(focused: View): Boolean

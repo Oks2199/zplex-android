@@ -7,7 +7,6 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import coil.load
@@ -23,6 +22,7 @@ import zechs.zplex.databinding.ItemListBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.televisionCarousel
 
 
 sealed class CastViewHolder(
@@ -172,14 +172,8 @@ sealed class CastViewHolder(
         fun bindAppearedIn(item: CastDataModel.AppearsIn) {
             itemBinding.rvList.apply {
                 adapter = mediaAdapter
-                layoutManager = if (context.isTelevision) object : LinearLayoutManager(
-                    context, HORIZONTAL, false
-                ) {
-                    override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
-                        if (lp == null) return super.checkLayoutParams(lp)
-                        lp.width = resources.getDimensionPixelSize(R.dimen.tv_home_poster_width)
-                        return true
-                    }
+                layoutManager = if (context.isTelevision) {
+                    context.televisionCarousel(R.dimen.tv_home_poster_width)
                 } else object : GridLayoutManager(
                     context, 2, HORIZONTAL, false
                 ) {
