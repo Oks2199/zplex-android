@@ -1,5 +1,6 @@
 package zechs.zplex.ui.list
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.entities.Cast
@@ -22,12 +24,16 @@ import zechs.zplex.ui.list.adapter.ListClickListener
 import zechs.zplex.ui.list.adapter.ListDataAdapter
 import zechs.zplex.ui.list.adapter.ListDataModel
 import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
+import zechs.zplex.utils.ext.TvListFocus
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 
 class FragmentList : Fragment(), ListClickListener {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
+    private var televisionFocus: TvListFocus? = null
 
     private val seasonViewModel by activityViewModels<SeasonViewModel>()
     private val listViewModel by activityViewModels<ListViewModel>()
@@ -117,36 +123,34 @@ class FragmentList : Fragment(), ListClickListener {
             layoutManager = LinearLayoutManager(
                 activity, LinearLayoutManager.VERTICAL, false
             )
+            televisionFocus?.let(::restoreTelevisionFocus)
+            televisionFocus = null
         }
     }
 
     override fun onClickSeason(season: Season) {
-        listViewModel.listArgs.observe(viewLifecycleOwner) { event ->
-            when (val it = event.peekContent()) {
-                is ListDataModel.Seasons -> {
-                    navigateToSeason(
-                        tmdbId = it.tmdbId,
-                        seasonName = season.name,
-                        seasonNumber = season.season_number,
-                        showName = it.showName,
-                        posterPath = season.poster_path,
-                        showPoster = it.showPoster,
-                        seasons = it.seasons
-                    )
-                }
-
-                else -> {}
-            }
-        }
+        val seasons = listViewModel.listArgs.value?.peekContent() as? ListDataModel.Seasons ?: return
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
+        navigateToSeason(
+            tmdbId = seasons.tmdbId,
+            seasonName = season.name,
+            seasonNumber = season.season_number,
+            showName = seasons.showName,
+            posterPath = season.poster_path,
+            showPoster = seasons.showPoster,
+            seasons = seasons.seasons
+        )
     }
 
     override fun onClickMedia(media: Media) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         val action = FragmentListDirections.actionFragmentListToFragmentMedia(media)
         findNavController().navigateSafe(action)
     }
 
     override fun onClickCast(cast: Cast) {
         cast.id?.let { castId ->
+            televisionFocus = binding.rvList.rememberTelevisionFocus()
             val action = FragmentListDirections.actionFragmentListToCastsFragment(castId)
             findNavController().navigateSafe(action)
         }
@@ -179,7 +183,11 @@ class FragmentList : Fragment(), ListClickListener {
 
     private fun openWebLink(webUrl: String) {
         val launchWebIntent = Intent(Intent.ACTION_VIEW, Uri.parse(webUrl))
-        startActivity(launchWebIntent)
+        try {
+            startActivity(launchWebIntent)
+        } catch (_: ActivityNotFoundException) {
+            Snackbar.make(binding.root, R.string.something_went_wrong, Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tv_background">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/big_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_gravity="center"
+        android:scaleType="fitCenter"
+        tools:src="@drawable/no_poster"
+        tools:viewBindingType="android.widget.ImageView" />
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/tv_surface"
+        android:elevation="1dp"
+        android:gravity="top"
+        android:theme="@style/MenuTheme"
+        app:navigationContentDescription="@string/abc_action_bar_up_description"
+        app:navigationIcon="@drawable/ic_back_24"
+        app:navigationIconTint="@color/textColor" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

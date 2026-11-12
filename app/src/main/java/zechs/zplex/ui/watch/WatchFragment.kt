@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isInvisible
+import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +23,7 @@ import zechs.zplex.databinding.FragmentWatchBinding
 import zechs.zplex.ui.shared_adapters.casts.CastAdapter
 import zechs.zplex.ui.shared_viewmodels.EpisodeViewModel
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
+import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.state.Resource
 
@@ -109,9 +111,11 @@ class WatchFragment : Fragment() {
             tvOverview.text = if (episode.overview.isNullOrEmpty()) {
                 getString(R.string.no_description)
             } else episode.overview
-            tvOverview.setOnClickListener {
-                TransitionManager.beginDelayedTransition(binding.root)
-                tvOverview.maxLines = if (tvOverview.lineCount > 4) 4 else 1000
+            if (!root.context.isTelevision) {
+                tvOverview.setOnClickListener {
+                    TransitionManager.beginDelayedTransition(binding.root)
+                    tvOverview.maxLines = if (tvOverview.lineCount > 4) 4 else 1000
+                }
             }
         }
 
@@ -131,8 +135,13 @@ class WatchFragment : Fragment() {
         } ?: listOf()
 
         binding.apply {
-            rvCasts.isInvisible = castList.isEmpty()
-            textView1.isInvisible = castList.isEmpty()
+            if (root.context.isTelevision) {
+                rvCasts.isGone = castList.isEmpty()
+                textView1.isGone = castList.isEmpty()
+            } else {
+                rvCasts.isInvisible = castList.isEmpty()
+                textView1.isInvisible = castList.isEmpty()
+            }
         }
 
         castAdapter.submitList(castList)

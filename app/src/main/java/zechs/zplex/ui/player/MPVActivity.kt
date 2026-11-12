@@ -47,6 +47,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.doOnNextLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -203,6 +204,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             }
 
         sideSheetDialog.setContentView(episodesSheet.root)
+        if (isTelevision) episodesSheet.root.showTelevisionFocus()
         episodesSheet.rvList.apply {
             adapter = sideSheetEpisodeAdapter
             layoutManager = LinearLayoutManager(
@@ -503,9 +505,18 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
     }
 
     private fun showPlaylistDialog() {
-        val currentIndex = viewModel.findIndexFromFileId(viewModel.head!!.fileId)
-        episodesSheet.rvList.smoothScrollToPosition(currentIndex)
+        val current = viewModel.head ?: return
+        val currentIndex = viewModel.findIndexFromFileId(current.fileId).coerceAtLeast(0)
         sideSheetDialog.show()
+        val list = episodesSheet.rvList
+        if (isTelevision) {
+            list.scrollToPosition(currentIndex)
+            list.doOnNextLayout {
+                list.findViewHolderForAdapterPosition(currentIndex)?.itemView?.requestFocus()
+            }
+        } else {
+            list.smoothScrollToPosition(currentIndex)
+        }
     }
 
     private fun showErrorDialog(message: String) {

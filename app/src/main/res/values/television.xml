@@ -16,4 +16,10 @@
     <dimen name="tv_home_poster_width">140dp</dimen>
     <dimen name="tv_home_watched_width">156dp</dimen>
     <string name="tv_remove_media">Retirer ce titre de la liste ?</string>
+    <string name="tv_read_biography">Lire la biographie</string>
+    <string name="tv_biography">Biographie</string>
+    <string name="tv_open_portrait">Agrandir le portrait</string>
+    <string name="tv_episode_details">Détail de l’épisode</string>
+    <string name="tv_select_folder">Sélectionner ce dossier</string>
+    <string name="tv_seasons_unavailable">Impossible d’afficher les saisons.</string>
 </resources>

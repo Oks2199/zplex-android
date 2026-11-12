@@ -56,6 +56,9 @@ import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.ext.dpToPx
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 @AndroidEntryPoint
@@ -88,6 +91,7 @@ class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }.also { startActivity(it) }
                 } else {
+                    televisionFocus = binding.rvList.rememberTelevisionFocus()
                     episodeViewModel.setShowEpisode(
                         episodesViewModel.tmdbId,
                         episode.season_number,
@@ -107,6 +111,8 @@ class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
             }
         )
     }
+
+    private var televisionFocus: TvListFocus? = null
 
     private fun showEpisodeOptionsDialog(episode: Episode) {
         val message = getString(
@@ -246,7 +252,11 @@ class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
                                 binding.root,
                                 MaterialFadeThrough()
                             )
-                            episodeAdapter.submitList(it)
+                            episodeAdapter.submitList(it) {
+                                val list = _binding?.rvList ?: return@submitList
+                                televisionFocus?.let(list::restoreTelevisionFocus)
+                                televisionFocus = null
+                            }
                             isLoading(false)
                             episodesViewModel.hasLoaded = true
                         }

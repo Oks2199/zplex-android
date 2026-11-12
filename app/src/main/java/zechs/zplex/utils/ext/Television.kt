@@ -8,9 +8,11 @@ import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.allViews
+import androidx.core.view.children
 import androidx.core.view.doOnNextLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
@@ -37,6 +39,13 @@ fun View.enableTelevisionAppBarFocus() {
             bar.touchscreenBlocksFocus = false
             bar.isKeyboardNavigationCluster = false
         }
+}
+
+fun Toolbar.focusTelevisionBackButton() {
+    val description = navigationContentDescription ?: return
+    children.filterIsInstance<ImageButton>()
+        .firstOrNull { it.contentDescription == description }
+        ?.requestFocus()
 }
 
 fun RecyclerView.isInFirstTelevisionRow(focused: View, firstRowCount: Int): Boolean {

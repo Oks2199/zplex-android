@@ -7,12 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import androidx.fragment.app.Fragment
+import androidx.core.view.doOnNextLayout
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.transition.MaterialSharedAxis
 import zechs.zplex.R
 import zechs.zplex.databinding.FragmentDriveMenuBinding
 import zechs.zplex.ui.folder_picker.FolderPickerActivity
+import zechs.zplex.utils.ext.enableTelevisionAppBarFocus
+import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.util.DriveApiQueryBuilder
 
@@ -24,6 +27,7 @@ class DriveMenuFragment : Fragment() {
 
     private var _binding: FragmentDriveMenuBinding? = null
     private val binding get() = _binding!!
+    private var televisionSourceId: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +76,14 @@ class DriveMenuFragment : Fragment() {
         binding.apply {
             requireActivity().intent?.getStringExtra(FolderPickerActivity.EXTRA_TITLE)
                 ?.let { toolbar.title = it }
+            if (root.context.isTelevision) {
+                root.enableTelevisionAppBarFocus()
+                toolbar.setNavigationOnClickListener { requireActivity().finish() }
+                root.doOnNextLayout {
+                    val source = televisionSourceId?.let { root.findViewById<View>(it) }
+                    (source ?: btnMyDrive).requestFocus()
+                }
+            }
 
             // My drive
             navigateToFiles(
@@ -112,6 +124,7 @@ class DriveMenuFragment : Fragment() {
         button: T, name: String, query: String?
     ) {
         button.setOnClickListener {
+            if (button.context.isTelevision) televisionSourceId = button.id
             val action = DriveMenuFragmentDirections.actionDriveMenuFragmentToFilesFragment(
                 id = null,
                 name = name,

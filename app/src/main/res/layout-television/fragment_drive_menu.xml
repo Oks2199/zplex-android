@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationContentDescription="@string/abc_action_bar_up_description"
+            app:navigationIcon="@drawable/ic_back_24"
+            app:navigationIconTint="@color/textColor"
+            app:title="@string/choose_media_folders"
+            app:titleTextAppearance="@style/seasonTitleTextAppearance" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/tv_grid_half_gutter">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMyDrive"
+            style="@style/Widget.Movynex.Tv.DriveSource"
+            android:text="@string/my_drive"
+            app:icon="@drawable/ic_my_drive_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSharedDrives"
+            style="@style/Widget.Movynex.Tv.DriveSource"
+            android:text="@string/shared_drives"
+            app:icon="@drawable/ic_shared_drive_24" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tv_grid_half_gutter"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/tv_grid_half_gutter">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSharedWithMe"
+            style="@style/Widget.Movynex.Tv.DriveSource"
+            android:text="@string/shared_with_me"
+            app:icon="@drawable/ic_shared_me_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStarred"
+            style="@style/Widget.Movynex.Tv.DriveSource"
+            android:text="@string/starred"
+            app:icon="@drawable/ic_starred_24" />
+    </LinearLayout>
+</LinearLayout>
