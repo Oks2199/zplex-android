@@ -1,5 +1,6 @@
 package zechs.zplex.ui.shared_adapters.banner
 
+import android.graphics.Rect
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -57,6 +58,14 @@ class BannerViewHolder(
             if (!root.context.isTelevision) {
                 root.setOnClickListener { openDetails() }
                 materialCardView.setOnClickListener { openDetails() }
+            } else {
+                btnDetails.setOnFocusChangeListener { button, focused ->
+                    if (focused) button.post {
+                        if (button.hasFocus()) {
+                            root.requestRectangleOnScreen(Rect(0, 0, root.width, root.height), true)
+                        }
+                    }
+                }
             }
             btnDetails.setOnClickListener { openDetails() }
         }

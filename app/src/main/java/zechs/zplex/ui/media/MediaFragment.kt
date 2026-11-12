@@ -19,6 +19,8 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.core.view.doOnAttach
+import androidx.core.view.doOnNextLayout
+import zechs.zplex.utils.ext.isTelevision
 import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -143,7 +145,17 @@ class MediaFragment : Fragment() {
                         MaterialFadeThrough()
                     )
 
-                    mediaDataAdapter.submitList(response.data)
+                    mediaDataAdapter.submitList(response.data) {
+                        val current = _binding ?: return@submitList
+                        val list = current.rvList
+                        if (list.context.isTelevision && !list.hasFocus()) {
+                            list.doOnNextLayout {
+                                if (list.hasFocus()) return@doOnNextLayout
+                                val primary = list.findViewById<View>(R.id.btn_watch_now)
+                                if (primary?.requestFocus() != true) current.toolbar.requestFocus()
+                            }
+                        }
+                    }
                     startPostponedEnterTransition()
                 }
 

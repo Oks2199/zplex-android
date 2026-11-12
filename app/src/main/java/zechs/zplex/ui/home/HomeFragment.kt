@@ -23,6 +23,7 @@ import zechs.zplex.ui.home.adapter.watched.WatchedDataModel
 import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.rememberTelevisionFocus
 import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
@@ -142,10 +143,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun homeMediaSuccess(listResponse: List<HomeDataModel>) {
+        val bannerAdded = listResponse.firstOrNull() is HomeDataModel.Banner &&
+            homeDataAdapter.currentList.firstOrNull() !is HomeDataModel.Banner
         homeDataAdapter.submitList(listResponse) {
             val list = _binding?.rvList ?: return@submitList
-            televisionFocus?.let(list::restoreTelevisionFocus)
+            val focus = televisionFocus
             televisionFocus = null
+            if (focus != null) {
+                list.restoreTelevisionFocus(focus)
+            } else if (bannerAdded && list.context.isTelevision && !list.hasFocus()) {
+                val layout = list.layoutManager as LinearLayoutManager
+                if (layout.findFirstVisibleItemPosition() <= 1) {
+                    layout.scrollToPositionWithOffset(0, 0)
+                }
+            }
         }
     }
 
