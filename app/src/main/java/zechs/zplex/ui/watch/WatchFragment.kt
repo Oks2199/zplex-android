@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isInvisible
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -79,6 +80,16 @@ class WatchFragment : Fragment() {
         }
 
         watchViewModel.episode.observe(viewLifecycleOwner) { responseEpisode ->
+            binding.tvEpisodeLoading?.isVisible = responseEpisode is Resource.Loading
+            binding.tvEpisodeContent?.isVisible = responseEpisode is Resource.Success
+            binding.tvEpisodeError?.let { error ->
+                error.root.isVisible = responseEpisode is Resource.Error
+                error.retryBtn.setOnClickListener {
+                    episodeViewModel.showEpisode.value?.let {
+                        watchViewModel.getEpisode(it.tmdbId, it.seasonNumber, it.episodeNumber)
+                    }
+                }
+            }
             when (responseEpisode) {
                 is Resource.Success -> {
                     responseEpisode.data?.let { doOnSuccess(it) }

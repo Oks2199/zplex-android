@@ -534,7 +534,8 @@ class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
     override fun moveTelevisionFocusUp(focused: View): Boolean {
         val current = _binding ?: return false
         val columns = (current.rvList.layoutManager as? GridLayoutManager)?.spanCount ?: return false
-        return current.rvList.isInFirstTelevisionRow(focused, columns) && current.toolbar.requestFocus()
+        return current.rvList.isInFirstTelevisionRow(focused, columns) &&
+            current.toolbar.findViewById<View>(R.id.action_all_seasons)?.requestFocus() == true
     }
 
     override fun onDestroyView() {
