@@ -1,10 +1,12 @@
 package zechs.zplex.utils
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import zechs.zplex.utils.util.Converter.convertMinutes
 import zechs.zplex.utils.util.Converter.getSize
 import zechs.zplex.utils.util.Converter.parseDate
+import zechs.zplex.utils.util.Converter.parseIsoDateOrNull
 import zechs.zplex.utils.util.Converter.toDuration
 import zechs.zplex.utils.util.Converter.yearsBetween
 import java.time.LocalDate
@@ -49,6 +51,19 @@ class ConverterUtilsTest {
         val expected = "Monday 20, 2020"
         val response = parseDate("2020-04-20")
         assertEquals(expected, response)
+    }
+
+    @Test
+    fun `upcoming releases use ISO dates with a French system locale`() {
+        val previousLocale = Locale.getDefault(Locale.Category.FORMAT)
+        try {
+            Locale.setDefault(Locale.Category.FORMAT, Locale.FRANCE)
+            assertEquals(LocalDate.of(2026, 12, 9), parseIsoDateOrNull("2026-12-09"))
+            assertNull(parseIsoDateOrNull("2026-02-30"))
+            assertNull(parseIsoDateOrNull(""))
+        } finally {
+            Locale.setDefault(Locale.Category.FORMAT, previousLocale)
+        }
     }
 
     @Test

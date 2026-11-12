@@ -73,7 +73,9 @@ class UpcomingViewModel @Inject constructor(
                     results = (upcomingResponse?.results.orEmpty() + resultResponse.results)
                         .asSequence()
                         .mapNotNull { item ->
-                            item.releasedDate()?.let { item to Converter.dateToLocalDate(it) }
+                            val date = item.release_date?.takeIf(String::isNotBlank)
+                                ?: item.first_air_date
+                            Converter.parseIsoDateOrNull(date)?.let { item to it }
                         }
                         .filter { (_, date) -> date.isAfter(today) }
                         .sortedBy { (_, date) -> date }
