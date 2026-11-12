@@ -9,10 +9,16 @@
         <item name="colorOnSecondaryContainer">@color/tv_accent</item>
         <item name="android:windowBackground">@color/tv_background</item>
         <item name="actionBarSize">64dp</item>
+        <item name="appBarLayoutStyle">@style/Widget.Movynex.Television.AppBarLayout</item>
         <item name="chipStyle">@style/Widget.App.Chip</item>
         <item name="popupMenuBackground">@drawable/popup_menu_bg</item>
         <item name="android:listPopupWindowStyle">@style/MyListPopupWindow</item>
         <item name="materialCardViewStyle">@style/Widget.App.Card</item>
+    </style>
+
+    <style name="Widget.Movynex.Television.AppBarLayout" parent="Widget.Material3.AppBarLayout">
+        <item name="android:keyboardNavigationCluster">false</item>
+        <item name="android:touchscreenBlocksFocus">false</item>
     </style>
 
     <style name="seasonTitleTextAppearance" parent="TextAppearance.MaterialComponents.Headline1">
