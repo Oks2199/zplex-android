@@ -35,7 +35,6 @@ class TokenAuthenticator @Inject constructor(
         if (tokenResponse is Resource.Success) {
             tokenResponse.data?.let { token ->
                 val newAccessToken = token.accessToken
-                Log.d(TAG, "Received new access token (token=$newAccessToken)")
                 return response.request.newBuilder()
                     .removeHeader("Authorization")
                     .addHeader("Authorization", "Bearer $newAccessToken")

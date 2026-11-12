@@ -9,8 +9,21 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-val tmdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("TMDB_API_KEY")
-val omdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("OMDB_API_KEY")
+val localProperties = gradleLocalProperties(rootDir, providers)
+val tmdbApiKey: String = localProperties.getProperty("TMDB_API_KEY")
+val omdbApiKey: String = localProperties.getProperty("OMDB_API_KEY")
+val driveClientId = localProperties.getProperty("MOVYNEX_DRIVE_CLIENT_ID").orEmpty().trim()
+val driveClientSecret = localProperties.getProperty("MOVYNEX_DRIVE_CLIENT_SECRET").orEmpty().trim()
+require(driveClientId.isEmpty() == driveClientSecret.isEmpty()) {
+    "Renseignez ensemble MOVYNEX_DRIVE_CLIENT_ID et MOVYNEX_DRIVE_CLIENT_SECRET dans local.properties."
+}
+
+fun buildConfigString(value: String): String = "\"" + value
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+    .replace("\r", "\\r")
+    .replace("\n", "\\n") + "\""
+
 val fireTvTest = providers.gradleProperty("movynexFireTvTest").map(String::toBoolean).getOrElse(false)
 val releaseKeystorePath = providers.environmentVariable("MOVYNEX_KEYSTORE_PATH").orNull
 val releaseKeystorePassword = providers.environmentVariable("MOVYNEX_KEYSTORE_PASSWORD").orNull
@@ -31,11 +44,13 @@ android {
         applicationId = "com.cursedcrew.movynex"
         minSdk = 31
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.0.6"
+        versionCode = 11
+        versionName = "1.0.7"
 
         buildConfigField("String", "TMDB_API_KEY", "\"${tmdbApiKey}\"")
         buildConfigField("String", "OMDB_API_KEY", "\"${omdbApiKey}\"")
+        buildConfigField("String", "DRIVE_CLIENT_ID", buildConfigString(driveClientId))
+        buildConfigField("String", "DRIVE_CLIENT_SECRET", buildConfigString(driveClientSecret))
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

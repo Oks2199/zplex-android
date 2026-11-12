@@ -24,6 +24,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationBarItemView
 import com.google.android.material.shape.Shapeable
+import com.google.android.material.textfield.TextInputEditText
 import zechs.zplex.R
 import zechs.zplex.utils.view.TelevisionToolbarBackground
 
@@ -124,6 +125,7 @@ fun View.showTelevisionFocus(excluded: View? = null) {
         if (view === excluded || !view.hasWindowFocus()) return
         view.defaultFocusHighlightEnabled = false
         if (view is NavigationBarItemView) return
+        if (view is TextInputEditText) return
         if (view.styleTelevisionToolbarControl()) return
         if (view is ViewGroup && !view.isClickable && !view.isLongClickable) return
         positionOutline(view)

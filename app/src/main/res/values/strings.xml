@@ -38,23 +38,20 @@
     <string name="my_library">Ma bibliothèque</string>
     <string name="upcoming">À venir</string>
     <string name="keyword">Mot-clé</string>
-    <string name="configure_your_drive_client">Configurer votre client Google Drive</string>
     <string name="client_id">Identifiant client</string>
     <string name="client_secret">Secret client</string>
-    <string name="redirect_uri">URI de redirection</string>
-    <string name="need_help">Besoin d’aide ?</string>
     <string name="drive_scope" translatable="false">https://www.googleapis.com/auth/drive.readonly</string>
-    <string name="scopes">Autorisations</string>
-    <string name="sign_in">Se connecter</string>
-    <string name="enter_authorization_code">Saisir le code d’autorisation ?</string>
-    <string name="fill_all_fields">Veuillez remplir tous les champs</string>
-    <string name="important_note_message">À la suite de modifications apportées par Google, il
-        n’est plus possible de copier directement le code d’autorisation depuis la page Web à la
-        fin du parcours OAuth.\n\nVous devez copier l’adresse complète affichée dans la barre
-        d’adresse du navigateur. Cette page ne se chargera pas et affichera une erreur.\n\nCopiez
-        l’adresse complète, puis collez-la dans la boîte de dialogue.</string>
-    <string name="please_enter_auth_url">Veuillez saisir l’URL d’autorisation</string>
-    <string name="authorization_code_example">Ex:\nhttp://127.0.0.1:53682/?code=4/0BX2XfWi1VC9Iadsaa1hIX80rd17crGFCgyHgR_8rwkrIRJJf18LlSGbBWeg0wbZJdEZ3tm3A</string>
+    <string name="drive_sign_in_connect">Connecter Google Drive</string>
+    <string name="drive_sign_in_instruction">Autorise Movynex à lire ton Drive dans le navigateur, puis reviens dans l’application.</string>
+    <string name="drive_sign_in_waiting">En attente de ton autorisation dans le navigateur…</string>
+    <string name="drive_sign_in_exchanging">Connexion à Google Drive…</string>
+    <string name="drive_sign_in_already_connected">Google Drive est connecté sur cet appareil.</string>
+    <string name="drive_sign_in_missing_client">Renseigne l’identifiant et le secret client de Movynex dans Google Cloud.</string>
+    <string name="drive_sign_in_no_browser">Installe un navigateur sur cet appareil, puis réessaie.</string>
+    <string name="drive_sign_in_denied">L’accès à Google Drive a été refusé. Tu peux réessayer.</string>
+    <string name="drive_sign_in_timed_out">Movynex attendait le retour de Google. Relance la connexion et termine l’autorisation dans le navigateur.</string>
+    <string name="drive_sign_in_local_error">Impossible d’ouvrir le retour local de Google. Réessaie dans un instant.</string>
+    <string name="drive_sign_in_exchange_failed">Impossible de terminer la connexion à Google Drive. Vérifie la configuration du client et ta connexion Internet, puis réessaie.</string>
     <string name="authorization_url">URL d’autorisation</string>
     <string name="authorization_url_hint">URL d’autorisation</string>
     <string name="submit">Valider</string>
@@ -94,8 +91,8 @@
     <string name="unknown_error">Erreur inconnue !</string>
     <string name="app_settings">Paramètres de l’application</string>
     <string name="google_drive">Google Drive</string>
-    <string name="client_configuration">Configuration du client</string>
-    <string name="configure_drive_client">Configurer l’identifiant client, le secret client et l’URI de redirection</string>
+    <string name="client_configuration">Connexion Google Drive</string>
+    <string name="configure_drive_client">Associer un compte Google à Movynex</string>
     <string name="go_to_settings">Ouvrir les paramètres</string>
     <string name="login_to_google_drive">Veuillez vous connecter à votre compte Google Drive</string>
     <string name="select_movies_folder">Sélectionner le dossier des films</string>
@@ -187,8 +184,6 @@
     <string name="error_occurred">Une erreur est survenue : %1$s</string>
     <string name="no_internet_connection">Aucune connexion Internet</string>
     <string name="network_failure">Erreur réseau</string>
-    <string name="please_note">À noter</string>
-    <string name="continue_action">Continuer</string>
     <string name="none">Aucun</string>
     <string name="no_stack_trace">Aucune trace d’erreur disponible</string>
     <string name="no_biography_available">Aucune biographie disponible</string>
@@ -234,8 +229,6 @@
     <string name="server_timed_out">Le serveur a mis trop de temps à répondre</string>
     <string name="movie_not_found">Film introuvable</string>
     <string name="client_not_found">Client Google Drive introuvable</string>
-    <string name="authorization_code_not_found">Code d’autorisation introuvable. Vérifiez l’URL.</string>
-    <string name="client_fields_missing">Client introuvable. Vérifiez que tous les champs sont remplis.</string>
     <string name="access_token_missing">Jeton d’accès introuvable</string>
     <string name="refresh_token_missing">Jeton d’actualisation introuvable</string>
     <string name="unknown_error_occurred">Une erreur inconnue est survenue</string>
