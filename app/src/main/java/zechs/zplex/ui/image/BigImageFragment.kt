@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
+import androidx.core.view.doOnNextLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -18,6 +19,8 @@ import zechs.zplex.R
 import zechs.zplex.data.model.PosterSize
 import zechs.zplex.databinding.FragmentBigImageBinding
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
+import zechs.zplex.utils.ext.focusTelevisionBackButton
+import zechs.zplex.utils.ext.isTelevision
 
 class BigImageFragment : Fragment() {
 
@@ -63,6 +66,9 @@ class BigImageFragment : Fragment() {
             }
         }
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        if (view.context.isTelevision) {
+            binding.toolbar.doOnNextLayout { binding.toolbar.focusTelevisionBackButton() }
+        }
     }
 
     private val imageRequestListener = object : ImageRequest.Listener {

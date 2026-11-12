@@ -4,12 +4,8 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.Period
-import java.time.chrono.ChronoLocalDate
-import java.time.chrono.IsoChronology
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
-import java.time.format.DecimalStyle
-import java.time.temporal.TemporalAccessor
+import java.time.format.DateTimeParseException
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -59,10 +55,10 @@ object Converter {
         val tb = gb / 1024
         s = when {
             size < 1024L -> "$size B"
-            size < 1024L * 1024 -> String.format("%.2f", kb) + " KB"
-            size < 1024L * 1024 * 1024 -> String.format("%.2f", mb) + " MB"
-            size < 1024L * 1024 * 1024 * 1024 -> String.format("%.2f", gb) + " GB"
-            else -> String.format("%.2f", tb) + " TB"
+            size < 1024L * 1024 -> String.format(Locale.ROOT, "%.2f KB", kb)
+            size < 1024L * 1024 * 1024 -> String.format(Locale.ROOT, "%.2f MB", mb)
+            size < 1024L * 1024 * 1024 * 1024 -> String.format(Locale.ROOT, "%.2f GB", gb)
+            else -> String.format(Locale.ROOT, "%.2f TB", tb)
         }
         return s
     }
@@ -97,17 +93,13 @@ object Converter {
         return formatter.format(time)!!
     }
 
-    fun dateToLocalDate(date: String): LocalDate {
-        val pattern = "MMM dd, yyyy"
-
-        val chronology = IsoChronology.INSTANCE
-        val df = DateTimeFormatterBuilder()
-            .parseLenient().appendPattern(pattern).toFormatter()
-            .withChronology(chronology)
-            .withDecimalStyle(DecimalStyle.of(Locale.ENGLISH))
-        val temporal: TemporalAccessor = df.parse(date)
-        val cDate: ChronoLocalDate = chronology.date(temporal)
-        return LocalDate.from(cDate)
+    fun parseIsoDateOrNull(date: String?): LocalDate? {
+        if (date.isNullOrBlank()) return null
+        return try {
+            LocalDate.parse(date)
+        } catch (_: DateTimeParseException) {
+            null
+        }
     }
 
     fun toHumanSize(size: Long): String {

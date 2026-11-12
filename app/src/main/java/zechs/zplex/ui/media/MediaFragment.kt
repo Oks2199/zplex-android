@@ -19,6 +19,8 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.core.view.doOnAttach
+import androidx.core.view.doOnNextLayout
+import zechs.zplex.utils.ext.isTelevision
 import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -34,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.gson.Gson
@@ -79,6 +82,7 @@ class MediaFragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
+    private var hasPlacedInitialTelevisionFocus = false
 
     // View models
     private val seasonViewModel by activityViewModels<SeasonViewModel>()
@@ -143,7 +147,22 @@ class MediaFragment : Fragment() {
                         MaterialFadeThrough()
                     )
 
-                    mediaDataAdapter.submitList(response.data)
+                    mediaDataAdapter.submitList(response.data) {
+                        val current = _binding ?: return@submitList
+                        val list = current.rvList
+                        if (list.context.isTelevision && !hasPlacedInitialTelevisionFocus) {
+                            list.doOnNextLayout {
+                                if (hasPlacedInitialTelevisionFocus) return@doOnNextLayout
+                                hasPlacedInitialTelevisionFocus = true
+                                val focused = list.findFocus()
+                                if (focused != null && focused.id != R.id.ivBackdrop) return@doOnNextLayout
+                                val primary = list.findViewById<View>(R.id.btn_watch_now)
+                                if (primary?.requestFocus() != true && focused == null) {
+                                    current.toolbar.requestFocus()
+                                }
+                            }
+                        }
+                    }
                     startPostponedEnterTransition()
                 }
 
@@ -299,6 +318,7 @@ class MediaFragment : Fragment() {
             }
 
             override fun setButtonView(button: MaterialButton) {
+                if (button.context.isTelevision) return
                 Log.d(TAG, "${UUID.randomUUID()} setButtonView(), invoked")
                 mediaViewModel.dominantColor.observe(viewLifecycleOwner) { c ->
                     Log.d(TAG, "${UUID.randomUUID()} setButtonView(), color=$c")
@@ -804,7 +824,7 @@ class MediaFragment : Fragment() {
             .setNegativeButton(R.string.no) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     private fun showDeleteMovieDialog(title: String, tmdbId: Int, filePath: String) {
@@ -817,7 +837,7 @@ class MediaFragment : Fragment() {
             .setNegativeButton(R.string.no) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     override fun onStart() {

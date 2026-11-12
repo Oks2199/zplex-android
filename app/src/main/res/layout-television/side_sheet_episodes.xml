@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/sideSheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tv_background"
+        android:orientation="vertical"
+        android:paddingVertical="@dimen/tv_safe_vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/tvPlaylistToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationContentDescription="@string/tv_close_playlist"
+            app:navigationIcon="@drawable/ic_close_24"
+            app:navigationIconTint="@color/textColor"
+            app:title="@string/playlist"
+            app:titleTextAppearance="@style/seasonTitleTextAppearance" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:padding="@dimen/tv_grid_half_gutter" />
+
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="invisible" />
+        </FrameLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

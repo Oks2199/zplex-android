@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import zechs.zplex.R
 import zechs.zplex.data.model.drive.AuthorizationResponse
-import zechs.zplex.data.model.drive.AuthorizationTokenRequest
 import zechs.zplex.data.model.drive.DriveClient
 import zechs.zplex.data.model.drive.DriveResponse
 import zechs.zplex.data.model.drive.File
@@ -137,7 +137,6 @@ class DriveRepository @Inject constructor(
                     refreshToken = refreshToken
                 )
             )
-            Log.d(TAG, "Received access token (${token.accessToken})")
             sessionManager.saveAccessToken(token)
             Resource.Success(token)
         } catch (e: Exception) {
@@ -157,29 +156,23 @@ class DriveRepository @Inject constructor(
      */
     suspend fun fetchRefreshToken(
         client: DriveClient,
-        authorizationCode: String
+        authorizationCode: String,
+        codeVerifier: String
     ): Resource<AuthorizationResponse> {
         return try {
-            Log.d(TAG, "Requesting refresh token with authCode=$authorizationCode)")
             val token = tokenApi.get().getRefreshToken(
-                request = AuthorizationTokenRequest(
-                    clientId = client.clientId,
-                    clientSecret = client.clientSecret,
-                    redirectUri = client.redirectUri,
-                    authCode = authorizationCode
-                )
+                clientId = client.clientId,
+                clientSecret = client.clientSecret,
+                redirectUri = client.redirectUri,
+                authorizationCode = authorizationCode,
+                codeVerifier = codeVerifier
             )
-
-            Log.d(TAG, "Received refresh token (${token.refreshToken})")
-
-            // saving in data store
-            sessionManager.saveClient(client)
-            sessionManager.saveRefreshToken(token.refreshToken)
-            sessionManager.saveAccessToken(token.toTokenResponse())
-
+            sessionManager.saveDriveSession(client, token)
             Resource.Success(token)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            doOnError(e)
+            Resource.Error(context.getString(R.string.drive_sign_in_exchange_failed))
         }
     }
 

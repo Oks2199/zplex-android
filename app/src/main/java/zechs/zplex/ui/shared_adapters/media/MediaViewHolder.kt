@@ -37,6 +37,12 @@ class MediaViewHolder(
             root.setOnClickListener {
                 mediaAdapter.mediaOnClick.invoke(media)
             }
+            mediaAdapter.mediaOnLongClick?.let { onLongClick ->
+                root.setOnLongClickListener {
+                    onLongClick(media)
+                    true
+                }
+            }
         }
 
     }

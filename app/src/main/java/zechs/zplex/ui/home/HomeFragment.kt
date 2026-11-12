@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.snackbar.Snackbar
 import zechs.zplex.R
 import zechs.zplex.data.model.entities.WatchedShow
@@ -22,10 +23,16 @@ import zechs.zplex.ui.home.adapter.HomeDataModel
 import zechs.zplex.ui.home.adapter.watched.WatchedDataModel
 import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), TelevisionFocusNavigation {
 
     companion object {
         const val TAG = "HomeFragment"
@@ -36,6 +43,7 @@ class HomeFragment : Fragment() {
 
     private val homeViewModel by activityViewModels<HomeViewModel>()
     private val seasonViewModel by activityViewModels<SeasonViewModel>()
+    private var televisionFocus: TvListFocus? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -133,12 +141,26 @@ class HomeFragment : Fragment() {
                     homeViewModel.removeWatchedMedia(watched)
                 }
                 .setNegativeButton(getString(R.string.no)) { _, _ -> }
-                .show()
+                .showWithTelevisionFocus()
         }
     }
 
     private fun homeMediaSuccess(listResponse: List<HomeDataModel>) {
-        homeDataAdapter.submitList(listResponse)
+        val bannerAdded = listResponse.firstOrNull() is HomeDataModel.Banner &&
+            homeDataAdapter.currentList.firstOrNull() !is HomeDataModel.Banner
+        homeDataAdapter.submitList(listResponse) {
+            val list = _binding?.rvList ?: return@submitList
+            val focus = televisionFocus
+            televisionFocus = null
+            if (focus != null) {
+                list.restoreTelevisionFocus(focus)
+            } else if (bannerAdded && list.context.isTelevision && !list.hasFocus()) {
+                val layout = list.layoutManager as LinearLayoutManager
+                if (layout.findFirstVisibleItemPosition() <= 1) {
+                    layout.scrollToPositionWithOffset(0, 0)
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -150,7 +172,17 @@ class HomeFragment : Fragment() {
         }
     }
 
+    override fun moveTelevisionFocusUp(focused: View): Boolean {
+        val current = _binding ?: return false
+        val firstRow = homeDataAdapter.currentList.indexOfFirst {
+            it is HomeDataModel.Banner || it is HomeDataModel.Media || it is HomeDataModel.Watched
+        }
+        return current.rvList.isInFirstTelevisionRow(focused, firstRow + 1) &&
+            current.toolbar.findViewById<View>(R.id.action_search)?.requestFocus() == true
+    }
+
     private fun navigateToSeason(show: WatchedShow) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         seasonViewModel.setShowSeason(
             tmdbId = show.tmdbId,
             seasonName = null,
@@ -164,6 +196,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToMedia(media: Media) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         HomeFragmentDirections
             .actionHomeFragmentToFragmentMedia(media)
             .also {

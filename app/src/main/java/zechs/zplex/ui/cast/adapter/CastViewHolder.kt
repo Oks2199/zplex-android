@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -20,6 +21,8 @@ import zechs.zplex.databinding.ItemHeadingBinding
 import zechs.zplex.databinding.ItemListBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.televisionCarousel
 
 
 sealed class CastViewHolder(
@@ -50,15 +53,17 @@ sealed class CastViewHolder(
                 }
                 tvName.text = item.name
 
-                val lineLimit = 7 - tvName.lineCount
-
                 val biography = if (item.biography == null || item.biography == "") {
                     root.context.getString(R.string.no_biography_available)
                 } else item.biography
                 tvBiography.text = biography
-                tvBiography.maxLines = lineLimit
-                tvBiography.setOnClickListener {
-                    castDataAdapter.expandBiography.invoke(biography)
+                if (root.context.isTelevision) {
+                    btnBiography?.apply {
+                        isVisible = !item.biography.isNullOrBlank()
+                        setOnClickListener { castDataAdapter.expandBiography(biography) }
+                    }
+                } else {
+                    tvBiography.maxLines = 7 - tvName.lineCount
                 }
 
                 ivPoster.setOnClickListener {
@@ -68,6 +73,10 @@ sealed class CastViewHolder(
                             it as ImageView
                         )
                     }
+                }
+                if (root.context.isTelevision) {
+                    ivPoster.isClickable = item.profilePath != null
+                    ivPoster.isFocusable = ivPoster.isClickable
                 }
             }
         }
@@ -96,6 +105,10 @@ sealed class CastViewHolder(
 
             mChip.text = text
             mChip.chipIcon = ContextCompat.getDrawable(context, drawable)
+        if (context.isTelevision) {
+            mChip.isClickable = false
+            mChip.isFocusable = false
+        }
             chipGroup.addView(mChip)
         }
 
@@ -109,6 +122,7 @@ sealed class CastViewHolder(
             }
 
             itemBinding.apply {
+                chipGroup.removeAllViews()
                 val context = this.root.context
                 item.age?.let {
                     add(
@@ -162,7 +176,9 @@ sealed class CastViewHolder(
         fun bindAppearedIn(item: CastDataModel.AppearsIn) {
             itemBinding.rvList.apply {
                 adapter = mediaAdapter
-                layoutManager = object : GridLayoutManager(
+                layoutManager = if (context.isTelevision) {
+                    context.televisionCarousel(R.dimen.tv_home_poster_width)
+                } else object : GridLayoutManager(
                     context, 2, HORIZONTAL, false
                 ) {
                     override fun checkLayoutParams(

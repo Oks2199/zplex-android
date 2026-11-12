@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Fullscreen" parent="AppTheme">
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/tv_accent</item>
+        <item name="colorOnPrimary">@color/tv_accent_ink</item>
+        <item name="colorSurface">@color/tv_background</item>
+        <item name="colorSurfaceContainer">@color/tv_surface</item>
+        <item name="colorSecondaryContainer">@color/tv_panel</item>
+        <item name="colorOnSecondaryContainer">@color/tv_accent</item>
+        <item name="android:windowBackground">@color/tv_background</item>
+        <item name="actionBarSize">64dp</item>
+        <item name="chipStyle">@style/Widget.App.Chip</item>
+        <item name="popupMenuBackground">@drawable/popup_menu_bg</item>
+        <item name="android:listPopupWindowStyle">@style/MyListPopupWindow</item>
+        <item name="materialCardViewStyle">@style/Widget.App.Card</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Movynex.Tv.Dialog</item>
+    </style>
+
+    <style name="seasonTitleTextAppearance" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="fontFamily">@font/open_sans_semibold</item>
+        <item name="android:textSize">21sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="seasonSubtitleTextAppearance" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textColor">@color/textColor_87</item>
+        <item name="fontFamily">@font/open_sans</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="tabTitleTextAppearance">
+        <item name="fontFamily">@font/roboto_bold</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="TextAppearance.Movynex.Tv.Navigation" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Widget.Movynex.Tv.DriveSource" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginHorizontal">@dimen/tv_grid_half_gutter</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">12dp</item>
+    </style>
+
+    <style name="ThemeOverlay.Movynex.Tv.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="materialAlertDialogTitleTextStyle">@style/Movynex.Tv.Dialog.Title</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/Movynex.Tv.Dialog.Body</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Movynex.Tv.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Movynex.Tv.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Movynex.Tv.DialogButton</item>
+        <item name="android:textAppearanceListItem">@style/TextAppearance.Movynex.Tv.Option</item>
+    </style>
+
+    <style name="Movynex.Tv.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
+    <style name="Movynex.Tv.Dialog.Body" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/textColor_87</item>
+    </style>
+
+    <style name="Widget.Movynex.Tv.DialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="strokeColor">@color/tv_dialog_button_stroke</item>
+        <item name="strokeWidth">@dimen/tv_focus_stroke</item>
+    </style>
+
+    <style name="TextAppearance.Movynex.Tv.Option" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+</resources>

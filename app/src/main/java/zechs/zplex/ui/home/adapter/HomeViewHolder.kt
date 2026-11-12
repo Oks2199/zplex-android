@@ -3,6 +3,7 @@ package zechs.zplex.ui.home.adapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import zechs.zplex.R
 import zechs.zplex.databinding.ItemHeadingBinding
 import zechs.zplex.databinding.ItemAttributionBinding
 import zechs.zplex.databinding.ItemDiscoveryHeadingBinding
@@ -10,6 +11,7 @@ import zechs.zplex.databinding.ItemListBinding
 import zechs.zplex.ui.home.adapter.watched.WatchedDataAdapter
 import zechs.zplex.ui.shared_adapters.banner.BannerAdapter
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
+import zechs.zplex.utils.ext.isTelevision
 
 sealed class HomeViewHolder(
     binding: ViewBinding
@@ -75,7 +77,11 @@ sealed class HomeViewHolder(
                 ) {
                     override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
                         return lp?.let {
-                            it.width = (0.28 * width).toInt()
+                            it.width = if (context.isTelevision) {
+                                resources.getDimensionPixelSize(R.dimen.tv_home_poster_width)
+                            } else {
+                                (0.28 * width).toInt()
+                            }
                             true
                         } ?: super.checkLayoutParams(lp)
                     }
@@ -93,7 +99,11 @@ sealed class HomeViewHolder(
                 ) {
                     override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
                         return lp?.let {
-                            it.width = (0.40 * width).toInt()
+                            it.width = if (context.isTelevision) {
+                                resources.getDimensionPixelSize(R.dimen.tv_home_watched_width)
+                            } else {
+                                (0.40 * width).toInt()
+                            }
                             true
                         } ?: super.checkLayoutParams(lp)
                     }

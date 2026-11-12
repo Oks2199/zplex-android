@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tv_background">#11121A</color>
+    <color name="tv_surface">#191B28</color>
+    <color name="tv_panel">#22243A</color>
+    <color name="tv_pressed">#35385B</color>
+    <color name="tv_accent">#C4C3FF</color>
+    <color name="tv_accent_ink">#181544</color>
+    <color name="tv_focus">#DAD8FF</color>
+    <color name="tv_focus_on_light">#5751C8</color>
+    <dimen name="tv_safe_horizontal">48dp</dimen>
+    <dimen name="tv_safe_vertical">24dp</dimen>
+    <dimen name="tv_focus_stroke">2dp</dimen>
+    <dimen name="tv_focus_radius">12dp</dimen>
+    <dimen name="tv_toolbar_indicator_size">40dp</dimen>
+    <dimen name="tv_option_min_height">48dp</dimen>
+    <dimen name="tv_grid_gutter">16dp</dimen>
+    <dimen name="tv_grid_half_gutter">8dp</dimen>
+    <dimen name="tv_home_poster_width">140dp</dimen>
+    <dimen name="tv_home_watched_width">156dp</dimen>
+    <dimen name="tv_video_tile_width">256dp</dimen>
+    <string name="tv_remove_media">Retirer ce titre de la liste ?</string>
+    <string name="tv_read_biography">Lire la biographie</string>
+    <string name="tv_biography">Biographie</string>
+    <string name="tv_open_portrait">Agrandir le portrait</string>
+    <string name="tv_full_image">Image agrandie</string>
+    <string name="tv_episode_details">Détail de l’épisode</string>
+    <string name="tv_select_folder">Sélectionner ce dossier</string>
+    <string name="tv_seasons_unavailable">Impossible d’afficher les saisons.</string>
+    <string name="tv_view_all">Tout afficher</string>
+    <string name="tv_back">Retour</string>
+    <string name="tv_playback_position">Position de lecture</string>
+    <string name="tv_error_title">Movynex a rencontré une erreur</string>
+    <string name="tv_error_recovery">Tu peux revenir à l’accueil pour relancer l’application.</string>
+    <string name="tv_error_home">Revenir à l’accueil</string>
+    <string name="tv_error_details">Détails techniques</string>
+    <string name="tv_error_hide_details">Masquer les détails</string>
+    <string name="tv_close_playlist">Fermer la liste de lecture</string>
+    <string name="tv_keyword_suggestions">Suggestions de mots-clés</string>
+    <string name="tv_remove_keyword">Retirer le mot-clé %1$s</string>
+</resources>

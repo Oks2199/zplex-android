@@ -19,7 +19,10 @@ import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.FragmentListBinding
 import zechs.zplex.ui.collection.adapter.CollectionDataAdapter
+import zechs.zplex.utils.ext.TvListFocus
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 class CollectionFragment : Fragment() {
@@ -32,6 +35,7 @@ class CollectionFragment : Fragment() {
     private val collectionViewModel by activityViewModels<CollectionViewModel>()
 
     private var hasLoaded: Boolean = false
+    private var televisionFocus: TvListFocus? = null
 
     private val collectionDataAdapter by lazy {
         CollectionDataAdapter(
@@ -62,6 +66,7 @@ class CollectionFragment : Fragment() {
     }
 
     private fun navigateMedia(media: Media) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         val action = CollectionFragmentDirections.actionFragmentCollectionToFragmentMedia(
             media.copy(media_type = media.media_type ?: MediaType.movie)
         )
@@ -113,6 +118,8 @@ class CollectionFragment : Fragment() {
             layoutManager = LinearLayoutManager(
                 activity, LinearLayoutManager.VERTICAL, false
             )
+            televisionFocus?.let(::restoreTelevisionFocus)
+            televisionFocus = null
         }
     }
 

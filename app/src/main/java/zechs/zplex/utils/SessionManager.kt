@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import zechs.zplex.data.model.drive.AuthorizationResponse
 import zechs.zplex.data.model.drive.DriveClient
 import zechs.zplex.data.model.drive.TokenResponse
 import javax.inject.Inject
@@ -22,12 +23,13 @@ class SessionManager @Inject constructor(
 
     private val sessionStore = context.dataStore
 
-    suspend fun saveClient(client: DriveClient) {
-        val dataStoreKey = stringPreferencesKey(DRIVE_CLIENT)
+    suspend fun saveDriveSession(client: DriveClient, authorization: AuthorizationResponse) {
         sessionStore.edit { settings ->
-            settings[dataStoreKey] = gson.toJson(client)
+            settings[stringPreferencesKey(DRIVE_CLIENT)] = gson.toJson(client)
+            settings[stringPreferencesKey(REFRESH_TOKEN)] = authorization.refreshToken
+            settings[stringPreferencesKey(ACCESS_TOKEN)] =
+                gson.toJson(authorization.toTokenResponse().withExpiryTimestamp())
         }
-        Log.d(TAG, "saveClient: $client")
     }
 
     suspend fun fetchClient(): DriveClient? {
@@ -38,32 +40,18 @@ class SessionManager @Inject constructor(
             val type = object : TypeToken<DriveClient?>() {}.type
             gson.fromJson(value, type)
         }
-        Log.d(TAG, "fetchClient: $client")
         return client
-    }
-
-    fun fetchDriveClientFlow(): Flow<DriveClient?> {
-        return sessionStore.data.map { preferences ->
-            val value = preferences[stringPreferencesKey(DRIVE_CLIENT)]
-            val client: DriveClient? = value?.let {
-                val type = object : TypeToken<DriveClient?>() {}.type
-                gson.fromJson(value, type)
-            }
-            return@map client
-        }
     }
 
     suspend fun saveAccessToken(data: TokenResponse) {
         val dataStoreKey = stringPreferencesKey(ACCESS_TOKEN)
-        val currentTimeInSeconds = System.currentTimeMillis() / 1000
-        val newData = data.copy(
-            expiresIn = currentTimeInSeconds + data.expiresIn
-        )
         sessionStore.edit { settings ->
-            settings[dataStoreKey] = gson.toJson(newData)
+            settings[dataStoreKey] = gson.toJson(data.withExpiryTimestamp())
         }
-        Log.d(TAG, "saveAccessToken: $data")
     }
+
+    private fun TokenResponse.withExpiryTimestamp(): TokenResponse =
+        copy(expiresIn = System.currentTimeMillis() / 1000 + expiresIn)
 
     suspend fun fetchAccessToken(): TokenResponse? {
         val dataStoreKey = stringPreferencesKey(ACCESS_TOKEN)
@@ -73,23 +61,13 @@ class SessionManager @Inject constructor(
             val type = object : TypeToken<TokenResponse?>() {}.type
             gson.fromJson(value, type)
         }
-        Log.d(TAG, "fetchAccessToken: $login")
         return login
-    }
-
-    suspend fun saveRefreshToken(refreshToken: String) {
-        val dataStoreKey = stringPreferencesKey(REFRESH_TOKEN)
-        sessionStore.edit { settings ->
-            settings[dataStoreKey] = refreshToken
-        }
-        Log.d(TAG, "saveRefreshToken: $refreshToken")
     }
 
     suspend fun fetchRefreshToken(): String? {
         val dataStoreKey = stringPreferencesKey(REFRESH_TOKEN)
         val preferences = sessionStore.data.first()
         val value = preferences[dataStoreKey]
-        Log.d(TAG, "fetchRefreshToken: $value")
         return value
     }
 

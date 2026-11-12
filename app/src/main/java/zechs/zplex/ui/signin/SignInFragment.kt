@@ -1,234 +1,98 @@
 package zechs.zplex.ui.signin
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.view.animation.LinearInterpolator
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.transition.MaterialSharedAxis
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import zechs.zplex.R
 import zechs.zplex.databinding.FragmentSignInBinding
-import zechs.zplex.ui.code.DialogCode
-import zechs.zplex.utils.Constants.GUIDE_TO_MAKE_DRIVE_CLIENT
-import zechs.zplex.utils.ext.hideKeyboardWhenOffFocus
-import zechs.zplex.utils.state.Resource
+import zechs.zplex.utils.ext.focusTelevisionBackButton
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.util.Keyboard
 
 @AndroidEntryPoint
-class SignInFragment : Fragment() {
+class SignInFragment : Fragment(R.layout.fragment_sign_in) {
 
-    companion object {
-        const val TAG = "SignInFragment"
-    }
-
-    private var _binding: FragmentSignInBinding? = null
-    private val binding get() = _binding!!
-
-    private var _codeDialog: DialogCode? = null
-    private val codeDialog get() = _codeDialog!!
-
-    private val viewModel by lazy {
-        ViewModelProvider(this)[SignInViewModel::class.java]
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        enterTransition = MaterialSharedAxis(
-            /* axis */ MaterialSharedAxis.Y,
-            /* forward */ true
-        ).apply {
-            interpolator = LinearInterpolator()
-            duration = 300
-        }
-
-        returnTransition = MaterialSharedAxis(
-            /* axis */ MaterialSharedAxis.Y,
-            /* forward */ false
-        ).apply {
-            interpolator = LinearInterpolator()
-            duration = 300
-        }
-
-        exitTransition = MaterialSharedAxis(
-            /* axis */ MaterialSharedAxis.Y,
-            /* forward */ true
-        ).apply {
-            interpolator = LinearInterpolator()
-            duration = 250
-        }
-
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSignInBinding.inflate(
-            inflater, container, /* attachToParent */false
-        )
-        return binding.root
-    }
+    private val viewModel by viewModels<SignInViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentSignInBinding.bind(view)
-
-        driveClientObserver()
-
-        binding.signInText.setOnClickListener {
-            if (!updateClient()) {
-                return@setOnClickListener
-            }
-            Log.d(TAG, "Auth url: ${viewModel.getDriveClient()!!.authUrl()}")
-
-            Intent().setAction(Intent.ACTION_VIEW)
-                .setData(viewModel.getDriveClient()!!.authUrl())
-                .also { startActivity(it) }
-        }
-
-
-        binding.btnHelp.setOnClickListener {
-            Intent().setAction(Intent.ACTION_VIEW)
-                .setData(Uri.parse(GUIDE_TO_MAKE_DRIVE_CLIENT))
-                .also { startActivity(it) }
-        }
-
-        binding.enterCode.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.please_note))
-                .setMessage(getString(R.string.important_note_message))
-                .setPositiveButton(getString(R.string.continue_action)) { dialog, _ ->
-                    dialog.dismiss()
-                    showCodeDialog()
-                }.show()
-        }
-
-        binding.clientId.editText!!.hideKeyboardWhenOffFocus()
-        binding.clientSecret.editText!!.hideKeyboardWhenOffFocus()
-        binding.redirectUri.editText!!.hideKeyboardWhenOffFocus()
-
-        loginObserver()
-    }
-
-    private fun loginObserver() {
-        viewModel.loginStatus.observe(viewLifecycleOwner) { response ->
-            when (response) {
-                is Resource.Success -> {
-                    findNavController().navigateUp()
-                }
-
-                is Resource.Error -> {
-                    isLoading(false)
-                    Snackbar.make(
-                        binding.root,
-                        response.message!!,
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
-
-                is Resource.Loading -> {
-                    isLoading(true)
-                }
-            }
-        }
-    }
-
-    private fun showCodeDialog() {
-        if (_codeDialog == null) {
-            _codeDialog = DialogCode(
-                context = requireContext(),
-                onSubmitClickListener = { codeUri ->
-                    viewModel.requestRefreshToken(codeUri)
-                    codeDialog.dismiss()
-                }
+        val binding = FragmentSignInBinding.bind(view)
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        binding.driveSignInConnect.setOnClickListener {
+            Keyboard.hide(view)
+            viewModel.connect(
+                binding.driveSignInClientId.text.toString(),
+                binding.driveSignInClientSecret.text.toString()
             )
         }
+        binding.driveSignInCancel.setOnClickListener { viewModel.cancel() }
 
-        codeDialog.also {
-            it.show()
-            it.window?.apply {
-                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                setLayout(MATCH_PARENT, WRAP_CONTENT)
-            }
-            it.setOnDismissListener {
-                _codeDialog = null
-            }
-        }
-    }
-
-    private fun isLoading(loading: Boolean) {
-        binding.apply {
-            this.loading.isVisible = loading
-            layoutConfigure.isVisible = !loading
-            enterCode.isVisible = !loading
-        }
-    }
-
-    private fun updateClient(): Boolean {
-        val clientId = binding.clientId.editText!!.text.toString()
-        val clientSecret = binding.clientSecret.editText!!.text.toString()
-        val redirectUri = binding.redirectUri.editText!!.text.toString()
-        val scopes = binding.scopes.editText!!.text.toString()
-        if (clientId.isEmpty()
-            || clientSecret.isEmpty()
-            || redirectUri.isEmpty()
-            || scopes.isEmpty()
-        ) {
-            Snackbar.make(
-                binding.root,
-                getString(R.string.fill_all_fields),
-                Snackbar.LENGTH_LONG
-            ).show()
-            return false
-        }
-
-        viewModel.setClient(clientId, clientSecret, redirectUri, listOf(scopes))
-        return true
-    }
-
-    private fun driveClientObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.client.collect { client ->
-                    val hasAlreadyLoggedIn = client != null
-                    binding.apply {
-                        if (hasAlreadyLoggedIn) {
-                            clientId.editText!!.setText(client!!.clientId)
-                            clientSecret.editText!!.setText(client.clientSecret)
-                            redirectUri.editText!!.setText(client.redirectUri)
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.state.combine(viewModel.isLoggedIn) { state, loggedIn ->
+                    state to loggedIn
+                }.collect { (state, loggedIn) ->
+                    if (state == DriveSignInState.Connected) {
+                        findNavController().navigateUp()
+                        return@collect
+                    }
+
+                    render(binding, state, loggedIn)
+
+                    if (state is DriveSignInState.OpenBrowser) {
+                        viewModel.openBrowser { url ->
+                            try {
+                                startActivity(Intent(Intent.ACTION_VIEW, url))
+                            } catch (_: ActivityNotFoundException) {
+                                viewModel.browserUnavailable()
+                            }
                         }
-                        clientId.isEnabled = !hasAlreadyLoggedIn
-                        clientSecret.isEnabled = !hasAlreadyLoggedIn
-                        redirectUri.isEnabled = !hasAlreadyLoggedIn
-                        signInText.isEnabled = !hasAlreadyLoggedIn
-                        enterCode.isEnabled = !hasAlreadyLoggedIn
                     }
                 }
             }
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun render(binding: FragmentSignInBinding, state: DriveSignInState, loggedIn: Boolean) {
+        val canConnect = !loggedIn &&
+            (state == DriveSignInState.Ready || state is DriveSignInState.Error)
+        val canCancel = state == DriveSignInState.Preparing ||
+            state is DriveSignInState.OpenBrowser || state == DriveSignInState.WaitingForGoogle
+        val hadConnect = binding.driveSignInConnect.isVisible
+        val hadCancel = binding.driveSignInCancel.isVisible
+
+        binding.driveSignInConfiguration.isVisible = canConnect && !viewModel.hasBuiltInClient
+        binding.driveSignInConnect.isVisible = canConnect
+        binding.driveSignInCancel.isVisible = canCancel
+        binding.driveSignInProgress.isVisible = canCancel || state == DriveSignInState.ExchangingCode
+        binding.driveSignInStatus.setText(
+            when {
+                loggedIn -> R.string.drive_sign_in_already_connected
+                state is DriveSignInState.Error -> state.message
+                state == DriveSignInState.ExchangingCode -> R.string.drive_sign_in_exchanging
+                canCancel -> R.string.drive_sign_in_waiting
+                else -> R.string.drive_sign_in_instruction
+            }
+        )
+
+        if (binding.root.context.isTelevision) {
+            when {
+                canConnect && !hadConnect -> binding.driveSignInConnect.requestFocus()
+                canCancel && !hadCancel -> binding.driveSignInCancel.requestFocus()
+                loggedIn -> binding.toolbar.doOnNextLayout { binding.toolbar.focusTelevisionBackButton() }
+            }
+        }
     }
 }

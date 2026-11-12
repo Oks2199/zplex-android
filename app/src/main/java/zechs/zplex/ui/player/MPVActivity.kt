@@ -7,6 +7,7 @@ import android.app.PictureInPictureParams
 import android.app.RemoteAction
 import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -27,6 +28,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.util.Rational
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import android.view.animation.AccelerateInterpolator
@@ -45,6 +47,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.doOnNextLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -84,6 +87,10 @@ import zechs.zplex.ui.player.sidesheet.episodes.adapter.SideSheetEpisodesAdapter
 import zechs.zplex.utils.Constants.DRIVE_API
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.SpenRemoteHelper
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.enableTelevisionAppBarFocus
+import zechs.zplex.utils.ext.showTelevisionFocus
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Orientation
 import zechs.zplex.utils.util.getNextOrientation
@@ -174,6 +181,12 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         player = binding.player
         controller = binding.controller
+        if (isTelevision) {
+            binding.root.showTelevisionFocus(excluded = player)
+            controller.btnRotate.isVisible = false
+            controller.btnLock.isVisible = false
+            controller.btnPlayPause.requestFocus()
+        }
         sideSheetDialog = SideSheetDialog(this)
 
         controller
@@ -193,6 +206,11 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             }
 
         sideSheetDialog.setContentView(episodesSheet.root)
+        if (isTelevision) {
+            episodesSheet.tvPlaylistToolbar?.setNavigationOnClickListener { sideSheetDialog.hide() }
+            episodesSheet.root.enableTelevisionAppBarFocus()
+            episodesSheet.root.showTelevisionFocus()
+        }
         episodesSheet.rvList.apply {
             adapter = sideSheetEpisodeAdapter
             layoutManager = LinearLayoutManager(
@@ -231,6 +249,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 player.cyclePause()
                 updateNotification()
             }
+            btnPip.isVisible = packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
             btnPip.setOnClickListener { goIntoPiP() }
             exoFfwd.setOnClickListener {
                 skipForward()
@@ -276,12 +295,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         // hide/show controller
         player.setOnClickListener {
-            val root = controller.root
-            TransitionManager.beginDelayedTransition(root, Fade())
-            root.isVisible = !root.isVisible
-            if (root.isVisible) {
-                handleLockingControls()
-            }
+            setControlsVisible(!controller.root.isVisible)
         }
 
         updateOrientation(resources.configuration)
@@ -312,6 +326,39 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         addOnPictureInPictureModeChangedListener { info ->
             onPiPModeChangedImpl(info.isInPictureInPictureMode)
         }
+    }
+
+    private fun setControlsVisible(visible: Boolean) {
+        val controls = controller.root
+        TransitionManager.beginDelayedTransition(controls, Fade())
+        controls.isVisible = visible
+        if (visible) {
+            handleLockingControls()
+            if (isTelevision) {
+                if (!controller.btnPlayPause.requestFocus()) controller.progressBar.requestFocus()
+            }
+        } else if (isTelevision) {
+            player.requestFocus()
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (isTelevision) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_MENU -> {
+                    if (event.repeatCount == 0) setControlsVisible(!controller.root.isVisible)
+                    return true
+                }
+                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!controller.root.isVisible) {
+                        setControlsVisible(true)
+                        return true
+                    }
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     private val seekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
@@ -464,9 +511,18 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
     }
 
     private fun showPlaylistDialog() {
-        val currentIndex = viewModel.findIndexFromFileId(viewModel.head!!.fileId)
-        episodesSheet.rvList.smoothScrollToPosition(currentIndex)
+        val current = viewModel.head ?: return
+        val currentIndex = viewModel.findIndexFromFileId(current.fileId).coerceAtLeast(0)
         sideSheetDialog.show()
+        val list = episodesSheet.rvList
+        if (isTelevision) {
+            list.scrollToPosition(currentIndex)
+            list.doOnNextLayout {
+                list.findViewHolderForAdapterPosition(currentIndex)?.itemView?.requestFocus()
+            }
+        } else {
+            list.smoothScrollToPosition(currentIndex)
+        }
     }
 
     private fun showErrorDialog(message: String) {
@@ -476,7 +532,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             .setPositiveButton(getString(R.string.ok)) { dialog, _ ->
                 dialog.dismiss()
                 finish()
-            }.show()
+            }.showWithTelevisionFocus()
     }
 
     private fun resumeVideo(startPosition: Long) {
@@ -534,6 +590,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         if (state == PlaybackState.BUFFERING) {
             binding.buffering.isInvisible = false
+            if (isTelevision && controller.btnPlayPause.hasFocus()) {
+                controller.progressBar.requestFocus()
+            }
             controller.btnPlayPause.isInvisible = true
         } else {
             binding.buffering.isInvisible = true
@@ -542,6 +601,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 /* context */ applicationContext,
                 /* drawableId */ if (state == PlaybackState.PAUSED) R.drawable.ic_play_24
                 else R.drawable.ic_pause_24
+            )
+            controller.btnPlayPause.contentDescription = getString(
+                if (state == PlaybackState.PAUSED) R.string.btn_play else R.string.btn_pause
             )
         }
         if (state == PlaybackState.BUFFERING) {
@@ -623,7 +685,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 .setTitle(getString(R.string.chapters))
                 .setItems(arrayOf(getString(R.string.none))) { dialog, _ ->
                     dialog.dismiss()
-                }.show()
+                }.showWithTelevisionFocus()
             return
         }
 
@@ -643,7 +705,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             .setSingleChoiceItems(chapterArray, selectedIndex) { dialog, item ->
                 MPVLib.setPropertyInt("chapter", chapters[item].index)
                 dialog.dismiss()
-            }.show()
+            }.showWithTelevisionFocus()
 
     }
 
@@ -668,7 +730,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 dialog.dismiss()
                 trackSwitchNotification { TrackData(trackId, type) }
             }
-        }.also { it.show() }
+        }.showWithTelevisionFocus()
     }
 
     private fun configSnackbar(msg: String, duration: Int = 750) {
@@ -695,7 +757,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 dialog.dismiss()
                 configSnackbar(getString(R.string.playback_speed_set, speeds[item].toString()))
             }
-        }.also { it.show() }
+        }.showWithTelevisionFocus()
     }
 
     private fun setSpeed(speed: Double) {
@@ -803,6 +865,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                         player.timePos = (pos / 1000).toInt()
                     }
 
+                    override fun onFastForward() = skipForward()
+
+                    override fun onRewind() = rewindBackward()
+
                     override fun onSkipToNext() {
                         saveProgress(viewModel.head)
                         player.stop()
@@ -856,15 +922,17 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         val playbackSpeed = if (player.paused == true)
             0f else (MPVLib.getPropertyDouble("speed")?.toFloat() ?: 1f)
 
+        var actions = PlaybackStateCompat.ACTION_PLAY or
+            PlaybackStateCompat.ACTION_PAUSE or
+            PlaybackStateCompat.ACTION_PLAY_PAUSE or
+            PlaybackStateCompat.ACTION_SEEK_TO or
+            PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        if (isTelevision) {
+            actions = actions or PlaybackStateCompat.ACTION_FAST_FORWARD or PlaybackStateCompat.ACTION_REWIND
+        }
         val stateBuilder = PlaybackStateCompat.Builder()
-            .setActions(
-                PlaybackStateCompat.ACTION_PLAY or
-                        PlaybackStateCompat.ACTION_PAUSE or
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                        PlaybackStateCompat.ACTION_SEEK_TO or
-                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            )
+            .setActions(actions)
             .setState(state, positionMs, playbackSpeed)
 
         customActions?.forEach { stateBuilder.addCustomAction(it) }
@@ -1052,8 +1120,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         val params = with(PictureInPictureParams.Builder()) {
             val aspect = player.getVideoAspect() ?: 0.0
             setAspectRatio(Rational(aspect.times(10000).toInt(), 10000))
-            setAutoEnterEnabled(true)
-            setSeamlessResizeEnabled(true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setAutoEnterEnabled(true)
+                setSeamlessResizeEnabled(true)
+            }
             setActions(actions)
         }
         try {

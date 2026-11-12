@@ -1,5 +1,6 @@
 package zechs.zplex.ui.collection.adapter
 
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -7,11 +8,11 @@ import coil.load
 import coil.size.Precision
 import zechs.zplex.R
 import zechs.zplex.data.model.BackdropSize
-import zechs.zplex.data.model.PosterSize
 import zechs.zplex.databinding.ItemCollectionHeaderBinding
 import zechs.zplex.databinding.ItemListBinding
 import zechs.zplex.ui.shared_adapters.detailed_media.DetailedMediaAdapter
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
+import zechs.zplex.utils.ext.isTelevision
 
 
 sealed class CollectionViewHolder(
@@ -22,13 +23,9 @@ sealed class CollectionViewHolder(
         private val itemBinding: ItemCollectionHeaderBinding
     ) : CollectionViewHolder(itemBinding) {
         fun bind(item: CollectionDataModel.Header) {
-            val backdropUrl = if (item.backdropPath == null) {
-                if (item.posterPath == null) {
-                    "${TMDB_IMAGE_PREFIX}/${PosterSize.w780}${item.posterPath}"
-                } else R.drawable.no_thumb
-            } else {
-                "${TMDB_IMAGE_PREFIX}/${BackdropSize.w780}${item.backdropPath}"
-            }
+            val backdropUrl = item.backdropPath?.let {
+                "$TMDB_IMAGE_PREFIX/${BackdropSize.w780}$it"
+            } ?: R.drawable.no_thumb
 
             itemBinding.apply {
                 tvName.text = item.title
@@ -55,7 +52,8 @@ sealed class CollectionViewHolder(
         fun bindParts(item: CollectionDataModel.Parts) {
             itemBinding.rvList.apply {
                 adapter = detailedMediaBinding
-                layoutManager = LinearLayoutManager(
+                layoutManager = if (context.isTelevision) GridLayoutManager(context, 2)
+                else LinearLayoutManager(
                     context, LinearLayoutManager.VERTICAL, false
                 )
             }
