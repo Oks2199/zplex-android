@@ -18,7 +18,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import zechs.zplex.R
@@ -29,7 +30,12 @@ import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.FragmentMyShowsBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.MaterialMotionInterpolator
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
+import zechs.zplex.utils.ext.televisionGridColumns
 
 
 open class MyShowsFragment : Fragment() {
@@ -57,6 +63,7 @@ open class MyShowsFragment : Fragment() {
     private val mediaAdapter by lazy {
         MediaAdapter(
             rating = true,
+            mediaOnLongClick = if (requireContext().isTelevision) ::confirmTelevisionRemoval else null,
             mediaOnClick = { navigateToMedia(it) }
         )
     }
@@ -64,6 +71,7 @@ open class MyShowsFragment : Fragment() {
     private var selectedTabIndex = 0
     private val tabScrollStates = mutableMapOf<Int, Parcelable?>()
     private var pendingRestoreState: Parcelable? = null
+    private var televisionFocus: TvListFocus? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -173,82 +181,95 @@ open class MyShowsFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val media = mediaAdapter.currentList[position]
-
-                val bottomNavView: BottomNavigationView? =
-                    activity?.findViewById(R.id.bottomNavigationView)
-
-                val name = media.name ?: media.title
-
-                Log.d(TAG, "name=$name, mediaType=${media.media_type}")
-
-                val snackBar = Snackbar.make(
-                    view,
-                    getString(
-                        if (isWatchlist) {
-                            R.string.removed_from_watchlist
-                        } else {
-                            R.string.removed_from_library
-                        },
-                        name
-                    ),
-                    Snackbar.LENGTH_SHORT
-                )
-                when (media.media_type) {
-                    MediaType.tv -> {
-                        val show = Show(
-                            id = media.id,
-                            name = media.name ?: "",
-                            media_type = media.media_type.name,
-                            poster_path = media.poster_path,
-                            vote_average = media.vote_average,
-                            fileId = media.fileId,
-                            modifiedTime = media.modifiedTime
-                        )
-                        myShowsViewModel.deleteShow(media.id)
-                        snackBar.setAction(R.string.undo) {
-                            Log.d(TAG, "Undo invoked(), show=$show")
-                            myShowsViewModel.saveShow(show)
-                        }
-                    }
-
-                    MediaType.movie -> {
-                        val movie = Movie(
-                            id = media.id,
-                            title = media.title ?: "",
-                            media_type = media.media_type.name,
-                            poster_path = media.poster_path,
-                            vote_average = media.vote_average,
-                            fileId = media.fileId,
-                            modifiedTime = media.modifiedTime
-                        )
-                        myShowsViewModel.deleteMovie(movie.id)
-                        snackBar.setAction(R.string.undo) {
-                            Log.d(TAG, "Undo invoked(), movie=$movie")
-                            myShowsViewModel.saveMovie(movie)
-                        }
-                    }
-
-                    else -> {}
-                }
-
-                bottomNavView?.let {
-                    snackBar.anchorView = it
-                }
-                val accentColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.colorAccent
-                    )
-                )
-
-                snackBar.setActionTextColor(accentColor)
-                snackBar.show()
+                val media = mediaAdapter.currentList.getOrNull(viewHolder.bindingAdapterPosition) ?: return
+                removeMedia(media)
             }
         }
 
-        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(binding.rvMyShows)
+        if (!requireContext().isTelevision) {
+            ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(binding.rvMyShows)
+        }
+    }
+
+    private fun confirmTelevisionRemoval(media: Media) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.tv_remove_media)
+            .setMessage(media.name ?: media.title)
+            .setPositiveButton(R.string.yes) { _, _ -> removeMedia(media) }
+            .setNegativeButton(R.string.no, null)
+            .show()
+    }
+
+    private fun removeMedia(media: Media) {
+        val bottomNavView: NavigationBarView? =
+            activity?.findViewById(R.id.bottomNavigationView)
+
+        val name = media.name ?: media.title
+
+        Log.d(TAG, "name=$name, mediaType=${media.media_type}")
+
+        val snackBar = Snackbar.make(
+            requireView(),
+            getString(
+                if (isWatchlist) {
+                    R.string.removed_from_watchlist
+                } else {
+                    R.string.removed_from_library
+                },
+                name
+            ),
+            Snackbar.LENGTH_SHORT
+        )
+        when (media.media_type) {
+            MediaType.tv -> {
+                val show = Show(
+                    id = media.id,
+                    name = media.name ?: "",
+                    media_type = media.media_type.name,
+                    poster_path = media.poster_path,
+                    vote_average = media.vote_average,
+                    fileId = media.fileId,
+                    modifiedTime = media.modifiedTime
+                )
+                myShowsViewModel.deleteShow(media.id)
+                snackBar.setAction(R.string.undo) {
+                    Log.d(TAG, "Undo invoked(), show=$show")
+                    myShowsViewModel.saveShow(show)
+                }
+            }
+
+            MediaType.movie -> {
+                val movie = Movie(
+                    id = media.id,
+                    title = media.title ?: "",
+                    media_type = media.media_type.name,
+                    poster_path = media.poster_path,
+                    vote_average = media.vote_average,
+                    fileId = media.fileId,
+                    modifiedTime = media.modifiedTime
+                )
+                myShowsViewModel.deleteMovie(movie.id)
+                snackBar.setAction(R.string.undo) {
+                    Log.d(TAG, "Undo invoked(), movie=$movie")
+                    myShowsViewModel.saveMovie(movie)
+                }
+            }
+
+            else -> {}
+        }
+
+        bottomNavView?.takeUnless { requireContext().isTelevision }?.let {
+            snackBar.anchorView = it
+        }
+        val accentColor = ColorStateList.valueOf(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.colorAccent
+            )
+        )
+
+        snackBar.setActionTextColor(accentColor)
+        snackBar.show()
     }
 
     private fun handleSelectedTab(selectedTab: Int) {
@@ -261,6 +282,11 @@ open class MyShowsFragment : Fragment() {
     }
 
     private fun handleTabNavigation(tab: TabLayout.Tab?) {
+        if (requireContext().isTelevision) {
+            televisionFocus = null
+            handleSelectedTab(selectedTabIndex)
+            return
+        }
         val recyclerView = binding.rvMyShows
 
         val newTabText = tab?.text ?: return
@@ -296,7 +322,7 @@ open class MyShowsFragment : Fragment() {
         }
         source.observe(viewLifecycleOwner) { media ->
             handleCollection(media)
-            mediaAdapter.submitList(media.map { it.toMedia() })
+            submitCollection(media.map { it.toMedia() })
         }
         removeShowObservers()
     }
@@ -309,7 +335,7 @@ open class MyShowsFragment : Fragment() {
         }
         source.observe(viewLifecycleOwner) { media ->
             handleCollection(media)
-            mediaAdapter.submitList(media.map { it.toMedia() })
+            submitCollection(media.map { it.toMedia() })
         }
 
         removeMovieObservers()
@@ -318,6 +344,14 @@ open class MyShowsFragment : Fragment() {
     private fun removeAllObservers() {
         removeMovieObservers()
         removeShowObservers()
+    }
+
+    private fun submitCollection(media: List<Media>) {
+        mediaAdapter.submitList(media) {
+            val list = _binding?.rvMyShows ?: return@submitList
+            televisionFocus?.let(list::restoreTelevisionFocus)
+            televisionFocus = null
+        }
     }
 
     private fun removeMovieObservers() {
@@ -355,8 +389,10 @@ open class MyShowsFragment : Fragment() {
 
         Log.d("ScreenInfo", "Smallest screen width dp: $smallestWidthDp")
 
-        val spanCount = resources.getInteger(R.integer.grid_span_count)
-        val widthRatio = when (spanCount) {
+        val television = requireContext().isTelevision
+        val spanCount = if (television) requireContext().televisionGridColumns
+            else resources.getInteger(R.integer.grid_span_count)
+        val widthRatio = if (television) 1.0 / spanCount else when (spanCount) {
             3 -> 0.30
             4 -> 0.22
             5 -> 0.18
@@ -383,6 +419,7 @@ open class MyShowsFragment : Fragment() {
     }
 
     private fun navigateToMedia(media: Media) {
+        televisionFocus = binding.rvMyShows.rememberTelevisionFocus()
         findNavController().navigateSafe(
             R.id.action_global_fragmentMedia,
             bundleOf("media" to media)

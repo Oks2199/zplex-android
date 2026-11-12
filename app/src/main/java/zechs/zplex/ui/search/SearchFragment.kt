@@ -24,8 +24,13 @@ import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.FragmentSearchBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.utils.Constants.SEARCH_DELAY_AMOUNT
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.ext.setupClearButtonWithAction
+import zechs.zplex.utils.ext.televisionGridColumns
 import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Keyboard
 
@@ -48,6 +53,7 @@ class SearchFragment : Fragment() {
         )
     }
     private var queryText = ""
+    private var televisionFocus: TvListFocus? = null
     private var isLoading = true
     var isLastPage = false
 
@@ -76,7 +82,17 @@ class SearchFragment : Fragment() {
         var job: Job? = null
 
         binding.searchBar.apply {
-            Keyboard.show(this)
+            if (context.isTelevision) {
+                setOnClickListener { Keyboard.show(this) }
+                setOnEditorActionListener { _, _, _ ->
+                    Keyboard.hide(this)
+                    binding.rvSearch.requestFocus()
+                    true
+                }
+                if (televisionFocus == null) requestFocus()
+            } else {
+                Keyboard.show(this)
+            }
             setText(queryText)
             addTextChangedListener { editable ->
                 job?.cancel()
@@ -114,7 +130,11 @@ class SearchFragment : Fragment() {
                         }
 
                         viewLifecycleOwner.lifecycleScope.launch {
-                            searchAdapter.submitList(searchList.toList())
+                            searchAdapter.submitList(searchList.toList()) {
+                                val list = _binding?.rvSearch ?: return@submitList
+                                televisionFocus?.let(list::restoreTelevisionFocus)
+                                televisionFocus = null
+                            }
                         }
                         isLoading = false
                     }
@@ -167,8 +187,10 @@ class SearchFragment : Fragment() {
 
         Log.d("ScreenInfo", "Smallest screen width dp: $smallestWidthDp")
 
-        val spanCount = resources.getInteger(R.integer.grid_span_count)
-        val widthRatio = when (spanCount) {
+        val television = requireContext().isTelevision
+        val spanCount = if (television) requireContext().televisionGridColumns
+            else resources.getInteger(R.integer.grid_span_count)
+        val widthRatio = if (television) 1.0 / spanCount else when (spanCount) {
             3 -> 0.30
             4 -> 0.22
             5 -> 0.18
@@ -193,6 +215,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun navigateToMedia(media: Media) {
+        televisionFocus = binding.rvSearch.rememberTelevisionFocus()
         Keyboard.hide(binding.searchBar)
         val action = SearchFragmentDirections.actionSearchFragmentToFragmentMedia(media)
         findNavController().navigateSafe(action)

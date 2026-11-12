@@ -10,6 +10,7 @@ import zechs.zplex.utils.util.Converter.yearsBetween
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
+import java.util.Locale
 
 
 class ConverterUtilsTest {
@@ -27,9 +28,13 @@ class ConverterUtilsTest {
 
     @Test
     fun `bytes to human readable size`() {
-        val expected = "1.00 KB"
-        val response = getSize(1024L)
-        assertEquals(expected, response)
+        val previousLocale = Locale.getDefault(Locale.Category.FORMAT)
+        try {
+            Locale.setDefault(Locale.Category.FORMAT, Locale.FRANCE)
+            assertEquals("1.00 KB", getSize(1024L))
+        } finally {
+            Locale.setDefault(Locale.Category.FORMAT, previousLocale)
+        }
     }
 
     @Test

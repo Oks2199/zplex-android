@@ -38,6 +38,8 @@ import zechs.zplex.service.CacheCleanupWorker
 import zechs.zplex.service.RemoteLibraryIndexingService
 import zechs.zplex.utils.Constants.CACHE_TTL_IN_DAYS
 import zechs.zplex.utils.MaterialMotionInterpolator
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.showTelevisionFocus
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -57,6 +59,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
+        val television = isTelevision
+        if (television) binding.root.showTelevisionFocus()
 
         val navHostFragment = supportFragmentManager.findFragmentById(
             R.id.mainNavHostFragment
@@ -65,44 +69,31 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
+            val showNavigation = when (destination.id) {
                 R.id.fragmentMedia, R.id.castsFragment,
                 R.id.episodesListFragment, R.id.fragmentList,
                 R.id.fragmentCollection, R.id.watchFragment,
                 R.id.bigImageFragment, R.id.signInFragment,
                 R.id.settingsFragment, R.id.seasonsBottomSheetFragment,
-                R.id.searchFragment -> {
-                    hideSlideDown(binding.bottomNavigationView)
-                    ViewCompat.setOnApplyWindowInsetsListener(binding.zplexFrame) { view, insets ->
-                        val bars = insets.getInsets(
-                            WindowInsetsCompat.Type.systemBars()
-                                    or WindowInsetsCompat.Type.displayCutout()
-                        )
-                        view.updatePadding(
-                            left = bars.left,
-                            top = bars.top,
-                            right = bars.right,
-                            bottom = bars.bottom,
-                        )
-                        WindowInsetsCompat.CONSUMED
-                    }
-                }
-
-                else -> {
-                    showSlideUp(binding.bottomNavigationView)
-                    ViewCompat.setOnApplyWindowInsetsListener(binding.zplexFrame) { view, insets ->
-                        val bars = insets.getInsets(
-                            WindowInsetsCompat.Type.systemBars()
-                                    or WindowInsetsCompat.Type.displayCutout()
-                        )
-                        view.updatePadding(
-                            left = bars.left,
-                            top = bars.top,
-                            right = bars.right,
-                            bottom = 0,
-                        )
-                        WindowInsetsCompat.CONSUMED
-                    }
+                R.id.searchFragment -> false
+                else -> true
+            }
+            if (television) {
+                binding.bottomNavigationView.isVisible = showNavigation
+            } else {
+                if (showNavigation) showSlideUp(binding.bottomNavigationView)
+                else hideSlideDown(binding.bottomNavigationView)
+                ViewCompat.setOnApplyWindowInsetsListener(binding.zplexFrame) { view, insets ->
+                    val bars = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+                    )
+                    view.updatePadding(
+                        left = bars.left,
+                        top = bars.top,
+                        right = bars.right,
+                        bottom = if (showNavigation) 0 else bars.bottom,
+                    )
+                    WindowInsetsCompat.CONSUMED
                 }
             }
         }

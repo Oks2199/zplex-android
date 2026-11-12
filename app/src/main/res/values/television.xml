@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tv_background">#11121A</color>
+    <color name="tv_surface">#191B28</color>
+    <color name="tv_panel">#22243A</color>
+    <color name="tv_accent">#C4C3FF</color>
+    <color name="tv_accent_ink">#181544</color>
+    <color name="tv_focus">#DAD8FF</color>
+    <dimen name="tv_safe_horizontal">28dp</dimen>
+    <dimen name="tv_safe_vertical">18dp</dimen>
+    <dimen name="tv_focus_stroke">3dp</dimen>
+    <dimen name="tv_focus_radius">12dp</dimen>
+    <dimen name="tv_home_poster_width">140dp</dimen>
+    <dimen name="tv_home_watched_width">156dp</dimen>
+    <string name="tv_remove_media">Retirer ce titre de la liste ?</string>
+</resources>

@@ -30,6 +30,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import zechs.zplex.utils.ext.isTelevision
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import coil.load
@@ -502,7 +503,8 @@ class EpisodesFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        val spanCount = resources.getInteger(R.integer.episodes_span_count)
+        val spanCount = if (requireContext().isTelevision) 2
+            else resources.getInteger(R.integer.episodes_span_count)
         binding.rvList.apply {
             adapter = episodeAdapter
             layoutManager = GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false)

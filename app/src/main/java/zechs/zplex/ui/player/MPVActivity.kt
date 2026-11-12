@@ -7,6 +7,7 @@ import android.app.PictureInPictureParams
 import android.app.RemoteAction
 import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -27,6 +28,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.util.Rational
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import android.view.animation.AccelerateInterpolator
@@ -84,6 +86,8 @@ import zechs.zplex.ui.player.sidesheet.episodes.adapter.SideSheetEpisodesAdapter
 import zechs.zplex.utils.Constants.DRIVE_API
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.SpenRemoteHelper
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.showTelevisionFocus
 import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Orientation
 import zechs.zplex.utils.util.getNextOrientation
@@ -174,6 +178,12 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         player = binding.player
         controller = binding.controller
+        if (isTelevision) {
+            binding.root.showTelevisionFocus()
+            controller.btnRotate.isVisible = false
+            controller.btnLock.isVisible = false
+            controller.btnPlayPause.requestFocus()
+        }
         sideSheetDialog = SideSheetDialog(this)
 
         controller
@@ -231,6 +241,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 player.cyclePause()
                 updateNotification()
             }
+            btnPip.isVisible = packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
             btnPip.setOnClickListener { goIntoPiP() }
             exoFfwd.setOnClickListener {
                 skipForward()
@@ -276,12 +287,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
         // hide/show controller
         player.setOnClickListener {
-            val root = controller.root
-            TransitionManager.beginDelayedTransition(root, Fade())
-            root.isVisible = !root.isVisible
-            if (root.isVisible) {
-                handleLockingControls()
-            }
+            setControlsVisible(!controller.root.isVisible)
         }
 
         updateOrientation(resources.configuration)
@@ -312,6 +318,39 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         addOnPictureInPictureModeChangedListener { info ->
             onPiPModeChangedImpl(info.isInPictureInPictureMode)
         }
+    }
+
+    private fun setControlsVisible(visible: Boolean) {
+        val controls = controller.root
+        TransitionManager.beginDelayedTransition(controls, Fade())
+        controls.isVisible = visible
+        if (visible) {
+            handleLockingControls()
+            if (isTelevision) {
+                if (!controller.btnPlayPause.requestFocus()) controller.progressBar.requestFocus()
+            }
+        } else if (isTelevision) {
+            player.requestFocus()
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (isTelevision) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_MENU -> {
+                    if (event.repeatCount == 0) setControlsVisible(!controller.root.isVisible)
+                    return true
+                }
+                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!controller.root.isVisible) {
+                        setControlsVisible(true)
+                        return true
+                    }
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     private val seekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
@@ -803,6 +842,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                         player.timePos = (pos / 1000).toInt()
                     }
 
+                    override fun onFastForward() = skipForward()
+
+                    override fun onRewind() = rewindBackward()
+
                     override fun onSkipToNext() {
                         saveProgress(viewModel.head)
                         player.stop()
@@ -856,15 +899,17 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         val playbackSpeed = if (player.paused == true)
             0f else (MPVLib.getPropertyDouble("speed")?.toFloat() ?: 1f)
 
+        var actions = PlaybackStateCompat.ACTION_PLAY or
+            PlaybackStateCompat.ACTION_PAUSE or
+            PlaybackStateCompat.ACTION_PLAY_PAUSE or
+            PlaybackStateCompat.ACTION_SEEK_TO or
+            PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        if (isTelevision) {
+            actions = actions or PlaybackStateCompat.ACTION_FAST_FORWARD or PlaybackStateCompat.ACTION_REWIND
+        }
         val stateBuilder = PlaybackStateCompat.Builder()
-            .setActions(
-                PlaybackStateCompat.ACTION_PLAY or
-                        PlaybackStateCompat.ACTION_PAUSE or
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                        PlaybackStateCompat.ACTION_SEEK_TO or
-                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            )
+            .setActions(actions)
             .setState(state, positionMs, playbackSpeed)
 
         customActions?.forEach { stateBuilder.addCustomAction(it) }
@@ -1052,8 +1097,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         val params = with(PictureInPictureParams.Builder()) {
             val aspect = player.getVideoAspect() ?: 0.0
             setAspectRatio(Rational(aspect.times(10000).toInt(), 10000))
-            setAutoEnterEnabled(true)
-            setSeamlessResizeEnabled(true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setAutoEnterEnabled(true)
+                setSeamlessResizeEnabled(true)
+            }
             setActions(actions)
         }
         try {

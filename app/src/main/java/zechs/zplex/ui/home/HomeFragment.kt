@@ -22,6 +22,9 @@ import zechs.zplex.ui.home.adapter.HomeDataModel
 import zechs.zplex.ui.home.adapter.watched.WatchedDataModel
 import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 
@@ -36,6 +39,7 @@ class HomeFragment : Fragment() {
 
     private val homeViewModel by activityViewModels<HomeViewModel>()
     private val seasonViewModel by activityViewModels<SeasonViewModel>()
+    private var televisionFocus: TvListFocus? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -138,7 +142,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun homeMediaSuccess(listResponse: List<HomeDataModel>) {
-        homeDataAdapter.submitList(listResponse)
+        homeDataAdapter.submitList(listResponse) {
+            val list = _binding?.rvList ?: return@submitList
+            televisionFocus?.let(list::restoreTelevisionFocus)
+            televisionFocus = null
+        }
     }
 
     private fun setupRecyclerView() {
@@ -151,6 +159,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToSeason(show: WatchedShow) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         seasonViewModel.setShowSeason(
             tmdbId = show.tmdbId,
             seasonName = null,
@@ -164,6 +173,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToMedia(media: Media) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         HomeFragmentDirections
             .actionHomeFragmentToFragmentMedia(media)
             .also {

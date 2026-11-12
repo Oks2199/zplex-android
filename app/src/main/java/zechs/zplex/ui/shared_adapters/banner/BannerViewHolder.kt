@@ -9,6 +9,7 @@ import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.PosterSize
 import zechs.zplex.databinding.ItemWideBannerBinding
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
+import zechs.zplex.utils.ext.isTelevision
 
 class BannerViewHolder(
     private val itemBinding: ItemWideBannerBinding,
@@ -53,8 +54,10 @@ class BannerViewHolder(
             val openDetails = {
                 bannerAdapter.bannerOnClick.invoke(item)
             }
-            root.setOnClickListener { openDetails() }
-            materialCardView.setOnClickListener { openDetails() }
+            if (!root.context.isTelevision) {
+                root.setOnClickListener { openDetails() }
+                materialCardView.setOnClickListener { openDetails() }
+            }
             btnDetails.setOnClickListener { openDetails() }
         }
     }

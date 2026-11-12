@@ -11,6 +11,7 @@ plugins {
 
 val tmdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("TMDB_API_KEY")
 val omdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("OMDB_API_KEY")
+val fireTvTest = providers.gradleProperty("movynexFireTvTest").map(String::toBoolean).getOrElse(false)
 val releaseKeystorePath = providers.environmentVariable("MOVYNEX_KEYSTORE_PATH").orNull
 val releaseKeystorePassword = providers.environmentVariable("MOVYNEX_KEYSTORE_PASSWORD").orNull
 val releaseKeyAlias = providers.environmentVariable("MOVYNEX_KEY_ALIAS").orNull
@@ -37,6 +38,18 @@ android {
         buildConfigField("String", "OMDB_API_KEY", "\"${omdbApiKey}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    if (fireTvTest) {
+        flavorDimensions += "device"
+        productFlavors {
+            create("fireTv") {
+                dimension = "device"
+                minSdk = 30
+                applicationIdSuffix = ".firetv"
+                versionNameSuffix = "-FIRETV"
+            }
+        }
     }
 
     signingConfigs {
@@ -94,11 +107,21 @@ android {
         abi {
             isEnable = true
             reset()
-            include("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+            if (fireTvTest) {
+                include("armeabi-v7a")
+            } else {
+                include("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+            }
             isUniversalApk = false
         }
     }
 
+}
+
+if (fireTvTest) {
+    androidComponents.beforeVariants(androidComponents.selector().withBuildType("release")) {
+        it.enable = false
+    }
 }
 
 dependencies {

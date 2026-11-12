@@ -59,10 +59,10 @@ object Converter {
         val tb = gb / 1024
         s = when {
             size < 1024L -> "$size B"
-            size < 1024L * 1024 -> String.format("%.2f", kb) + " KB"
-            size < 1024L * 1024 * 1024 -> String.format("%.2f", mb) + " MB"
-            size < 1024L * 1024 * 1024 * 1024 -> String.format("%.2f", gb) + " GB"
-            else -> String.format("%.2f", tb) + " TB"
+            size < 1024L * 1024 -> String.format(Locale.ROOT, "%.2f KB", kb)
+            size < 1024L * 1024 * 1024 -> String.format(Locale.ROOT, "%.2f MB", mb)
+            size < 1024L * 1024 * 1024 * 1024 -> String.format(Locale.ROOT, "%.2f GB", gb)
+            else -> String.format(Locale.ROOT, "%.2f TB", tb)
         }
         return s
     }
