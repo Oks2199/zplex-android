@@ -5,6 +5,8 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.allViews
 import androidx.core.view.doOnNextLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -23,10 +25,12 @@ interface TelevisionFocusNavigation {
 }
 
 fun View.enableTelevisionAppBarFocus() {
-    allViews.filterIsInstance<AppBarLayout>().forEach { appBar ->
-        appBar.touchscreenBlocksFocus = false
-        appBar.isKeyboardNavigationCluster = false
-    }
+    allViews.filterIsInstance<ViewGroup>()
+        .filter { it is AppBarLayout || it is Toolbar }
+        .forEach { bar ->
+            bar.touchscreenBlocksFocus = false
+            bar.isKeyboardNavigationCluster = false
+        }
 }
 
 fun RecyclerView.isInFirstTelevisionRow(focused: View, firstRowCount: Int): Boolean {
