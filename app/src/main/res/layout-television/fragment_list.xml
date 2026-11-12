@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:theme="@style/MenuTheme"
-            app:navigationContentDescription="@string/abc_action_bar_up_description"
+            app:navigationContentDescription="@string/tv_back"
             app:navigationIcon="@drawable/ic_back_24"
             app:navigationIconTint="@color/textColor"
             app:subtitleCentered="true"

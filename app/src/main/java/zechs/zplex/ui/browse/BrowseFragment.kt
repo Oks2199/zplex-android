@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -17,6 +18,7 @@ import android.view.Gravity
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.constraintlayout.widget.Constraints
 import androidx.core.view.children
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -102,7 +104,9 @@ class BrowseFragment : Fragment(), TelevisionFocusNavigation {
         }
         if (view.context.isTelevision) {
             binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
-            binding.btnFilters.requestFocus()
+            if (televisionFocus == null) {
+                binding.btnFilters.doOnNextLayout { it.requestFocus() }
+            }
         }
 
     }
@@ -372,7 +376,7 @@ class BrowseFragment : Fragment(), TelevisionFocusNavigation {
                 val inset = resources.getDimensionPixelSize(R.dimen.tv_safe_vertical)
                 val height = (resources.configuration.screenHeightDp * density).toInt() - inset * 2
                 filtersDialog.fitTelevisionWindow(680, minOf(height, (460 * density).toInt()))
-                decorView.showTelevisionFocus()
+                decorView.showTelevisionFocus(filtersDialog.findViewById(R.id.etKeyword))
             } else {
                 setLayout(Constraints.LayoutParams.MATCH_PARENT, Constraints.LayoutParams.WRAP_CONTENT)
             }
@@ -395,6 +399,13 @@ class BrowseFragment : Fragment(), TelevisionFocusNavigation {
         if (context.isTelevision) {
             filtersDialog.findViewById<View>(R.id.tv_filter_cancel)?.setOnClickListener {
                 _filtersDialog?.dismiss()
+            }
+            val suggestions = filtersDialog.findViewById<LinearLayout>(R.id.tvKeywordSuggestions)
+            etKeyword.setOnEditorActionListener { input, action, _ ->
+                if (action != EditorInfo.IME_ACTION_DONE) return@setOnEditorActionListener false
+                Keyboard.hide(input)
+                suggestions.getChildAt(0)?.requestFocus()
+                true
             }
         }
 
@@ -646,6 +657,7 @@ class BrowseFragment : Fragment(), TelevisionFocusNavigation {
                     text = keyword.name
                     textSize = 17f
                     gravity = Gravity.CENTER_VERTICAL
+                    isFocusable = true
                     minHeight = rowHeight
                     setTextColor(context.getColor(R.color.textColor))
                     setPadding(gap, 0, gap, 0)

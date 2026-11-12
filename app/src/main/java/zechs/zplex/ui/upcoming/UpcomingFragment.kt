@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -54,7 +55,9 @@ class UpcomingFragment : Fragment(), TelevisionFocusNavigation {
         super.onViewCreated(view, savedInstanceState)
         if (requireContext().isTelevision) {
             binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
-            if (televisionFocus == null) binding.toolbar.focusTelevisionBackButton()
+            if (televisionFocus == null) {
+                binding.toolbar.doOnNextLayout { binding.toolbar.focusTelevisionBackButton() }
+            }
         }
         setupRecyclerView()
 

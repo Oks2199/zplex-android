@@ -20,9 +20,7 @@ fun Dialog.fitTelevisionWindow(maximumWidthDp: Int, height: Int = ViewGroup.Layo
 fun AlertDialog.Builder.showWithTelevisionFocus(): AlertDialog {
     val dialog = show()
     if (!dialog.context.isTelevision) return dialog
-    val decor = dialog.window?.decorView ?: return dialog
     dialog.fitTelevisionWindow(620)
-    decor.showTelevisionFocus()
 
     val options = dialog.listView
     if (options != null) {
@@ -34,8 +32,11 @@ fun AlertDialog.Builder.showWithTelevisionFocus(): AlertDialog {
             }
         }
     } else {
-        val preferred = listOf(DialogInterface.BUTTON_NEGATIVE, DialogInterface.BUTTON_POSITIVE,
-            DialogInterface.BUTTON_NEUTRAL)
+        val preferred = listOf(
+            DialogInterface.BUTTON_NEGATIVE,
+            DialogInterface.BUTTON_POSITIVE,
+            DialogInterface.BUTTON_NEUTRAL,
+        )
             .mapNotNull(dialog::getButton)
             .firstOrNull { it.visibility == View.VISIBLE && it.isEnabled }
         preferred?.post { preferred.requestFocus() }

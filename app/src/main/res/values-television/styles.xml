@@ -81,6 +81,8 @@
     <style name="Widget.Movynex.Tv.DialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
         <item name="android:minHeight">48dp</item>
         <item name="android:textSize">17sp</item>
+        <item name="strokeColor">@color/tv_dialog_button_stroke</item>
+        <item name="strokeWidth">@dimen/tv_focus_stroke</item>
     </style>
 
     <style name="TextAppearance.Movynex.Tv.Option" parent="TextAppearance.Material3.BodyLarge">
