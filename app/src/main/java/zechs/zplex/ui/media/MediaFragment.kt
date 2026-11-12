@@ -317,6 +317,7 @@ class MediaFragment : Fragment() {
             }
 
             override fun setButtonView(button: MaterialButton) {
+                if (button.context.isTelevision) return
                 Log.d(TAG, "${UUID.randomUUID()} setButtonView(), invoked")
                 mediaViewModel.dominantColor.observe(viewLifecycleOwner) { c ->
                     Log.d(TAG, "${UUID.randomUUID()} setButtonView(), color=$c")
