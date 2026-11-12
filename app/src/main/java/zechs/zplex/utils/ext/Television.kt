@@ -44,13 +44,13 @@ data class TvListFocus(val position: Int, val innerPosition: Int?, val viewId: I
 fun RecyclerView.rememberTelevisionFocus(): TvListFocus? {
     if (!context.isTelevision) return null
     val focused = findFocus() ?: return null
-    val position = findContainingViewHolder(focused)?.absoluteAdapterPosition
+    val position = findContainingViewHolder(focused)?.adapterPosition
         ?.takeUnless { it == RecyclerView.NO_POSITION } ?: return null
     val inner = generateSequence(focused.parent as? View) { it.parent as? View }
         .takeWhile { it != this }
         .filterIsInstance<RecyclerView>()
         .firstOrNull()
-    val innerPosition = inner?.findContainingViewHolder(focused)?.absoluteAdapterPosition
+    val innerPosition = inner?.findContainingViewHolder(focused)?.adapterPosition
         ?.takeUnless { it == RecyclerView.NO_POSITION }
     return TvListFocus(position, innerPosition, focused.id)
 }

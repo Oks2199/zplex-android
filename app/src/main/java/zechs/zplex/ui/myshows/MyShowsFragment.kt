@@ -181,7 +181,7 @@ open class MyShowsFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val media = mediaAdapter.currentList.getOrNull(viewHolder.bindingAdapterPosition) ?: return
+                val media = mediaAdapter.currentList.getOrNull(viewHolder.adapterPosition) ?: return
                 removeMedia(media)
             }
         }
