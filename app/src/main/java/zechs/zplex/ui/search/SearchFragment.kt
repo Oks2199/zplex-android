@@ -23,6 +23,7 @@ import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.FragmentSearchBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
+import zechs.zplex.ui.shared_adapters.media.mediaGridLayoutManager
 import zechs.zplex.utils.Constants.SEARCH_DELAY_AMOUNT
 import zechs.zplex.utils.ext.TvListFocus
 import zechs.zplex.utils.ext.TelevisionFocusNavigation
@@ -32,7 +33,6 @@ import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.rememberTelevisionFocus
 import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.ext.setupClearButtonWithAction
-import zechs.zplex.utils.ext.televisionGridColumns
 import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Keyboard
 
@@ -189,29 +189,9 @@ class SearchFragment : Fragment(), TelevisionFocusNavigation {
 
         Log.d("ScreenInfo", "Smallest screen width dp: $smallestWidthDp")
 
-        val television = requireContext().isTelevision
-        val spanCount = if (television) requireContext().televisionGridColumns
-            else resources.getInteger(R.integer.grid_span_count)
-        val widthRatio = if (television) 1.0 / spanCount else when (spanCount) {
-            3 -> 0.30
-            4 -> 0.22
-            5 -> 0.18
-            6 -> 0.15
-            7 -> 0.13
-            else -> 1.0 / spanCount
-        }
-        val gridLayoutManager =
-            object : GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false) {
-                override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
-                    return lp?.let {
-                        it.width = (widthRatio * width).toInt()
-                        true
-                    } ?: super.checkLayoutParams(null)
-                }
-            }
         binding.rvSearch.apply {
             adapter = searchAdapter
-            layoutManager = gridLayoutManager
+            layoutManager = context.mediaGridLayoutManager()
             addOnScrollListener(this@SearchFragment.scrollListener)
         }
     }

@@ -50,7 +50,7 @@
                 android:id="@+id/settingConfigureClient"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
+                android:background="@drawable/tv_focus_surface"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">
@@ -87,7 +87,7 @@
                 android:id="@+id/settingSelectMoviesFolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
+                android:background="@drawable/tv_focus_surface"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">
@@ -133,7 +133,7 @@
                 android:id="@+id/settingsSelectShowsFolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
+                android:background="@drawable/tv_focus_surface"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">
@@ -179,7 +179,7 @@
                 android:id="@+id/settingScanMedia"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
+                android:background="@drawable/tv_focus_surface"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">
@@ -219,7 +219,7 @@
                 android:id="@+id/settingCacheCount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
+                android:background="@drawable/tv_focus_surface"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">
@@ -257,7 +257,7 @@
                 android:id="@+id/settingLogOut"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
+                android:background="@drawable/tv_focus_surface"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">

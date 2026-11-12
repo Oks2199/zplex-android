@@ -3,6 +3,8 @@ package zechs.zplex.utils.ext
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Outline
+import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +13,8 @@ import androidx.core.view.allViews
 import androidx.core.view.doOnNextLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.navigation.NavigationBarItemView
+import com.google.android.material.shape.Shapeable
 import zechs.zplex.R
 
 val Context.isTelevision: Boolean
@@ -40,17 +44,32 @@ fun RecyclerView.isInFirstTelevisionRow(focused: View, firstRowCount: Int): Bool
 
 fun View.showTelevisionFocus(excluded: View? = null) {
     val stroke = resources.getDimensionPixelSize(R.dimen.tv_focus_stroke)
+    val fallbackRadius = resources.getDimension(R.dimen.tv_focus_radius)
     val outline = GradientDrawable().apply {
         setColor(Color.TRANSPARENT)
         setStroke(stroke, context.getColor(R.color.tv_focus))
-        cornerRadius = resources.getDimension(R.dimen.tv_focus_radius)
+    }
+    val surface = Outline()
+    val bounds = Rect()
+    fun positionOutline(view: View) {
+        surface.setEmpty()
+        if (view is Shapeable) view.background?.getOutline(surface)
+        if (surface.getRect(bounds) && !bounds.isEmpty) {
+            outline.cornerRadius = (surface.radius - stroke / 2f).coerceAtLeast(0f)
+            outline.bounds = bounds
+        } else {
+            outline.cornerRadius = (fallbackRadius - stroke / 2f).coerceAtLeast(0f)
+            outline.setBounds(0, 0, view.width, view.height)
+        }
     }
     val resize = View.OnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
-        outline.setBounds(0, 0, view.width, view.height)
+        positionOutline(view)
     }
     fun show(view: View) {
         if (view === excluded) return
-        outline.setBounds(0, 0, view.width, view.height)
+        view.defaultFocusHighlightEnabled = false
+        if (view is NavigationBarItemView) return
+        positionOutline(view)
         view.overlay.add(outline)
         view.addOnLayoutChangeListener(resize)
     }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetTop="4dp"
+    android:insetBottom="4dp">
+
+    <selector>
+        <item android:state_focused="true">
+            <shape android:shape="rectangle">
+                <solid android:color="@color/tv_panel" />
+                <corners android:radius="@dimen/tv_focus_radius" />
+                <stroke android:width="@dimen/tv_focus_stroke" android:color="@color/tv_focus" />
+            </shape>
+        </item>
+        <item android:state_pressed="true">
+            <shape android:shape="rectangle">
+                <solid android:color="@color/tv_panel" />
+                <corners android:radius="@dimen/tv_focus_radius" />
+            </shape>
+        </item>
+        <item android:state_checked="true">
+            <shape android:shape="rectangle">
+                <solid android:color="@color/tv_panel" />
+                <corners android:radius="@dimen/tv_focus_radius" />
+            </shape>
+        </item>
+        <item android:drawable="@android:color/transparent" />
+    </selector>
+</inset>

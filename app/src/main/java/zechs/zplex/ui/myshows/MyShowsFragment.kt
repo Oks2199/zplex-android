@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -29,6 +30,7 @@ import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.FragmentMyShowsBinding
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
+import zechs.zplex.ui.shared_adapters.media.mediaGridLayoutManager
 import zechs.zplex.utils.MaterialMotionInterpolator
 import zechs.zplex.utils.ext.TvListFocus
 import zechs.zplex.utils.ext.TelevisionFocusNavigation
@@ -37,7 +39,6 @@ import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.rememberTelevisionFocus
 import zechs.zplex.utils.ext.restoreTelevisionFocus
-import zechs.zplex.utils.ext.televisionGridColumns
 
 
 open class MyShowsFragment : Fragment(), TelevisionFocusNavigation {
@@ -391,32 +392,14 @@ open class MyShowsFragment : Fragment(), TelevisionFocusNavigation {
 
         Log.d("ScreenInfo", "Smallest screen width dp: $smallestWidthDp")
 
-        val television = requireContext().isTelevision
-        val spanCount = if (television) requireContext().televisionGridColumns
-            else resources.getInteger(R.integer.grid_span_count)
-        val widthRatio = if (television) 1.0 / spanCount else when (spanCount) {
-            3 -> 0.30
-            4 -> 0.22
-            5 -> 0.18
-            6 -> 0.15
-            7 -> 0.13
-            else -> 1.0 / spanCount
-        }
-        val gridLayoutManager =
-            object : GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false) {
-                override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
-                    return lp?.let {
-                        it.width = (widthRatio * width).toInt()
-                        true
-                    } ?: super.checkLayoutParams(null)
-                }
-            }
-
         mediaAdapter.registerAdapterDataObserver(adapterObserver)
 
         binding.rvMyShows.apply {
             adapter = mediaAdapter
-            layoutManager = gridLayoutManager
+            layoutManager = context.mediaGridLayoutManager()
+            if (context.isTelevision) {
+                updatePadding(bottom = resources.getDimensionPixelSize(R.dimen.tv_safe_vertical))
+            }
         }
     }
 
