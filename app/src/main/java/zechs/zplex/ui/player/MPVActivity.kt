@@ -602,6 +602,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 /* drawableId */ if (state == PlaybackState.PAUSED) R.drawable.ic_play_24
                 else R.drawable.ic_pause_24
             )
+            controller.btnPlayPause.contentDescription = getString(
+                if (state == PlaybackState.PAUSED) R.string.btn_play else R.string.btn_pause
+            )
         }
         if (state == PlaybackState.BUFFERING) {
             window.clearFlags(FLAG_KEEP_SCREEN_ON)

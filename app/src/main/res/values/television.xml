@@ -29,6 +29,7 @@
     <string name="tv_seasons_unavailable">Impossible d’afficher les saisons.</string>
     <string name="tv_view_all">Tout afficher</string>
     <string name="tv_back">Retour</string>
+    <string name="tv_playback_position">Position de lecture</string>
     <string name="tv_error_title">Movynex a rencontré une erreur</string>
     <string name="tv_error_recovery">Tu peux revenir à l’accueil pour relancer l’application.</string>
     <string name="tv_error_home">Revenir à l’accueil</string>
