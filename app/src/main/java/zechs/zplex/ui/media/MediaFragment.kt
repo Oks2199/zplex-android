@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.gson.Gson
@@ -823,7 +824,7 @@ class MediaFragment : Fragment() {
             .setNegativeButton(R.string.no) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     private fun showDeleteMovieDialog(title: String, tmdbId: Int, filePath: String) {
@@ -836,7 +837,7 @@ class MediaFragment : Fragment() {
             .setNegativeButton(R.string.no) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     override fun onStart() {

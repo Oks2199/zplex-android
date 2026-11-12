@@ -105,6 +105,10 @@ sealed class CastViewHolder(
 
             mChip.text = text
             mChip.chipIcon = ContextCompat.getDrawable(context, drawable)
+        if (context.isTelevision) {
+            mChip.isClickable = false
+            mChip.isFocusable = false
+        }
             chipGroup.addView(mChip)
         }
 

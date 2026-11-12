@@ -11,6 +11,9 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.view.Gravity
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.constraintlayout.widget.Constraints
 import androidx.core.view.children
@@ -27,9 +30,9 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import zechs.zplex.R
@@ -42,13 +45,24 @@ import zechs.zplex.data.model.tmdb.search.SearchResponse
 import zechs.zplex.databinding.FragmentBrowseBinding
 import zechs.zplex.ui.dialog.FiltersDialog
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
+import zechs.zplex.ui.shared_adapters.media.mediaGridLayoutManager
+import zechs.zplex.ui.shared_viewmodels.FilterArgs
 import zechs.zplex.ui.shared_viewmodels.FiltersViewModel
 import zechs.zplex.utils.Constants.SEARCH_DELAY_AMOUNT
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.fitTelevisionWindow
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
+import zechs.zplex.utils.ext.showTelevisionFocus
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Keyboard
 
-class BrowseFragment : Fragment() {
+class BrowseFragment : Fragment(), TelevisionFocusNavigation {
 
     companion object {
         const val TAG = "BrowseFragment"
@@ -62,6 +76,8 @@ class BrowseFragment : Fragment() {
 
     private var _filtersDialog: FiltersDialog? = null
     private val filtersDialog: FiltersDialog get() = _filtersDialog!!
+    private var requestedFilter: FilterArgs? = null
+    private var televisionFocus: TvListFocus? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,6 +100,10 @@ class BrowseFragment : Fragment() {
         binding.btnFilters.setOnClickListener {
             showFiltersDialog(context = requireContext())
         }
+        if (view.context.isTelevision) {
+            binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+            binding.btnFilters.requestFocus()
+        }
 
     }
 
@@ -92,14 +112,14 @@ class BrowseFragment : Fragment() {
         editText.apply {
             addTextChangedListener { editable ->
                 job?.cancel()
-                job = MainScope().launch {
+                job = viewLifecycleOwner.lifecycleScope.launch {
                     delay(SEARCH_DELAY_AMOUNT)
-                    editable?.let {
-                        val query = it.toString()
-                        if (query.isNotEmpty()) {
-                            browseViewModel.getSearch(query)
-                        }
-                        Log.d(TAG, "Search query=${query}")
+                    if (_filtersDialog?.isShowing != true) return@launch
+                    val query = editable?.toString().orEmpty()
+                    if (query.isNotBlank()) {
+                        browseViewModel.getSearch(query)
+                    } else {
+                        browseViewModel.clearKeywordList()
                     }
                 }
             }
@@ -123,10 +143,10 @@ class BrowseFragment : Fragment() {
     private fun setupKeywordsObserver() {
         browseViewModel.keywordsList.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it.isNotEmpty()) {
-                    setupKeywordList(requireContext(), filtersDialog, it)
+                val dialog = _filtersDialog?.takeIf { window -> window.isShowing } ?: return@let
+                if (dialog.context.isTelevision || it.isNotEmpty()) {
+                    setupKeywordList(requireContext(), dialog, it)
                 }
-                Log.d(TAG, "Keywords list: $it")
             }
         }
     }
@@ -134,11 +154,19 @@ class BrowseFragment : Fragment() {
     private fun onSuccess(showsResponse: SearchResponse) {
         binding.apply {
             pbBrowse.isVisible = false
-            rvBrowse.isVisible = true
+            val hasResults = showsResponse.results.isNotEmpty()
+            rvBrowse.isVisible = hasResults
+            errorView.root.isVisible = !hasResults
+            errorView.retryBtn.isVisible = false
+            if (!hasResults) errorView.errorTxt.setText(R.string.nothing_found)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            browseAdapter.submitList(showsResponse.results.toList())
+            browseAdapter.submitList(showsResponse.results.toList()) {
+                val list = _binding?.rvBrowse ?: return@submitList
+                televisionFocus?.let(list::restoreTelevisionFocus)
+                televisionFocus = null
+            }
         }
 
         browseViewModel.isLoading = false
@@ -161,18 +189,33 @@ class BrowseFragment : Fragment() {
         val errorMsg = message.ifEmpty { resources.getString(R.string.something_went_wrong) }
         Log.e(TAG, errorMsg)
         binding.apply {
-            pbBrowse.isVisible = true
+            pbBrowse.isVisible = false
             rvBrowse.isVisible = false
             errorView.root.isVisible = true
         }
         binding.errorView.apply {
             errorTxt.text = errorMsg
+            retryBtn.isVisible = true
+            retryBtn.setOnClickListener {
+                filterModel.getFilter()?.let { filter ->
+                    root.isVisible = false
+                    binding.pbBrowse.isVisible = true
+                    browseViewModel.getBrowse(filter)
+                }
+            }
         }
         browseViewModel.isLoading = false
     }
 
     private fun setupFiltersObservers() {
         filterModel.filterArgs.observe(viewLifecycleOwner) { filter ->
+            if (binding.root.context.isTelevision) {
+                if (requestedFilter == filter) return@observe
+                requestedFilter = filter
+                televisionFocus = null
+                binding.errorView.root.isVisible = false
+                binding.pbBrowse.isVisible = true
+            }
             TransitionManager.beginDelayedTransition(binding.root)
             browseViewModel.getBrowse(filter)
         }
@@ -195,7 +238,10 @@ class BrowseFragment : Fragment() {
                 )
 
                 if (visibleItemCount >= itemCount && !browseViewModel.isLoading && !browseViewModel.isLastPage) {
-                    (filterArgs?.let { browseViewModel.getBrowse(it) })
+                    filterArgs?.let {
+                        browseViewModel.isLoading = true
+                        browseViewModel.getBrowse(it)
+                    }
                 }
             }
         }
@@ -211,9 +257,17 @@ class BrowseFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.rvBrowse.apply {
             adapter = browseAdapter
-            layoutManager = GridLayoutManager(activity, 3)
+            layoutManager = if (context.isTelevision) context.mediaGridLayoutManager()
+            else GridLayoutManager(context, 3)
             addOnScrollListener(this@BrowseFragment.scrollListener)
         }
+    }
+
+    override fun moveTelevisionFocusUp(focused: View): Boolean {
+        val current = _binding ?: return false
+        val columns = (current.rvBrowse.layoutManager as? GridLayoutManager)?.spanCount ?: return false
+        return current.rvBrowse.isInFirstTelevisionRow(focused, columns) &&
+            current.btnFilters.requestFocus()
     }
 
     private fun getMovieGenre(): LinkedHashMap<String, Int> {
@@ -272,17 +326,16 @@ class BrowseFragment : Fragment() {
         return sortMap
     }
 
-    private fun getSort(key: SortBy): String {
-        return getSorts().filterValues { it == key }.keys.elementAt(0)
-    }
+    private fun getSort(key: SortBy): String =
+        getSorts().entries.firstOrNull { it.value == key }?.key ?: getString(R.string.sort_popularity)
 
     private fun getGenre(name: String, genres: LinkedHashMap<String, Int>) = genres[name] ?: -1
 
-    private fun getGenre(key: Int, genres: LinkedHashMap<String, Int>): String {
-        return genres.filterValues { it == key }.keys.elementAt(0)
-    }
+    private fun getGenre(key: Int, genres: LinkedHashMap<String, Int>): String =
+        genres.entries.firstOrNull { it.value == key }?.key ?: getString(R.string.select_genre)
 
     private fun navigateToMedia(media: Media) {
+        televisionFocus = binding.rvBrowse.rememberTelevisionFocus()
         val mediaType = when {
             media.name == null -> MediaType.movie
             media.title == null -> MediaType.tv
@@ -295,6 +348,8 @@ class BrowseFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        _filtersDialog?.dismiss()
+        _filtersDialog = null
         super.onDestroyView()
         binding.apply {
             rvBrowse.adapter = null
@@ -312,14 +367,20 @@ class BrowseFragment : Fragment() {
 
         filtersDialog.window?.apply {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setLayout(
-                Constraints.LayoutParams.MATCH_PARENT,
-                Constraints.LayoutParams.WRAP_CONTENT
-            )
+            if (context.isTelevision) {
+                val density = resources.displayMetrics.density
+                val inset = resources.getDimensionPixelSize(R.dimen.tv_safe_vertical)
+                val height = (resources.configuration.screenHeightDp * density).toInt() - inset * 2
+                filtersDialog.fitTelevisionWindow(680, minOf(height, (460 * density).toInt()))
+                decorView.showTelevisionFocus()
+            } else {
+                setLayout(Constraints.LayoutParams.MATCH_PARENT, Constraints.LayoutParams.WRAP_CONTENT)
+            }
         }
 
         filtersDialog.setOnDismissListener {
             _filtersDialog = null
+            browseViewModel.clearKeywordList()
         }
 
         val dialogRoot = filtersDialog.findViewById<MaterialCardView>(R.id.dialog_root)
@@ -331,6 +392,11 @@ class BrowseFragment : Fragment() {
         val sortMenu = filtersDialog.findViewById<MaterialButton>(R.id.sort_menu)
         val etKeyword = filtersDialog.findViewById<EditText>(R.id.etKeyword)
         val keywordGroup = filtersDialog.findViewById<ChipGroup>(R.id.chipGroupKeywords)
+        if (context.isTelevision) {
+            filtersDialog.findViewById<View>(R.id.tv_filter_cancel)?.setOnClickListener {
+                _filtersDialog?.dismiss()
+            }
+        }
 
         keywordSearch(etKeyword)
 
@@ -384,6 +450,9 @@ class BrowseFragment : Fragment() {
                 sortMenu.text = getSort(currentFilters.sortBy)
             }
             setupSortMenu(context, filtersDialog)
+            if (context.isTelevision) {
+                filtersDialog.findViewById<Chip>(mediaChipGroup.checkedChipId)?.requestFocus()
+            }
         }
 
         mediaChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
@@ -461,6 +530,19 @@ class BrowseFragment : Fragment() {
 
         val dialogRoot = filtersDialog.findViewById<MaterialCardView>(R.id.dialog_root)
         val genreMenu = filtersDialog.findViewById<MaterialButton>(R.id.genre_menu)
+        if (context.isTelevision) {
+            genreMenu.setOnClickListener {
+                MaterialAlertDialogBuilder(context)
+                    .setTitle(R.string.genre)
+                    .setSingleChoiceItems(genreList.toTypedArray(), genreList.indexOf(genreMenu.text.toString())) { dialog, position ->
+                        genreMenu.text = genreList[position]
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .showWithTelevisionFocus()
+            }
+            return
+        }
 
         val listPopupGenres = ListPopupWindow(
             context, null,
@@ -498,6 +580,19 @@ class BrowseFragment : Fragment() {
 
         val dialogRoot = filtersDialog.findViewById<MaterialCardView>(R.id.dialog_root)
         val sortMenu = filtersDialog.findViewById<MaterialButton>(R.id.sort_menu)
+        if (context.isTelevision) {
+            sortMenu.setOnClickListener {
+                MaterialAlertDialogBuilder(context)
+                    .setTitle(R.string.sort)
+                    .setSingleChoiceItems(sortList.toTypedArray(), sortList.indexOf(sortMenu.text.toString())) { dialog, position ->
+                        sortMenu.text = sortList[position]
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .showWithTelevisionFocus()
+            }
+            return
+        }
 
         val listPopupSortBy = ListPopupWindow(
             context, null,
@@ -537,6 +632,36 @@ class BrowseFragment : Fragment() {
         val tfKeyword = filtersDialog.findViewById<TextInputLayout>(R.id.tf_keyword)
         val etKeyword = filtersDialog.findViewById<EditText>(R.id.etKeyword)
         val keywordChips = filtersDialog.findViewById<ChipGroup>(R.id.chipGroupKeywords)
+        if (context.isTelevision) {
+            val section = filtersDialog.findViewById<View>(R.id.tvKeywordSuggestionSection)
+            val suggestions = filtersDialog.findViewById<LinearLayout>(R.id.tvKeywordSuggestions)
+            suggestions.removeAllViews()
+            val active = keywordList.isNotEmpty() && !etKeyword.text.isNullOrBlank()
+            section.isVisible = active
+            if (!active) return
+            val gap = resources.getDimensionPixelSize(R.dimen.tv_grid_half_gutter)
+            val rowHeight = resources.getDimensionPixelSize(R.dimen.tv_option_min_height)
+            keywordList.forEach { keyword ->
+                val option = TextView(context).apply {
+                    text = keyword.name
+                    textSize = 17f
+                    gravity = Gravity.CENTER_VERTICAL
+                    minHeight = rowHeight
+                    setTextColor(context.getColor(R.color.textColor))
+                    setPadding(gap, 0, gap, 0)
+                    setBackgroundResource(R.drawable.tv_focus_surface)
+                    setOnClickListener {
+                        addChip(context, keyword, dialogRoot, keywordChips)
+                        etKeyword.requestFocus()
+                        etKeyword.text.clear()
+                        suggestions.removeAllViews()
+                        section.isVisible = false
+                    }
+                }
+                suggestions.addView(option, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+            return
+        }
 
         val listPopupKeyword = ListPopupWindow(
             context, null,
@@ -592,6 +717,13 @@ class BrowseFragment : Fragment() {
 
         mChip.setOnCloseIconClickListener {
             chipGroup.removeView(mChip)
+        }
+        if (context.isTelevision) {
+            mChip.contentDescription = getString(R.string.tv_remove_keyword, keyword.name)
+            mChip.setOnClickListener {
+                root.findViewById<EditText>(R.id.etKeyword)?.requestFocus()
+                chipGroup.removeView(mChip)
+            }
         }
 
         chipGroup.addView(mChip)

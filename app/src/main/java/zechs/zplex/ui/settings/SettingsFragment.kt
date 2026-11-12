@@ -23,6 +23,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import kotlinx.coroutines.launch
@@ -147,7 +148,7 @@ class SettingsFragment : Fragment() {
             }
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
             .setCancelable(true)
-            .show()
+            .showWithTelevisionFocus()
     }
 
     private fun showFolderPickerDialog(
@@ -166,7 +167,7 @@ class SettingsFragment : Fragment() {
                     launchPicker.launch(folderPicker)
                 }
                 .setNegativeButton(getString(R.string.no)) { _, _ -> }
-                .show()
+                .showWithTelevisionFocus()
         } else {
             launchPicker.launch(folderPicker)
         }
@@ -238,7 +239,7 @@ class SettingsFragment : Fragment() {
                 viewModel.logOut()
             }
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     private fun loadingObserver() {

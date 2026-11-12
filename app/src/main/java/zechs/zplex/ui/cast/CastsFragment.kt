@@ -27,7 +27,7 @@ import zechs.zplex.utils.ext.TvListFocus
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.rememberTelevisionFocus
 import zechs.zplex.utils.ext.restoreTelevisionFocus
-import zechs.zplex.utils.ext.showTelevisionFocus
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 class CastsFragment : Fragment() {
@@ -47,12 +47,11 @@ class CastsFragment : Fragment() {
         CastDataAdapter(
             setOnClickListener = { navigateMedia(it) },
             expandBiography = { biography ->
-                val dialog = MaterialAlertDialogBuilder(requireContext())
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.tv_biography)
                     .setMessage(biography)
                     .setPositiveButton(android.R.string.ok, null)
-                    .show()
-                dialog.window?.decorView?.showTelevisionFocus()
+                    .showWithTelevisionFocus()
             },
             setOnImageClick = { url, iv ->
                 openImageFullSize(url, iv)

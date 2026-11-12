@@ -9,7 +9,10 @@ import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.annotation.DimenRes
+import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.allViews
@@ -22,6 +25,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationBarItemView
 import com.google.android.material.shape.Shapeable
 import zechs.zplex.R
+import zechs.zplex.utils.view.TelevisionToolbarBackground
 
 val Context.isTelevision: Boolean
     get() = resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK ==
@@ -46,19 +50,35 @@ interface TelevisionFocusNavigation {
 }
 
 fun View.enableTelevisionAppBarFocus() {
-    allViews.filterIsInstance<ViewGroup>()
-        .filter { it is AppBarLayout || it is Toolbar }
-        .forEach { bar ->
+    allViews.forEach { view ->
+        if (view is AppBarLayout || view is Toolbar) {
+            val bar = view as ViewGroup
             bar.touchscreenBlocksFocus = false
             bar.isKeyboardNavigationCluster = false
         }
+        view.styleTelevisionToolbarControl()
+    }
 }
 
-fun Toolbar.focusTelevisionBackButton() {
-    val description = navigationContentDescription ?: return
-    children.filterIsInstance<ImageButton>()
+private fun View.styleTelevisionToolbarControl(): Boolean {
+    val iconControl = when (parent) {
+        is Toolbar -> this is ImageButton
+        is ActionMenuView -> this is ImageView || (this is ActionMenuItemView && !hasText())
+        else -> false
+    }
+    if (!iconControl) return false
+    if (background !is TelevisionToolbarBackground) {
+        background = TelevisionToolbarBackground(context)
+        defaultFocusHighlightEnabled = false
+    }
+    return true
+}
+
+fun Toolbar.focusTelevisionBackButton(): Boolean {
+    val description = navigationContentDescription ?: return false
+    return children.filterIsInstance<ImageButton>()
         .firstOrNull { it.contentDescription == description }
-        ?.requestFocus()
+        ?.requestFocus() == true
 }
 
 fun RecyclerView.isInFirstTelevisionRow(focused: View, firstRowCount: Int): Boolean {
@@ -104,6 +124,7 @@ fun View.showTelevisionFocus(excluded: View? = null) {
         if (view === excluded || !view.hasWindowFocus()) return
         view.defaultFocusHighlightEnabled = false
         if (view is NavigationBarItemView) return
+        if (view.styleTelevisionToolbarControl()) return
         if (view is ViewGroup && !view.isClickable && !view.isLongClickable) return
         positionOutline(view)
         view.overlay.add(outline)

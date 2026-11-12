@@ -58,6 +58,6 @@
             android:id="@+id/btnStarred"
             style="@style/Widget.Movynex.Tv.DriveSource"
             android:text="@string/starred"
-            app:icon="@drawable/ic_starred_24" />
+            app:icon="@drawable/ic_star_24" />
     </LinearLayout>
 </LinearLayout>

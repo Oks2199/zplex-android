@@ -38,6 +38,7 @@ import androidx.transition.TransitionManager
 import coil.load
 import coil.size.Precision
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.gson.Gson
@@ -142,7 +143,7 @@ class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
             .setNegativeButton(getString(R.string.no)) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
 
@@ -161,7 +162,7 @@ class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
             .setNegativeButton(R.string.no) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     override fun onCreateView(

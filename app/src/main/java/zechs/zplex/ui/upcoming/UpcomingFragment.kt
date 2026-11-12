@@ -1,31 +1,32 @@
 package zechs.zplex.ui.upcoming
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.launch
 import zechs.zplex.R
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.FragmentUpcomingBinding
 import zechs.zplex.ui.shared_adapters.detailed_media.DetailedMediaAdapter
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.focusTelevisionBackButton
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
+import zechs.zplex.utils.ext.isTelevision
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
-class UpcomingFragment : Fragment() {
-
-    companion object {
-        const val TAG = "UpcomingFragment"
-    }
+class UpcomingFragment : Fragment(), TelevisionFocusNavigation {
 
     private var _binding: FragmentUpcomingBinding? = null
     private val binding get() = _binding!!
@@ -38,6 +39,7 @@ class UpcomingFragment : Fragment() {
 
     private var isLoading = true
     private var isLastPage = true
+    private var televisionFocus: TvListFocus? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,49 +52,46 @@ class UpcomingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentUpcomingBinding.bind(view)
-
+        if (requireContext().isTelevision) {
+            binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+            if (televisionFocus == null) binding.toolbar.focusTelevisionBackButton()
+        }
         setupRecyclerView()
 
         upcomingViewModel.upcoming.observe(viewLifecycleOwner) { response ->
             when (response) {
                 is Resource.Success -> {
-                    binding.apply {
-                        pbBrowse.isVisible = false
-                        rvBrowse.isVisible = true
+                    val results = response.data?.results.orEmpty().toList()
+                    binding.pbBrowse.isVisible = false
+                    binding.rvBrowse.isVisible = results.isNotEmpty()
+                    binding.errorView.root.isVisible = results.isEmpty()
+                    binding.errorView.errorTxt.setText(R.string.nothing_found)
+                    binding.errorView.retryBtn.isVisible = false
+                    upcomingAdapter.submitList(results) {
+                        val list = _binding?.rvBrowse ?: return@submitList
+                        televisionFocus?.let(list::restoreTelevisionFocus)
+                        televisionFocus = null
                     }
-                    response.data?.let { showsResponse ->
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            upcomingAdapter.submitList(showsResponse.results.toList())
-                        }
-                        isLastPage = showsResponse.page == showsResponse.total_pages
-                    }
+                    isLastPage = response.data?.let { it.page >= it.total_pages } ?: true
                     isLoading = false
                 }
 
                 is Resource.Error -> {
-                    response.message?.let { message ->
-                        val errorMsg = message.ifEmpty {
-                            resources.getString(R.string.something_went_wrong)
-                        }
-                        Log.e(TAG, errorMsg)
-                        binding.apply {
-                            pbBrowse.isVisible = true
-                            rvBrowse.isVisible = false
-                            errorView.root.isVisible = true
-                        }
-                        binding.errorView.apply {
-                            errorTxt.text = errorMsg
-                        }
-                        isLoading = false
+                    binding.pbBrowse.isVisible = false
+                    binding.rvBrowse.isVisible = false
+                    binding.errorView.apply {
+                        root.isVisible = true
+                        errorTxt.text = response.message?.takeIf(String::isNotBlank)
+                            ?: getString(R.string.something_went_wrong)
+                        retryBtn.isVisible = true
+                        retryBtn.setOnClickListener { upcomingViewModel.getUpcoming() }
                     }
+                    isLoading = false
                 }
 
                 is Resource.Loading -> {
-                    binding.apply {
-                        // pbBrowse.isVisible = true
-                        // rvBrowse.isVisible = false
-                    }
+                    binding.pbBrowse.isVisible = upcomingAdapter.itemCount == 0
+                    binding.errorView.root.isVisible = false
                     isLoading = true
                 }
             }
@@ -108,13 +107,8 @@ class UpcomingFragment : Fragment() {
                 val visibleItemCount = layoutManager.findLastCompletelyVisibleItemPosition() + 7
                 val itemCount = layoutManager.itemCount
 
-                Log.d(
-                    "onScrolled",
-                    "visibleItemCount=$visibleItemCount, itemCount=$itemCount," +
-                            " isLoading=$isLoading, isLastPage=$isLastPage"
-                )
-
                 if (visibleItemCount >= itemCount && !isLoading && !isLastPage) {
+                    isLoading = true
                     upcomingViewModel.getUpcoming()
                 }
             }
@@ -124,20 +118,24 @@ class UpcomingFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.rvBrowse.apply {
             adapter = upcomingAdapter
-            layoutManager = LinearLayoutManager(
-                activity, LinearLayoutManager.VERTICAL, false
-            )
+            layoutManager = if (context.isTelevision) GridLayoutManager(context, 2)
+            else LinearLayoutManager(context)
             addOnScrollListener(this@UpcomingFragment.scrollListener)
         }
     }
 
 
     private fun navigateMedia(media: Media) {
+        televisionFocus = binding.rvBrowse.rememberTelevisionFocus()
         val action = UpcomingFragmentDirections.actionUpcomingFragmentToFragmentMedia(
             media.copy(media_type = media.media_type ?: MediaType.movie)
         )
         findNavController().navigateSafe(action)
     }
+
+    override fun moveTelevisionFocusUp(focused: View): Boolean =
+        binding.rvBrowse.isInFirstTelevisionRow(focused, 2) &&
+            binding.toolbar.focusTelevisionBackButton()
 
     override fun onDestroyView() {
         super.onDestroyView()

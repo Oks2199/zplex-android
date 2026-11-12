@@ -88,7 +88,9 @@ import zechs.zplex.utils.Constants.DRIVE_API
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.SpenRemoteHelper
 import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.enableTelevisionAppBarFocus
 import zechs.zplex.utils.ext.showTelevisionFocus
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import zechs.zplex.utils.state.Resource
 import zechs.zplex.utils.util.Orientation
 import zechs.zplex.utils.util.getNextOrientation
@@ -204,7 +206,11 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             }
 
         sideSheetDialog.setContentView(episodesSheet.root)
-        if (isTelevision) episodesSheet.root.showTelevisionFocus()
+        if (isTelevision) {
+            episodesSheet.tvPlaylistToolbar?.setNavigationOnClickListener { sideSheetDialog.hide() }
+            episodesSheet.root.enableTelevisionAppBarFocus()
+            episodesSheet.root.showTelevisionFocus()
+        }
         episodesSheet.rvList.apply {
             adapter = sideSheetEpisodeAdapter
             layoutManager = LinearLayoutManager(
@@ -526,7 +532,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             .setPositiveButton(getString(R.string.ok)) { dialog, _ ->
                 dialog.dismiss()
                 finish()
-            }.show()
+            }.showWithTelevisionFocus()
     }
 
     private fun resumeVideo(startPosition: Long) {
@@ -676,7 +682,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 .setTitle(getString(R.string.chapters))
                 .setItems(arrayOf(getString(R.string.none))) { dialog, _ ->
                     dialog.dismiss()
-                }.show()
+                }.showWithTelevisionFocus()
             return
         }
 
@@ -696,7 +702,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
             .setSingleChoiceItems(chapterArray, selectedIndex) { dialog, item ->
                 MPVLib.setPropertyInt("chapter", chapters[item].index)
                 dialog.dismiss()
-            }.show()
+            }.showWithTelevisionFocus()
 
     }
 
@@ -721,7 +727,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 dialog.dismiss()
                 trackSwitchNotification { TrackData(trackId, type) }
             }
-        }.also { it.show() }
+        }.showWithTelevisionFocus()
     }
 
     private fun configSnackbar(msg: String, duration: Int = 750) {
@@ -748,7 +754,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 dialog.dismiss()
                 configSnackbar(getString(R.string.playback_speed_set, speeds[item].toString()))
             }
-        }.also { it.show() }
+        }.showWithTelevisionFocus()
     }
 
     private fun setSpeed(speed: Double) {

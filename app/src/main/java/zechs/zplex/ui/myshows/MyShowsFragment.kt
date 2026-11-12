@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
@@ -200,7 +201,7 @@ open class MyShowsFragment : Fragment(), TelevisionFocusNavigation {
             .setMessage(media.name ?: media.title)
             .setPositiveButton(R.string.yes) { _, _ -> removeMedia(media) }
             .setNegativeButton(R.string.no, null)
-            .show()
+            .showWithTelevisionFocus()
     }
 
     private fun removeMedia(media: Media) {

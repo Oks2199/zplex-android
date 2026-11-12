@@ -98,7 +98,10 @@ class MainActivity : AppCompatActivity() {
                 else -> true
             }
             if (television) {
-                binding.bottomNavigationView.isVisible = showNavigation
+                binding.bottomNavigationView.isVisible = when (destination.id) {
+                    R.id.homeFragment, R.id.myShowsFragment, R.id.watchlistFragment -> true
+                    else -> false
+                }
             } else {
                 if (showNavigation) showSlideUp(binding.bottomNavigationView)
                 else hideSlideDown(binding.bottomNavigationView)

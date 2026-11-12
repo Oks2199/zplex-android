@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.snackbar.Snackbar
 import zechs.zplex.R
 import zechs.zplex.data.model.entities.WatchedShow
@@ -140,7 +141,7 @@ class HomeFragment : Fragment(), TelevisionFocusNavigation {
                     homeViewModel.removeWatchedMedia(watched)
                 }
                 .setNegativeButton(getString(R.string.no)) { _, _ -> }
-                .show()
+                .showWithTelevisionFocus()
         }
     }
 
