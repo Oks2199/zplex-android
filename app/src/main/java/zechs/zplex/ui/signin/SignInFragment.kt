@@ -29,6 +29,7 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSignInBinding.bind(view)
+        if (viewModel.authorizeProfile) binding.driveSignInConnect.setText(R.string.profile_sync_authorize)
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.driveSignInConnect.setOnClickListener {
             Keyboard.hide(view)
@@ -66,32 +67,33 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
     }
 
     private fun render(binding: FragmentSignInBinding, state: DriveSignInState, loggedIn: Boolean) {
-        val canConnect = !loggedIn &&
+        val alreadyConnected = loggedIn && !viewModel.authorizeProfile
+        val canConnect = !alreadyConnected &&
             (state == DriveSignInState.Ready || state is DriveSignInState.Error)
         val canCancel = state == DriveSignInState.Preparing ||
             state is DriveSignInState.OpenBrowser || state == DriveSignInState.WaitingForGoogle
         val hadConnect = binding.driveSignInConnect.isVisible
         val hadCancel = binding.driveSignInCancel.isVisible
 
-        binding.driveSignInConfiguration.isVisible = canConnect && !viewModel.hasBuiltInClient
+        binding.driveSignInConfiguration.isVisible = canConnect && !loggedIn && !viewModel.hasBuiltInClient
         binding.driveSignInConnect.isVisible = canConnect
         binding.driveSignInCancel.isVisible = canCancel
         binding.driveSignInProgress.isVisible = canCancel || state == DriveSignInState.ExchangingCode
-        binding.driveSignInStatus.setText(
+        binding.driveSignInStatus.text =
             when {
-                loggedIn -> R.string.drive_sign_in_already_connected
+                alreadyConnected -> getString(R.string.drive_sign_in_already_connected)
                 state is DriveSignInState.Error -> state.message
-                state == DriveSignInState.ExchangingCode -> R.string.drive_sign_in_exchanging
-                canCancel -> R.string.drive_sign_in_waiting
-                else -> R.string.drive_sign_in_instruction
+                state == DriveSignInState.ExchangingCode -> getString(R.string.drive_sign_in_exchanging)
+                canCancel -> getString(R.string.drive_sign_in_waiting)
+                viewModel.authorizeProfile -> getString(R.string.profile_sync_sign_in_instruction)
+                else -> getString(R.string.drive_sign_in_instruction)
             }
-        )
 
         if (binding.root.context.isTelevision) {
             when {
                 canConnect && !hadConnect -> binding.driveSignInConnect.requestFocus()
                 canCancel && !hadCancel -> binding.driveSignInCancel.requestFocus()
-                loggedIn -> binding.toolbar.doOnNextLayout { binding.toolbar.focusTelevisionBackButton() }
+                alreadyConnected -> binding.toolbar.doOnNextLayout { binding.toolbar.focusTelevisionBackButton() }
             }
         }
     }

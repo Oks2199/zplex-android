@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="watched_artwork_scrim">#4D000000</color>
+    <dimen name="watched_badge_text_size">12sp</dimen>
+    <dimen name="watched_badge_icon_size">12dp</dimen>
+    <dimen name="watched_badge_inset">6dp</dimen>
+
+    <style name="Widget.Movynex.WatchedBadge" parent="">
+        <item name="android:background">@drawable/bg_watched_badge</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="drawableStartCompat">@drawable/ic_watched_check</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:importantForAccessibility">no</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:paddingHorizontal">7dp</item>
+        <item name="android:paddingVertical">4dp</item>
+        <item name="android:text">@string/watched_badge</item>
+        <item name="android:textColor">#F3F2FF</item>
+        <item name="android:textSize">@dimen/watched_badge_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:visibility">gone</item>
+    </style>
+</resources>

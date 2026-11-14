@@ -140,6 +140,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
     private var activityIsForeground = true
     private var userIsOperatingSeekbar = false
     private var controlsLocked = false
+    private var loadedPlaybackItem: PlaybackItem? = null
+    private var playbackPositionSeconds = 0L
+    private var playbackDurationSeconds = 0L
 
     // Configs
     private var onLoadCommands = mutableListOf<Array<String>>()
@@ -1156,8 +1159,12 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
         if (!activityIsForeground) return
         runOnUiThread {
             when (property) {
-                "time-pos" -> updatePlaybackPos(value.toInt())
+                "time-pos" -> {
+                    playbackPositionSeconds = value
+                    updatePlaybackPos(value.toInt())
+                }
                 "duration" -> {
+                    playbackDurationSeconds = value
                     updatePlaybackDuration(value.toInt())
                     mediaSession.controller.metadata?.let { currentMetadata ->
                         val updatedMetadata = MediaMetadataCompat.Builder(currentMetadata)
@@ -1225,7 +1232,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
                 if (eventId == MPV_EVENT_FILE_LOADED) {
                     Log.d(TAG, "File has starting playing...")
 
-                    viewModel.head?.let { head ->
+                    loadedPlaybackItem = viewModel.head
+                    playbackPositionSeconds = player.timePos?.toLong() ?: 0L
+                    playbackDurationSeconds = player.duration?.toLong() ?: 0L
+                    loadedPlaybackItem?.let { head ->
                         val metadata: MediaMetadataData? = when (head) {
                             is Movie -> {
                                 MovieMetadata(
@@ -1264,20 +1274,14 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver {
 
                 }
                 if (eventId == MPV_EVENT_END_FILE) {
-                    binding.controller.apply {
-                        val progress = progressBar.progress
-                        val max = binding.controller.progressBar.max
-                        val completed = (max - progress) <= 2
-                        Log.d(
-                            TAG,
-                            "End of file, completed=$completed, progress=$progress, max=$max"
-                        )
-                        if (completed && btnNext.isVisible) {
-                            viewModel.next()
-                            Log.d(TAG, "End of file, auto-playing next in playlist")
-                        } else {
-                            Log.d(TAG, "End of file, but last item or not completed")
-                        }
+                    val ended = loadedPlaybackItem
+                    loadedPlaybackItem = null
+                    val duration = playbackDurationSeconds
+                    val position = playbackPositionSeconds
+                    if (ended != null && duration > 0 && position > 0 && duration - position <= 2) {
+                        val durationMs = duration * 1000L
+                        viewModel.saveProgress(ended, durationMs, durationMs)
+                        if (viewModel.head === ended && ended.next != null) viewModel.next()
                     }
                 }
             }

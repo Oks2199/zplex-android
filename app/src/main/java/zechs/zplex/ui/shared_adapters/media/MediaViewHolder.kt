@@ -6,6 +6,7 @@ import zechs.zplex.R
 import zechs.zplex.data.model.PosterSize
 import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.ItemMediaBinding
+import zechs.zplex.ui.shared_adapters.showWatchedBadge
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.glide.GlideApp
 
@@ -14,7 +15,7 @@ class MediaViewHolder(
     val mediaAdapter: MediaAdapter
 ) : RecyclerView.ViewHolder(itemBinding.root) {
 
-    fun bind(media: Media) {
+    fun bind(media: Media, watched: Boolean) {
 
         val mediaPosterUrl = if (media.poster_path == null) {
             R.drawable.no_poster
@@ -26,6 +27,7 @@ class MediaViewHolder(
 
         itemBinding.apply {
             seasonNumber.text = media.name ?: media.title
+            root.contentDescription = seasonNumber.text.takeUnless { mediaAdapter.rating }
             episodeCount.text = rating.take(3)
             if (mediaAdapter.rating) {
                 ratingView.isVisible = true
@@ -44,6 +46,11 @@ class MediaViewHolder(
                 }
             }
         }
+        bindWatched(watched)
 
+    }
+
+    fun bindWatched(watched: Boolean) = itemBinding.run {
+        root.showWatchedBadge(itemPoster, watchedBadge, watched)
     }
 }

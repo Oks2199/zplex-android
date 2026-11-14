@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.gson.Gson
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +16,7 @@ import zechs.zplex.data.local.offline.OfflineEpisodeDao
 import zechs.zplex.data.local.offline.OfflineMovieDao
 import zechs.zplex.data.local.offline.OfflineSeasonDao
 import zechs.zplex.data.local.offline.OfflineShowDao
+import zechs.zplex.data.profile.ProfileSyncRepository
 import zechs.zplex.data.repository.DriveRepository
 import zechs.zplex.data.repository.TmdbRepository
 import zechs.zplex.service.CacheCleanupWorkerFactory
@@ -69,12 +71,14 @@ object WorkerModule {
     fun provideDelegatingWorkerFactory(
         downloadWorkerFactory: DownloadWorkerFactory,
         offlineDatabaseWorkerFactory: OfflineDatabaseWorkerFactory,
-        cacheCleanupWorkerFactory: CacheCleanupWorkerFactory
+        cacheCleanupWorkerFactory: CacheCleanupWorkerFactory,
+        profiles: Lazy<ProfileSyncRepository>
     ): DelegatingWorkerFactory {
         return DelegatingWorkerFactory(
             downloadWorkerFactory,
             offlineDatabaseWorkerFactory,
-            cacheCleanupWorkerFactory
+            cacheCleanupWorkerFactory,
+            profiles
         )
     }
 

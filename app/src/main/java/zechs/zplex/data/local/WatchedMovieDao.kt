@@ -14,13 +14,16 @@ interface WatchedMovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertWatchedMovie(watchedMovie: WatchedMovie): Long
 
-    @Query("SELECT * FROM `watched_movies`")
+    @Query("SELECT * FROM `watched_movies` ORDER BY createdAt DESC, id DESC")
     fun getAllWatchedMovies(): LiveData<List<WatchedMovie>>
 
-    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId ORDER BY createdAt DESC LIMIT 1")
+    @Query("SELECT * FROM watched_movies ORDER BY createdAt DESC, id DESC")
+    suspend fun getProfileProgress(): List<WatchedMovie>
+
+    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId ORDER BY createdAt DESC, id DESC LIMIT 1")
     suspend fun getWatchedMovie(tmdbId: Int): WatchedMovie?
 
-    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId ORDER BY createdAt DESC LIMIT 1")
+    @Query("SELECT * FROM `watched_movies` WHERE tmdbId = :tmdbId ORDER BY createdAt DESC, id DESC LIMIT 1")
     fun observeWatchedMovie(tmdbId: Int): LiveData<WatchedMovie?>
 
     @Query("DELETE FROM `watched_movies` WHERE tmdbId = :tmdbId")

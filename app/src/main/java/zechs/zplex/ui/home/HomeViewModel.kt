@@ -21,6 +21,7 @@ import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
 import zechs.zplex.data.model.entities.WatchedMovie
 import zechs.zplex.data.model.entities.WatchedShow
+import zechs.zplex.data.model.entities.finishedMovieIds
 import zechs.zplex.data.model.offline.OfflineEpisode
 import zechs.zplex.data.model.offline.OfflineMovie
 import zechs.zplex.data.model.tmdb.entities.Media
@@ -178,7 +179,8 @@ class HomeViewModel @Inject constructor(
             .sortedByDescending { it.modifiedTime ?: Long.MIN_VALUE }
             .filterNot { it.key() in continueKeys }
             .take(HOME_ROW_LIMIT)
-        addMediaSection(rows, Section.DRIVE, R.string.on_your_drive, driveMedia)
+        val watchedMovieIds = watchedMovies.finishedMovieIds()
+        addMediaSection(rows, Section.DRIVE, R.string.on_your_drive, driveMedia, watchedMovieIds)
 
         val offlineMovieIds = validOfflineMovies().mapTo(mutableSetOf()) { it.id }
         val offlineShowIds = validOfflineEpisodes().mapTo(mutableSetOf()) { it.tmdbId }
@@ -188,7 +190,7 @@ class HomeViewModel @Inject constructor(
             )
             .sortedBy { (it.title ?: it.name).orEmpty().lowercase() }
             .take(HOME_ROW_LIMIT)
-        addMediaSection(rows, Section.WATCHLIST, R.string.watchlist, watchlistMedia)
+        addMediaSection(rows, Section.WATCHLIST, R.string.watchlist, watchlistMedia, watchedMovieIds)
 
         val hasDiscoveries = remoteHome.trending.isNotEmpty() ||
             remoteHome.theatres.isNotEmpty() || remoteHome.streaming.isNotEmpty()
@@ -229,11 +231,14 @@ class HomeViewModel @Inject constructor(
         rows: MutableList<HomeDataModel>,
         section: Section,
         titleRes: Int,
-        media: List<Media>
+        media: List<Media>,
+        watchedMovieIds: Set<Int> = emptySet()
     ) {
         if (media.isEmpty()) return
         rows += HomeDataModel.Header(section, context.getString(titleRes))
-        rows += HomeDataModel.Media(section, media)
+        val watchedInSection = media.filter { it.media_type == MediaType.movie && it.id in watchedMovieIds }
+            .mapTo(hashSetOf()) { it.id }
+        rows += HomeDataModel.Media(section, media, watchedInSection)
     }
 
     private fun buildContinueWatching(): List<WatchedDataModel> {
@@ -245,6 +250,7 @@ class HomeViewModel @Inject constructor(
         }
 
         val movies = watchedMovies.asSequence()
+            .distinctBy { it.tmdbId }
             .filter {
                 HomePlaybackRules.isInProgress(it.watchedDuration, it.totalDuration)
             }
@@ -257,12 +263,10 @@ class HomeViewModel @Inject constructor(
                     matchingOfflineDownloadExists = watched.tmdbId in offlineMovieIds
                 )
             }
-            .groupBy { it.tmdbId }
-            .values
-            .mapNotNull { entries -> entries.maxByOrNull { it.createdAt } }
             .map { WatchedDataModel.Movie(it) }
 
         val shows = watchedShows.asSequence()
+            .distinctBy { Triple(it.tmdbId, it.seasonNumber, it.episodeNumber) }
             .filter {
                 HomePlaybackRules.isInProgress(it.watchedDuration, it.totalDuration)
             }
@@ -293,6 +297,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
             .take(HOME_ROW_LIMIT)
+            .toList()
     }
 
     private fun validOfflineMovies() = offlineMovies.filter { LocalFile(it.filePath).isFile }

@@ -22,6 +22,12 @@ interface MovieDao {
     @Query("SELECT * FROM movies WHERE fileId IS NULL OR fileId = '' ORDER BY title COLLATE NOCASE")
     fun getWatchlistMoviesAsLiveData(): LiveData<List<Movie>>
 
+    @Query("SELECT * FROM movies WHERE fileId IS NULL OR fileId = '' ORDER BY id")
+    suspend fun getWatchlistMovies(): List<Movie>
+
+    @Query("DELETE FROM movies WHERE id = :id AND (fileId IS NULL OR fileId = '')")
+    suspend fun deleteWatchlistMovie(id: Int)
+
     @Query("SELECT * FROM movies WHERE id = :id LIMIT 1")
     fun observeMovieById(id: Int): LiveData<Movie?>
 

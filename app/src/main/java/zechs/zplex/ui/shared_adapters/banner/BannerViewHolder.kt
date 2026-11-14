@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Precision
 import zechs.zplex.R
+import zechs.zplex.data.model.BackdropSize
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.PosterSize
 import zechs.zplex.databinding.ItemWideBannerBinding
@@ -19,10 +20,14 @@ class BannerViewHolder(
 
     fun bind(item: BannerItem) {
         val media = item.media
-        val mediaPosterUrl = if (media.poster_path == null) {
-            R.drawable.no_poster
-        } else {
-            "${TMDB_IMAGE_PREFIX}/${PosterSize.w780}${media.poster_path}"
+        val television = itemBinding.root.context.isTelevision
+        val placeholder = if (television) R.drawable.tv_banner_background else R.drawable.no_poster
+        val image = when {
+            television && !media.backdrop_path.isNullOrBlank() ->
+                "$TMDB_IMAGE_PREFIX/${BackdropSize.w1280}${media.backdrop_path}"
+            !media.poster_path.isNullOrBlank() ->
+                "$TMDB_IMAGE_PREFIX/${PosterSize.w780}${media.poster_path}"
+            else -> placeholder
         }
 
         itemBinding.apply {
@@ -46,16 +51,16 @@ class BannerViewHolder(
                 root.context.getString(R.string.rating_out_of_five, it)
             }
 
-            ivMainBanner.load(mediaPosterUrl) {
+            ivMainBanner.load(image) {
                 precision(Precision.EXACT)
-                placeholder(R.drawable.no_poster)
-                error(R.drawable.no_poster)
+                placeholder(placeholder)
+                error(placeholder)
             }
 
             val openDetails = {
                 bannerAdapter.bannerOnClick.invoke(item)
             }
-            if (!root.context.isTelevision) {
+            if (!television) {
                 root.setOnClickListener { openDetails() }
                 materialCardView.setOnClickListener { openDetails() }
             } else {

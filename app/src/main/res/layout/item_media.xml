@@ -27,6 +27,14 @@
             android:scaleType="centerCrop"
             tools:src="@drawable/no_poster" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/watchedBadge"
+            style="@style/Widget.Movynex.WatchedBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="@dimen/watched_badge_inset" />
+
     </com.google.android.material.card.MaterialCardView>
 
     <TextView

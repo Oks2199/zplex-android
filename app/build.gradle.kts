@@ -25,6 +25,11 @@ fun buildConfigString(value: String): String = "\"" + value
     .replace("\n", "\\n") + "\""
 
 val fireTvTest = providers.gradleProperty("movynexFireTvTest").map(String::toBoolean).getOrElse(false)
+val fireTvRelease = providers.gradleProperty("movynexFireTv").map(String::toBoolean).getOrElse(false)
+require(!fireTvTest || !fireTvRelease) {
+    "Choisissez une seule variante Fire TV par compilation."
+}
+val isFireTv = fireTvTest || fireTvRelease
 val releaseKeystorePath = providers.environmentVariable("MOVYNEX_KEYSTORE_PATH").orNull
 val releaseKeystorePassword = providers.environmentVariable("MOVYNEX_KEYSTORE_PASSWORD").orNull
 val releaseKeyAlias = providers.environmentVariable("MOVYNEX_KEY_ALIAS").orNull
@@ -44,7 +49,8 @@ android {
         applicationId = "com.cursedcrew.movynex"
         minSdk = 31
         targetSdk = 36
-        versionCode = 11
+        // Keep the version displayed on both devices and advance their update codes.
+        versionCode = if (fireTvRelease) 13 else 12
         versionName = "1.0.7"
 
         buildConfigField("String", "TMDB_API_KEY", "\"${tmdbApiKey}\"")
@@ -55,14 +61,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    if (fireTvTest) {
+    if (isFireTv) {
         flavorDimensions += "device"
         productFlavors {
             create("fireTv") {
                 dimension = "device"
                 minSdk = 30
-                applicationIdSuffix = ".firetv"
-                versionNameSuffix = "-FIRETV"
+                // Match the Fire TV package installed by the previous builds.
+                applicationIdSuffix = if (fireTvRelease) ".firetv.debug" else ".firetv"
+                if (fireTvTest) versionNameSuffix = "-FIRETV"
             }
         }
     }
@@ -87,7 +94,9 @@ android {
         }
 
         release {
-            if (hasReleaseSigning) {
+            if (fireTvRelease) {
+                signingConfig = signingConfigs.getByName("debug")
+            } else if (hasReleaseSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }
             isMinifyEnabled = true
@@ -122,7 +131,7 @@ android {
         abi {
             isEnable = true
             reset()
-            if (fireTvTest) {
+            if (isFireTv) {
                 include("armeabi-v7a")
             } else {
                 include("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
@@ -133,8 +142,9 @@ android {
 
 }
 
-if (fireTvTest) {
-    androidComponents.beforeVariants(androidComponents.selector().withBuildType("release")) {
+if (isFireTv) {
+    val unusedBuildType = if (fireTvRelease) "debug" else "release"
+    androidComponents.beforeVariants(androidComponents.selector().withBuildType(unusedBuildType)) {
         it.enable = false
     }
 }

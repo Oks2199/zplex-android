@@ -91,6 +91,10 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <include
+                android:id="@+id/settingProfileSync"
+                layout="@layout/setting_profile_sync" />
+
             <LinearLayout
                 android:id="@+id/settingSelectMoviesFolder"
                 android:layout_width="match_parent"

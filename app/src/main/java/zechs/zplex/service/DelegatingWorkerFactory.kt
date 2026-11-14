@@ -4,12 +4,15 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import dagger.Lazy
+import zechs.zplex.data.profile.ProfileSyncRepository
 import javax.inject.Inject
 
 class DelegatingWorkerFactory @Inject constructor(
     private val downloadWorkerFactory: DownloadWorkerFactory,
     private val offlineDatabaseWorkerFactory: OfflineDatabaseWorkerFactory,
-    private val cacheCleanupWorkerFactory: CacheCleanupWorkerFactory
+    private val cacheCleanupWorkerFactory: CacheCleanupWorkerFactory,
+    private val profiles: Lazy<ProfileSyncRepository>
 ) : WorkerFactory() {
 
     override fun createWorker(
@@ -34,6 +37,9 @@ class DelegatingWorkerFactory @Inject constructor(
                     workerClassName,
                     workerParameters
                 )
+
+            ProfileSyncWorker::class.java.name ->
+                ProfileSyncWorker(appContext, workerParameters, profiles.get())
 
             else -> null
         }

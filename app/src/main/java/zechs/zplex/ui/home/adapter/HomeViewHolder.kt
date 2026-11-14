@@ -46,6 +46,8 @@ sealed class HomeViewHolder(
         homeDataAdapter: HomeDataAdapter
     ) : HomeViewHolder(itemBinding) {
 
+        private var mediaSection: HomeDataModel.Section? = null
+
         private val mediaAdapter by lazy {
             MediaAdapter {
                 homeDataAdapter.homeClickListener.onClickMedia(it)
@@ -71,23 +73,27 @@ sealed class HomeViewHolder(
 
         fun bindMedia(item: HomeDataModel.Media) {
             itemBinding.rvList.apply {
-                adapter = mediaAdapter
-                layoutManager = object : LinearLayoutManager(
-                    context, HORIZONTAL, false
-                ) {
-                    override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
-                        return lp?.let {
-                            it.width = if (context.isTelevision) {
-                                resources.getDimensionPixelSize(R.dimen.tv_home_poster_width)
-                            } else {
-                                (0.28 * width).toInt()
-                            }
-                            true
-                        } ?: super.checkLayoutParams(lp)
+                if (adapter !== mediaAdapter || mediaSection != item.section) {
+                    mediaSection = item.section
+                    adapter = mediaAdapter
+                    layoutManager = object : LinearLayoutManager(
+                        context, HORIZONTAL, false
+                    ) {
+                        override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
+                            return lp?.let {
+                                it.width = if (context.isTelevision) {
+                                    resources.getDimensionPixelSize(R.dimen.tv_home_poster_width)
+                                } else {
+                                    (0.28 * width).toInt()
+                                }
+                                true
+                            } ?: super.checkLayoutParams(lp)
+                        }
                     }
                 }
             }
 
+            mediaAdapter.setWatchedMovies(item.watchedMovieIds)
             mediaAdapter.submitList(item.media)
         }
 

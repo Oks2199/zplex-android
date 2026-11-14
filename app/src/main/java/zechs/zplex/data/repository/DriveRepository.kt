@@ -8,11 +8,13 @@ import kotlinx.coroutines.CancellationException
 import zechs.zplex.R
 import zechs.zplex.data.model.drive.AuthorizationResponse
 import zechs.zplex.data.model.drive.DriveClient
+import zechs.zplex.data.model.drive.DRIVE_READ_SCOPE
 import zechs.zplex.data.model.drive.DriveResponse
 import zechs.zplex.data.model.drive.File
 import zechs.zplex.data.model.drive.FilesResponse
 import zechs.zplex.data.model.drive.RefreshTokenRequest
 import zechs.zplex.data.model.drive.TokenResponse
+import zechs.zplex.data.model.drive.hasScope
 import zechs.zplex.data.remote.DriveApi
 import zechs.zplex.data.remote.TokenApi
 import zechs.zplex.utils.SessionManager
@@ -137,8 +139,11 @@ class DriveRepository @Inject constructor(
                     refreshToken = refreshToken
                 )
             )
-            sessionManager.saveAccessToken(token)
-            Resource.Success(token)
+            val saved = sessionManager.saveAccessToken(token, refreshToken)
+                ?: return Resource.Error(context.getString(R.string.access_token_missing))
+            Resource.Success(saved)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             doOnError(e)
         }
@@ -157,7 +162,8 @@ class DriveRepository @Inject constructor(
     suspend fun fetchRefreshToken(
         client: DriveClient,
         authorizationCode: String,
-        codeVerifier: String
+        codeVerifier: String,
+        validate: suspend (AuthorizationResponse) -> Int? = { null }
     ): Resource<AuthorizationResponse> {
         return try {
             val token = tokenApi.get().getRefreshToken(
@@ -167,6 +173,11 @@ class DriveRepository @Inject constructor(
                 authorizationCode = authorizationCode,
                 codeVerifier = codeVerifier
             )
+            if (!token.toTokenResponse().hasScope(DRIVE_READ_SCOPE)) {
+                return Resource.Error(context.getString(R.string.drive_sign_in_read_permission_required))
+            }
+            val validationError = validate(token)
+            if (validationError != null) return Resource.Error(context.getString(validationError))
             sessionManager.saveDriveSession(client, token)
             Resource.Success(token)
         } catch (e: CancellationException) {

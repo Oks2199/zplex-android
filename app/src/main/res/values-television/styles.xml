@@ -43,9 +43,33 @@
     </style>
 
     <style name="TextAppearance.Movynex.Tv.Navigation" parent="TextAppearance.Material3.LabelLarge">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Widget.Movynex.Tv.Navigation" parent="Widget.Material3.Button.UnelevatedButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingEnd">18dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Movynex.Tv.Navigation</item>
+        <item name="android:textColor">@color/tv_navigation_content</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="backgroundTint">@color/tv_navigation_background</item>
+    </style>
+
+    <style name="Widget.Movynex.Tv.NavigationIcon" parent="Widget.Movynex.Tv.Navigation">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="iconTint">@color/textColor</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconSize">22dp</item>
+        <item name="iconGravity">textStart</item>
     </style>
 
     <style name="Widget.Movynex.Tv.DriveSource" parent="Widget.Material3.Button.TonalButton">

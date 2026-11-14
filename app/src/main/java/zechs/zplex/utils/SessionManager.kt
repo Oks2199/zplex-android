@@ -8,11 +8,15 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import zechs.zplex.data.model.drive.AuthorizationResponse
+import zechs.zplex.data.model.drive.DRIVE_APPDATA_SCOPE
 import zechs.zplex.data.model.drive.DriveClient
+import zechs.zplex.data.model.drive.DriveProfileAccess
 import zechs.zplex.data.model.drive.TokenResponse
+import zechs.zplex.data.model.drive.hasScope
 import javax.inject.Inject
 
 
@@ -43,11 +47,16 @@ class SessionManager @Inject constructor(
         return client
     }
 
-    suspend fun saveAccessToken(data: TokenResponse) {
+    suspend fun saveAccessToken(data: TokenResponse, refreshToken: String): TokenResponse? {
         val dataStoreKey = stringPreferencesKey(ACCESS_TOKEN)
+        var saved: TokenResponse? = null
         sessionStore.edit { settings ->
-            settings[dataStoreKey] = gson.toJson(data.withExpiryTimestamp())
+            if (settings[stringPreferencesKey(REFRESH_TOKEN)] != refreshToken) return@edit
+            val previous = settings[dataStoreKey]?.let { gson.fromJson(it, TokenResponse::class.java) }
+            saved = data.copy(scope = data.scope ?: previous?.scope).withExpiryTimestamp()
+            settings[dataStoreKey] = gson.toJson(saved)
         }
+        return saved
     }
 
     private fun TokenResponse.withExpiryTimestamp(): TokenResponse =
@@ -77,6 +86,16 @@ class SessionManager @Inject constructor(
             return@map value != null
         }
     }
+
+    val driveProfileAccess: Flow<DriveProfileAccess> = sessionStore.data.map { settings ->
+        val token = settings[stringPreferencesKey(ACCESS_TOKEN)]
+            ?.let { gson.fromJson(it, TokenResponse::class.java) }
+        when {
+            token == null -> DriveProfileAccess.SIGNED_OUT
+            token.hasScope(DRIVE_APPDATA_SCOPE) -> DriveProfileAccess.GRANTED
+            else -> DriveProfileAccess.NEEDS_PERMISSION
+        }
+    }.distinctUntilChanged()
 
     suspend fun saveMovieFolder(movieFolderId: String) {
         val dataStoreKey = stringPreferencesKey(MOVIE_FOLDER)

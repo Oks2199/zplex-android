@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import zechs.zplex.data.model.WatchProgress
 
 @Entity(tableName = "watched_shows")
 @Keep
@@ -23,7 +24,7 @@ data class WatchedShow(
     val offline: Boolean = false
 ) {
 
-    fun watchProgress() = ((watchedDuration.toDouble() / totalDuration) * 100).toInt()
-    fun hasFinished() = watchProgress() > 90
+    fun watchProgress() = WatchProgress.percentage(watchedDuration, totalDuration)
+    fun hasFinished() = WatchProgress.isFinished(watchedDuration, totalDuration)
 
 }

@@ -21,6 +21,7 @@ import zechs.zplex.ui.home.adapter.HomeClickListener
 import zechs.zplex.ui.home.adapter.HomeDataAdapter
 import zechs.zplex.ui.home.adapter.HomeDataModel
 import zechs.zplex.ui.home.adapter.watched.WatchedDataModel
+import zechs.zplex.ui.main.MainActivity
 import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
 import zechs.zplex.utils.ext.navigateSafe
 import zechs.zplex.utils.ext.TvListFocus
@@ -60,6 +61,17 @@ class HomeFragment : Fragment(), TelevisionFocusNavigation {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentListBinding.bind(view)
 
+        if (view.context.isTelevision) {
+            binding.appBarLayout.isVisible = false
+        } else {
+            setupMobileToolbar()
+        }
+
+        setupRecyclerView()
+        setupTrendingObserver()
+    }
+
+    private fun setupMobileToolbar() {
         binding.toolbar.apply {
             navigationIcon = null
             isTitleCentered = false
@@ -82,9 +94,6 @@ class HomeFragment : Fragment(), TelevisionFocusNavigation {
                 }
             }
         }
-
-        setupRecyclerView()
-        setupTrendingObserver()
     }
 
     private fun setupTrendingObserver() {
@@ -178,7 +187,14 @@ class HomeFragment : Fragment(), TelevisionFocusNavigation {
             it is HomeDataModel.Banner || it is HomeDataModel.Media || it is HomeDataModel.Watched
         }
         return current.rvList.isInFirstTelevisionRow(focused, firstRow + 1) &&
-            current.toolbar.findViewById<View>(R.id.action_search)?.requestFocus() == true
+            (activity as? MainActivity)?.focusTelevisionNavigation() == true
+    }
+
+    override fun focusTelevisionContent(): Boolean {
+        val list = _binding?.rvList ?: return false
+        val bannerButton = list.findViewHolderForAdapterPosition(0)
+            ?.itemView?.findViewById<View>(R.id.btnDetails)
+        return bannerButton?.requestFocus() == true || list.requestFocus()
     }
 
     private fun navigateToSeason(show: WatchedShow) {

@@ -5,6 +5,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import zechs.zplex.data.model.MediaType
+import zechs.zplex.data.model.WatchProgress
 import zechs.zplex.data.model.tmdb.entities.Media
 
 @Entity(tableName = "watched_movies")
@@ -23,9 +24,9 @@ data class WatchedMovie(
     val offline: Boolean = false
 ) {
 
-    fun watchProgress() = ((watchedDuration.toDouble() / totalDuration) * 100).toInt()
+    fun watchProgress() = WatchProgress.percentage(watchedDuration, totalDuration)
 
-    fun hasFinished() = watchProgress() > 90
+    fun hasFinished() = WatchProgress.isFinished(watchedDuration, totalDuration)
 
     fun toMedia() = Media(
         id = tmdbId,
@@ -42,3 +43,7 @@ data class WatchedMovie(
     )
 
 }
+
+internal fun List<WatchedMovie>.finishedMovieIds(): Set<Int> = sortedWith(
+    compareByDescending<WatchedMovie> { it.createdAt }.thenByDescending { it.id }
+).distinctBy { it.tmdbId }.filter { it.hasFinished() }.mapTo(hashSetOf()) { it.tmdbId }

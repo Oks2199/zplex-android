@@ -1,19 +1,18 @@
 package zechs.zplex.ui.episodes.adapter
 
-import android.animation.ValueAnimator
-import android.view.animation.DecelerateInterpolator
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Precision
-import com.google.android.material.progressindicator.LinearProgressIndicator
 import zechs.zplex.R
 import zechs.zplex.data.model.StillSize
 import zechs.zplex.data.model.tmdb.entities.Episode
 import zechs.zplex.data.model.tmdb.entities.EpisodeAvailabilityState
 import zechs.zplex.databinding.ItemEpisodeBinding
+import zechs.zplex.ui.shared_adapters.showWatchedBadge
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.ext.ifNullOrEmpty
 
@@ -27,30 +26,19 @@ class EpisodeViewHolder(
             itemBinding.root.context.getString(R.string.no_title)
         }
         itemBinding.apply {
-            val watchProgressTAG = "watchProgressTAG"
-
             tvTitle.text = title
             tvEpisodeCount.text = count
 
-            if (!episode.still_path.isNullOrEmpty()) {
-                val episodeThumb = "${TMDB_IMAGE_PREFIX}/${StillSize.original}${episode.still_path}"
-                ivThumb.load(episodeThumb) {
-                    precision(Precision.EXACT)
-                    placeholder(R.drawable.no_thumb)
-                }
+            val episodeThumb = episode.still_path?.takeIf { it.isNotBlank() }?.let {
+                "$TMDB_IMAGE_PREFIX/${StillSize.original}$it"
             }
-
-            if (episode.progress == 0) {
-                watchProgress.isGone = true
-            } else {
-                watchProgress.isGone = false
-                if (watchProgress.tag == null) {
-                    animateProgress(watchProgress, episode.progress)
-                    watchProgress.tag = watchProgressTAG
-                } else {
-                    watchProgress.progress = episode.progress
-                }
+            ivThumb.load(episodeThumb ?: R.drawable.no_thumb) {
+                precision(Precision.EXACT)
+                placeholder(R.drawable.no_thumb)
             }
+            root.showWatchedBadge(ivThumb, watchedBadge, watched = episode.progress >= 100)
+            watchProgress.isVisible = episode.progress in 1..99
+            watchProgress.setProgressCompat(episode.progress, false)
             offlineBadge.apply {
                 isGone = false
                 when (episode.availabilityState) {
@@ -83,18 +71,5 @@ class EpisodeViewHolder(
                 return@setOnLongClickListener true
             }
         }
-    }
-
-    private fun animateProgress(watchProgress: LinearProgressIndicator, targetProgress: Int) {
-        val animator = ValueAnimator.ofInt(0, targetProgress)
-        animator.duration = 500
-        animator.interpolator = DecelerateInterpolator()
-
-        animator.addUpdateListener { animation ->
-            val animatedValue = animation.animatedValue as Int
-            watchProgress.progress = animatedValue
-        }
-
-        animator.start()
     }
 }

@@ -22,6 +22,12 @@ interface ShowDao {
     @Query("SELECT * FROM shows WHERE fileId IS NULL OR fileId = '' ORDER BY name COLLATE NOCASE")
     fun getWatchlistShowsAsLiveData(): LiveData<List<Show>>
 
+    @Query("SELECT * FROM shows WHERE fileId IS NULL OR fileId = '' ORDER BY id")
+    suspend fun getWatchlistShows(): List<Show>
+
+    @Query("DELETE FROM shows WHERE id = :id AND (fileId IS NULL OR fileId = '')")
+    suspend fun deleteWatchlistShow(id: Int)
+
     @Query("SELECT * FROM shows WHERE id = :id LIMIT 1")
     fun observeShowById(id: Int): LiveData<Show?>
 

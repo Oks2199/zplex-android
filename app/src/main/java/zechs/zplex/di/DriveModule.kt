@@ -10,6 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import zechs.zplex.data.remote.DriveApi
 import zechs.zplex.data.remote.TokenApi
+import zechs.zplex.data.profile.ProfileDriveApi
 import zechs.zplex.utils.Constants.GOOGLE_ACCOUNTS_URL
 import zechs.zplex.utils.Constants.GOOGLE_API
 import javax.inject.Named
@@ -18,6 +19,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DriveModule {
+
+    @Provides
+    @Singleton
+    internal fun provideProfileDriveApi(
+        @Named("OkHttpClient") client: OkHttpClient,
+        moshi: Moshi
+    ): ProfileDriveApi = Retrofit.Builder()
+        .baseUrl(GOOGLE_API)
+        .client(client)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
+        .create(ProfileDriveApi::class.java)
 
     @Provides
     @Singleton

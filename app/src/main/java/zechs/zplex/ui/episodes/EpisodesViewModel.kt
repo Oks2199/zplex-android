@@ -203,21 +203,21 @@ class EpisodesViewModel @Inject constructor(
         _playlist.clear()
         if (episodes is Resource.Success) {
             val episodesDataModel = episodes.data!!.toMutableList()
-            val watchedMap = watched.associateBy { it.episodeNumber }
+            val watchedMap = watched.distinctBy { it.episodeNumber }.associateBy { it.episodeNumber }
             val offlineMap = offline.associate { episode ->
                 "S%02dE%02d".format(episode.seasonNumber, episode.episodeNumber) to episode.filePath
             }
 
             episodesDataModel.forEachIndexed { index, episode ->
                 watchedMap[episode.episode_number]?.let { watchedShow ->
-                    val newProgress = watchedShow.watchProgress()
+                    val newProgress = if (watchedShow.hasFinished()) 100 else watchedShow.watchProgress()
                     Log.d(TAG, "Updating watched progress for ${episode.name} to $newProgress")
                     episodesDataModel[index] = episode.copy(progress = newProgress)
                 }
 
                 offlineMap[getEpisodePattern(episode)]?.let { offlinePath ->
                     Log.d(TAG, "Updating file for ${episode.name} to offline file")
-                    episodesDataModel[index] = episode.copy(fileId = offlinePath, offline = true)
+                    episodesDataModel[index] = episodesDataModel[index].copy(fileId = offlinePath, offline = true)
                 }
                 (episodesDataModel[index])
                     .takeIf { it.fileId != null }

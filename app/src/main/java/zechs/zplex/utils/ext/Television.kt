@@ -10,8 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.DimenRes
-import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.navigation.NavigationBarItemView
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.shape.Shapeable
 import com.google.android.material.textfield.TextInputEditText
 import zechs.zplex.R
@@ -48,6 +48,7 @@ fun Context.televisionCarousel(@DimenRes itemWidth: Int): LinearLayoutManager {
 
 interface TelevisionFocusNavigation {
     fun moveTelevisionFocusUp(focused: View): Boolean
+    fun focusTelevisionContent(): Boolean = false
 }
 
 fun View.enableTelevisionAppBarFocus() {
@@ -64,7 +65,7 @@ fun View.enableTelevisionAppBarFocus() {
 private fun View.styleTelevisionToolbarControl(): Boolean {
     val iconControl = when (parent) {
         is Toolbar -> this is ImageButton
-        is ActionMenuView -> this is ImageView || (this is ActionMenuItemView && !hasText())
+        is ActionMenuView -> this is ImageView || (this is TextView && text.isNullOrEmpty())
         else -> false
     }
     if (!iconControl) return false
@@ -124,7 +125,7 @@ fun View.showTelevisionFocus(excluded: View? = null) {
     fun show(view: View) {
         if (view === excluded || !view.hasWindowFocus()) return
         view.defaultFocusHighlightEnabled = false
-        if (view is NavigationBarItemView) return
+        if (generateSequence(view.parent) { it.parent }.any { it is NavigationBarView }) return
         if (view is TextInputEditText) return
         if (view.styleTelevisionToolbarControl()) return
         if (view is ViewGroup && !view.isClickable && !view.isLongClickable) return

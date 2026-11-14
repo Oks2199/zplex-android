@@ -36,7 +36,8 @@ sealed class HomeDataModel {
     @Keep
     data class Media(
         val section: Section,
-        val media: List<tmdbMedia>
+        val media: List<tmdbMedia>,
+        val watchedMovieIds: Set<Int> = emptySet()
     ) : HomeDataModel()
 
     @Keep

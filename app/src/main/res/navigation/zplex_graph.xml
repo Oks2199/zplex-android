@@ -196,7 +196,12 @@
         android:id="@+id/signInFragment"
         android:name="zechs.zplex.ui.signin.SignInFragment"
         android:label="SignInFragment"
-        tools:layout="@layout/fragment_sign_in" />
+        tools:layout="@layout/fragment_sign_in">
+        <argument
+            android:name="authorizeProfile"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
 
     <fragment
         android:id="@+id/settingsFragment"

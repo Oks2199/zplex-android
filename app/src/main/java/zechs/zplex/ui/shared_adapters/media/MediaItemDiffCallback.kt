@@ -7,7 +7,7 @@ open class MediaItemDiffCallback : DiffUtil.ItemCallback<Media>() {
 
     override fun areItemsTheSame(
         oldItem: Media, newItem: Media
-    ) = oldItem.id == newItem.id
+    ) = oldItem.id == newItem.id && oldItem.media_type == newItem.media_type
 
     override fun areContentsTheSame(
         oldItem: Media, newItem: Media

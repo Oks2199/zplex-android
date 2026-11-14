@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,42 +10,87 @@
     android:paddingEnd="@dimen/tv_safe_horizontal"
     android:paddingBottom="@dimen/tv_safe_vertical">
 
-    <com.google.android.material.navigationrail.NavigationRailView
-        android:id="@+id/bottomNavigationView"
-        android:layout_width="112dp"
-        android:layout_height="0dp"
-        android:background="@drawable/tv_navigation_panel"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        app:itemActiveIndicatorStyle="@null"
-        app:itemBackground="@drawable/tv_navigation_item"
-        app:itemIconSize="24dp"
-        app:itemIconTint="@color/tv_navigation_content"
-        app:itemMinHeight="64dp"
-        app:itemPaddingTop="10dp"
-        app:itemPaddingBottom="10dp"
-        app:itemRippleColor="@null"
-        app:itemTextAppearanceActive="@style/TextAppearance.Movynex.Tv.Navigation"
-        app:itemTextAppearanceInactive="@style/TextAppearance.Movynex.Tv.Navigation"
-        app:itemTextColor="@color/tv_navigation_content"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/tvNavigation"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:menu="@menu/bottom_navigation_menu"
-        app:menuGravity="center"
-        tools:viewBindingType="com.google.android.material.navigation.NavigationBarView" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/tvWordmark"
+            android:layout_width="144dp"
+            android:layout_height="36dp"
+            android:contentDescription="@string/movynex_logo"
+            android:scaleType="fitStart"
+            android:src="@drawable/movynex_wordmark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tvNavHome"
+                style="@style/Widget.Movynex.Tv.Navigation"
+                android:text="@string/home" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tvNavLibrary"
+                style="@style/Widget.Movynex.Tv.Navigation"
+                android:layout_marginStart="8dp"
+                android:text="@string/library" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tvNavWatchlist"
+                style="@style/Widget.Movynex.Tv.Navigation"
+                android:layout_marginStart="8dp"
+                android:text="@string/watchlist" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@id/action_search"
+                style="@style/Widget.Movynex.Tv.NavigationIcon"
+                android:contentDescription="@string/search"
+                app:icon="@drawable/ic_search" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@id/action_settings"
+                style="@style/Widget.Movynex.Tv.NavigationIcon"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/app_settings"
+                app:icon="@drawable/ic_settings_24" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/zplex_frame"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="@dimen/tv_grid_gutter"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/bottomNavigationView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_goneMarginStart="0dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvNavigation"
+        app:layout_goneMarginTop="0dp">
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/mainNavHostFragment"

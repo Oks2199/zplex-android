@@ -25,6 +25,7 @@ import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import zechs.zplex.R
+import zechs.zplex.ui.main.MainActivity
 import zechs.zplex.data.model.MediaType
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
@@ -108,6 +109,7 @@ open class MyShowsFragment : Fragment(), TelevisionFocusNavigation {
         layoutManager = binding.rvMyShows.layoutManager
 
         binding.toolbar.apply {
+            isVisible = !view.context.isTelevision
             title = getString(if (isWatchlist) R.string.watchlist else R.string.my_library)
             inflateMenu(R.menu.collection_menu)
             setOnMenuItemClickListener { item ->
@@ -121,6 +123,7 @@ open class MyShowsFragment : Fragment(), TelevisionFocusNavigation {
         }
 
         setupRecyclerView()
+        myShowsViewModel.watchedMovieIds.observe(viewLifecycleOwner, mediaAdapter::setWatchedMovies)
 
         savedInstanceState?.let {
             // Restore scroll states for all tabs
@@ -408,11 +411,14 @@ open class MyShowsFragment : Fragment(), TelevisionFocusNavigation {
         val current = _binding ?: return false
         val columns = (current.rvMyShows.layoutManager as? GridLayoutManager)?.spanCount ?: return false
         if (current.rvMyShows.isInFirstTelevisionRow(focused, columns)) {
-            return current.tabLayout.getTabAt(selectedTabIndex)?.view?.requestFocus() == true
+            return focusTelevisionContent()
         }
         return current.tabLayout.hasFocus() &&
-            current.toolbar.findViewById<View>(R.id.action_search)?.requestFocus() == true
+            (activity as? MainActivity)?.focusTelevisionNavigation() == true
     }
+
+    override fun focusTelevisionContent(): Boolean =
+        _binding?.tabLayout?.getTabAt(selectedTabIndex)?.view?.requestFocus() == true
 
     private fun navigateToMedia(media: Media) {
         televisionFocus = binding.rvMyShows.rememberTelevisionFocus()
