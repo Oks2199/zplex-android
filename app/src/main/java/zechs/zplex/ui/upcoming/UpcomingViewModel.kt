@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import retrofit2.Response
 import zechs.zplex.R
 import zechs.zplex.data.model.tmdb.search.SearchResponse
@@ -30,25 +32,34 @@ class UpcomingViewModel @Inject constructor(
 
     private var upcomingResponse: SearchResponse? = null
     private var page = 1
-    private var count = 0
+    private val requests = Mutex()
 
     init {
-        page = 1
         getUpcoming()
     }
 
     fun getUpcoming() = viewModelScope.launch(Dispatchers.IO) {
-        _upcoming.postValue(Resource.Loading())
-        try {
-            if (hasInternetConnection()) {
-                val response = tmdbRepository.getUpcoming(page)
-                _upcoming.postValue(handleBrowseResponse(response))
-            } else {
-                _upcoming.postValue(Resource.Error(context.getString(R.string.no_internet_connection)))
+        requests.withLock {
+            if (upcomingResponse?.let { it.page >= it.total_pages } == true) return@withLock
+            _upcoming.postValue(Resource.Loading())
+            try {
+                if (hasInternetConnection()) {
+                    var result = handleBrowseResponse(tmdbRepository.getUpcoming(page))
+                    for (attempt in 1..5) {
+                        val data = (result as? Resource.Success)?.data
+                        if (data == null || data.results.size >= 5 || data.page >= data.total_pages) {
+                            break
+                        }
+                        result = handleBrowseResponse(tmdbRepository.getUpcoming(page))
+                    }
+                    _upcoming.postValue(result)
+                } else {
+                    _upcoming.postValue(Resource.Error(context.getString(R.string.no_internet_connection)))
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _upcoming.postValue(postError(context, e))
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            _upcoming.postValue(postError(context, e))
         }
     }
 
@@ -57,34 +68,23 @@ class UpcomingViewModel @Inject constructor(
     ): Resource<SearchResponse> {
         if (response.isSuccessful) {
             response.body()?.let { resultResponse ->
-                page++
-                if (upcomingResponse == null) {
-                    page = 2
-                    upcomingResponse = resultResponse
-                } else {
-                    val oldItems = upcomingResponse?.results
-                    val newItems = resultResponse.results
-                    oldItems?.addAll(newItems)
-                }
-                var responseList = upcomingResponse ?: resultResponse
-                responseList = responseList.copy(
-                    results = responseList
-                        .results
+                val today = LocalDate.now()
+                val responseList = resultResponse.copy(
+                    results = (upcomingResponse?.results.orEmpty() + resultResponse.results)
                         .asSequence()
-                        .filter { it.releasedDate() != null }
-                        .filter {
-                            Converter.dateToLocalDate(
-                                it.releasedDate()!!
-                            ).isAfter(LocalDate.now())
+                        .mapNotNull { item ->
+                            val date = item.release_date?.takeIf(String::isNotBlank)
+                                ?: item.first_air_date
+                            Converter.parseIsoDateOrNull(date)?.let { item to it }
                         }
-                        .sortedBy { Converter.dateToLocalDate(it.releasedDate()!!) }
-                        .distinctBy { it.id }
+                        .filter { (_, date) -> date.isAfter(today) }
+                        .sortedBy { (_, date) -> date }
+                        .distinctBy { (item, _) -> item.id }
+                        .map { (item, _) -> item }
                         .toMutableList()
                 )
-                if (responseList.results.size < 5 && count <= 5) {
-                    count++
-                    viewModelScope.launch { getUpcoming() }
-                }
+                page = resultResponse.page + 1
+                upcomingResponse = responseList
                 return Resource.Success(responseList)
             }
         }

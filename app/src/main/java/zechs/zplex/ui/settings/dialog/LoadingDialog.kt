@@ -2,9 +2,13 @@ package zechs.zplex.ui.settings.dialog
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Window
 import zechs.zplex.R
+import zechs.zplex.utils.ext.fitTelevisionWindow
+import zechs.zplex.utils.ext.isTelevision
 
 class LoadingDialog(
     context: Context,
@@ -16,6 +20,14 @@ class LoadingDialog(
         setCancelable(false)
         setCanceledOnTouchOutside(false)
         setContentView(R.layout.dialog_loading)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (context.isTelevision) {
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            fitTelevisionWindow(340)
+        }
     }
 
 }

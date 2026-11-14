@@ -8,6 +8,7 @@ import coil.size.Precision
 import zechs.zplex.R
 import zechs.zplex.databinding.ItemDriveFileBinding
 import zechs.zplex.databinding.ItemLoadingBinding
+import zechs.zplex.utils.ext.isTelevision
 
 sealed class FilesViewHolder(
     binding: ViewBinding
@@ -39,7 +40,7 @@ sealed class FilesViewHolder(
                         tvFileSizeTAG
                     } else null
 
-                    isGone = tag == tvFileSizeTAG
+                    isGone = tag == tvFileSizeTAG || (context.isTelevision && item.isFolder)
                     text = item.humanSize
                 }
 

@@ -9,8 +9,27 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-val tmdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("TMDB_API_KEY")
-val omdbApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("OMDB_API_KEY")
+val localProperties = gradleLocalProperties(rootDir, providers)
+val tmdbApiKey: String = localProperties.getProperty("TMDB_API_KEY")
+val omdbApiKey: String = localProperties.getProperty("OMDB_API_KEY")
+val driveClientId = localProperties.getProperty("MOVYNEX_DRIVE_CLIENT_ID").orEmpty().trim()
+val driveClientSecret = localProperties.getProperty("MOVYNEX_DRIVE_CLIENT_SECRET").orEmpty().trim()
+require(driveClientId.isEmpty() == driveClientSecret.isEmpty()) {
+    "Renseignez ensemble MOVYNEX_DRIVE_CLIENT_ID et MOVYNEX_DRIVE_CLIENT_SECRET dans local.properties."
+}
+
+fun buildConfigString(value: String): String = "\"" + value
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+    .replace("\r", "\\r")
+    .replace("\n", "\\n") + "\""
+
+val fireTvTest = providers.gradleProperty("movynexFireTvTest").map(String::toBoolean).getOrElse(false)
+val fireTvRelease = providers.gradleProperty("movynexFireTv").map(String::toBoolean).getOrElse(false)
+require(!fireTvTest || !fireTvRelease) {
+    "Choisissez une seule variante Fire TV par compilation."
+}
+val isFireTv = fireTvTest || fireTvRelease
 val releaseKeystorePath = providers.environmentVariable("MOVYNEX_KEYSTORE_PATH").orNull
 val releaseKeystorePassword = providers.environmentVariable("MOVYNEX_KEYSTORE_PASSWORD").orNull
 val releaseKeyAlias = providers.environmentVariable("MOVYNEX_KEY_ALIAS").orNull
@@ -30,13 +49,29 @@ android {
         applicationId = "com.cursedcrew.movynex"
         minSdk = 31
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.0.6"
+        // Keep the version displayed on both devices and advance their update codes.
+        versionCode = if (fireTvRelease) 13 else 12
+        versionName = "1.0.7"
 
         buildConfigField("String", "TMDB_API_KEY", "\"${tmdbApiKey}\"")
         buildConfigField("String", "OMDB_API_KEY", "\"${omdbApiKey}\"")
+        buildConfigField("String", "DRIVE_CLIENT_ID", buildConfigString(driveClientId))
+        buildConfigField("String", "DRIVE_CLIENT_SECRET", buildConfigString(driveClientSecret))
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    if (isFireTv) {
+        flavorDimensions += "device"
+        productFlavors {
+            create("fireTv") {
+                dimension = "device"
+                minSdk = 30
+                // Match the Fire TV package installed by the previous builds.
+                applicationIdSuffix = if (fireTvRelease) ".firetv.debug" else ".firetv"
+                if (fireTvTest) versionNameSuffix = "-FIRETV"
+            }
+        }
     }
 
     signingConfigs {
@@ -59,7 +94,9 @@ android {
         }
 
         release {
-            if (hasReleaseSigning) {
+            if (fireTvRelease) {
+                signingConfig = signingConfigs.getByName("debug")
+            } else if (hasReleaseSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }
             isMinifyEnabled = true
@@ -94,11 +131,22 @@ android {
         abi {
             isEnable = true
             reset()
-            include("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+            if (isFireTv) {
+                include("armeabi-v7a")
+            } else {
+                include("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+            }
             isUniversalApk = false
         }
     }
 
+}
+
+if (isFireTv) {
+    val unusedBuildType = if (fireTvRelease) "debug" else "release"
+    androidComponents.beforeVariants(androidComponents.selector().withBuildType(unusedBuildType)) {
+        it.enable = false
+    }
 }
 
 dependencies {

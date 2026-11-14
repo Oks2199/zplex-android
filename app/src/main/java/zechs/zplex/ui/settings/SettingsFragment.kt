@@ -13,6 +13,7 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
 import androidx.constraintlayout.widget.Constraints
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -23,10 +24,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialSharedAxis
 import kotlinx.coroutines.launch
 import zechs.zplex.R
+import zechs.zplex.data.profile.ProfileSyncStatus
 import zechs.zplex.databinding.FragmentSettingsBinding
 import zechs.zplex.service.RemoteLibraryIndexingService
 import zechs.zplex.service.ServiceState
@@ -36,6 +39,7 @@ import zechs.zplex.utils.FolderType
 import zechs.zplex.utils.SelectedFolder
 import zechs.zplex.utils.StartFolderPicker
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.isTelevision
 
 
 class SettingsFragment : Fragment() {
@@ -124,8 +128,42 @@ class SettingsFragment : Fragment() {
         observerBothFolders()
         loadingObserver()
         loginStatusObserver()
+        observeProfileSync()
         indexingServiceObserver()
         cacheCountObserver()
+    }
+
+    private fun observeProfileSync() {
+        val row = binding.settingProfileSync
+        if (row.root.context.isTelevision) row.root.setBackgroundResource(R.drawable.tv_focus_surface)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.profileStatus.collect { status ->
+                    row.root.isVisible = status != ProfileSyncStatus.SIGNED_OUT
+                    row.profileSyncStatus.setText(
+                        when (status) {
+                            ProfileSyncStatus.NEEDS_PERMISSION -> R.string.profile_sync_authorize
+                            ProfileSyncStatus.SYNCING -> R.string.profile_sync_running
+                            ProfileSyncStatus.SYNCED -> R.string.profile_sync_done
+                            ProfileSyncStatus.WAITING_FOR_PHONE -> R.string.profile_sync_waiting_for_phone
+                            ProfileSyncStatus.PROFILE_UNAVAILABLE -> R.string.profile_sync_unavailable
+                            ProfileSyncStatus.RETRY -> R.string.profile_sync_retry
+                            else -> R.string.profile_sync_ready
+                        }
+                    )
+                    row.root.setOnClickListener {
+                        if (status == ProfileSyncStatus.NEEDS_PERMISSION) {
+                            findNavController().navigateSafe(
+                                R.id.action_settingsFragment_to_signInFragment,
+                                bundleOf("authorizeProfile" to true)
+                            )
+                        } else {
+                            viewModel.syncProfile()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun cacheCountObserver() {
@@ -147,7 +185,7 @@ class SettingsFragment : Fragment() {
             }
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
             .setCancelable(true)
-            .show()
+            .showWithTelevisionFocus()
     }
 
     private fun showFolderPickerDialog(
@@ -166,7 +204,7 @@ class SettingsFragment : Fragment() {
                     launchPicker.launch(folderPicker)
                 }
                 .setNegativeButton(getString(R.string.no)) { _, _ -> }
-                .show()
+                .showWithTelevisionFocus()
         } else {
             launchPicker.launch(folderPicker)
         }
@@ -238,7 +276,7 @@ class SettingsFragment : Fragment() {
                 viewModel.logOut()
             }
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     private fun loadingObserver() {

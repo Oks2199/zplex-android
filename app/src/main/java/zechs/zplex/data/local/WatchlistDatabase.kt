@@ -13,9 +13,10 @@ import zechs.zplex.data.model.entities.WatchedShow
         Movie::class,
         Show::class,
         WatchedMovie::class,
-        WatchedShow::class
+        WatchedShow::class,
+        ProfileSyncState::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 
@@ -25,5 +26,6 @@ abstract class WatchlistDatabase : RoomDatabase() {
     abstract fun getShowDao(): ShowDao
     abstract fun getWatchedMovieDao(): WatchedMovieDao
     abstract fun getWatchedShowDao(): WatchedShowDao
+    abstract fun getProfileSyncDao(): ProfileSyncDao
 
 }

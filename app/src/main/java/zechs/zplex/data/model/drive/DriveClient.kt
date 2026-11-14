@@ -14,11 +14,16 @@ data class DriveClient(
     val scopes: List<String>
 ) : Serializable {
 
-    fun authUrl(): Uri? = try {
-        ("${GOOGLE_ACCOUNTS_URL}/o/oauth2/auth?" +
-                "response_type=code&approval_prompt=force&access_type=offline" +
-                "&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.joinToString(" ")}").toUri()
-    } catch (e: Exception) {
-        null
-    }
+    fun authUrl(state: String, codeChallenge: String): Uri =
+        "${GOOGLE_ACCOUNTS_URL}/o/oauth2/v2/auth".toUri().buildUpon()
+            .appendQueryParameter("response_type", "code")
+            .appendQueryParameter("access_type", "offline")
+            .appendQueryParameter("prompt", "consent")
+            .appendQueryParameter("client_id", clientId)
+            .appendQueryParameter("redirect_uri", redirectUri)
+            .appendQueryParameter("scope", scopes.joinToString(" "))
+            .appendQueryParameter("state", state)
+            .appendQueryParameter("code_challenge", codeChallenge)
+            .appendQueryParameter("code_challenge_method", "S256")
+            .build()
 }

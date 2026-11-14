@@ -4,15 +4,17 @@ import android.content.Context
 import android.util.Log
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import zechs.zplex.R
 import zechs.zplex.data.model.drive.AuthorizationResponse
-import zechs.zplex.data.model.drive.AuthorizationTokenRequest
 import zechs.zplex.data.model.drive.DriveClient
+import zechs.zplex.data.model.drive.DRIVE_READ_SCOPE
 import zechs.zplex.data.model.drive.DriveResponse
 import zechs.zplex.data.model.drive.File
 import zechs.zplex.data.model.drive.FilesResponse
 import zechs.zplex.data.model.drive.RefreshTokenRequest
 import zechs.zplex.data.model.drive.TokenResponse
+import zechs.zplex.data.model.drive.hasScope
 import zechs.zplex.data.remote.DriveApi
 import zechs.zplex.data.remote.TokenApi
 import zechs.zplex.utils.SessionManager
@@ -137,9 +139,11 @@ class DriveRepository @Inject constructor(
                     refreshToken = refreshToken
                 )
             )
-            Log.d(TAG, "Received access token (${token.accessToken})")
-            sessionManager.saveAccessToken(token)
-            Resource.Success(token)
+            val saved = sessionManager.saveAccessToken(token, refreshToken)
+                ?: return Resource.Error(context.getString(R.string.access_token_missing))
+            Resource.Success(saved)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             doOnError(e)
         }
@@ -157,29 +161,29 @@ class DriveRepository @Inject constructor(
      */
     suspend fun fetchRefreshToken(
         client: DriveClient,
-        authorizationCode: String
+        authorizationCode: String,
+        codeVerifier: String,
+        validate: suspend (AuthorizationResponse) -> Int? = { null }
     ): Resource<AuthorizationResponse> {
         return try {
-            Log.d(TAG, "Requesting refresh token with authCode=$authorizationCode)")
             val token = tokenApi.get().getRefreshToken(
-                request = AuthorizationTokenRequest(
-                    clientId = client.clientId,
-                    clientSecret = client.clientSecret,
-                    redirectUri = client.redirectUri,
-                    authCode = authorizationCode
-                )
+                clientId = client.clientId,
+                clientSecret = client.clientSecret,
+                redirectUri = client.redirectUri,
+                authorizationCode = authorizationCode,
+                codeVerifier = codeVerifier
             )
-
-            Log.d(TAG, "Received refresh token (${token.refreshToken})")
-
-            // saving in data store
-            sessionManager.saveClient(client)
-            sessionManager.saveRefreshToken(token.refreshToken)
-            sessionManager.saveAccessToken(token.toTokenResponse())
-
+            if (!token.toTokenResponse().hasScope(DRIVE_READ_SCOPE)) {
+                return Resource.Error(context.getString(R.string.drive_sign_in_read_permission_required))
+            }
+            val validationError = validate(token)
+            if (validationError != null) return Resource.Error(context.getString(validationError))
+            sessionManager.saveDriveSession(client, token)
             Resource.Success(token)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            doOnError(e)
+            Resource.Error(context.getString(R.string.drive_sign_in_exchange_failed))
         }
     }
 

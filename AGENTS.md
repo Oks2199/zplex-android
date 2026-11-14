@@ -30,8 +30,9 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 
 ## Version et compatibilité
 
-- Version livrée de référence : `versionCode = 10`, `versionName = 1.0.6`.
-- Android minimum : API 31 ; compilation et cible : API 36.
+- Version livrée de référence : `versionName = 1.0.7`, code 12 sur téléphone et code 13 sur Fire TV.
+- La release téléphone utilise l'API minimale 31 et `arm64-v8a`. La compilation et la cible sont à l'API 36.
+- Pour Fire OS 8, la release est activée avec `-PmovynexFireTv=true`. Elle utilise l'API minimale 30 et `armeabi-v7a`, et conserve l'identifiant `com.cursedcrew.movynex.firetv.debug` de l'installation Fire TV existante.
 - Incrémenter `versionCode` pour chaque APK destinée à remplacer une version déjà installée.
 - Utiliser un `versionName` au format `MAJEUR.MINEUR.CORRECTIF`.
 - Préserver les réglages locaux, la connexion Google Drive, l'indexation, l'historique et les téléchargements lors des mises à jour.
@@ -42,7 +43,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Projet Google Cloud : **Movynex Personal**.
 - Nom public OAuth : **Movynex**.
 - Client OAuth : **Movynex Android**, de type application de bureau.
-- Scope attendu dans Google Cloud et dans Android : `https://www.googleapis.com/auth/drive.readonly`.
+- Scopes attendus : `https://www.googleapis.com/auth/drive.readonly` pour lire les vidéos et `https://www.googleapis.com/auth/drive.appdata` pour la synchronisation privée.
 - URI de redirection attendue : `http://127.0.0.1:53682/`.
 - Audience : externe ; statut : **In production**.
 - Domaine autorisé pour les pages Google Sites : `google.com`.
@@ -71,14 +72,17 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Une indexation qui détecte sur Drive un média de Ma liste doit lui attribuer son `fileId`, ce qui le déplace automatiquement vers la Bibliothèque sans créer de doublon.
 - La synchronisation Drive ne doit jamais supprimer les lignes de Ma liste et un média retiré du Drive ne doit pas être automatiquement réinscrit dans Ma liste.
 - Sur une fiche, le bouton Ma liste ne doit jamais permettre de supprimer un média de la Bibliothèque. Il doit distinguer « Ajouter à ma liste », « Dans ma liste » et « Dans la bibliothèque ».
-- La navigation principale conserve trois boutons : Accueil, Bibliothèque et Ma liste. La recherche reste accessible par la loupe des barres supérieures.
+- La navigation principale conserve trois destinations : Accueil, Bibliothèque et Ma liste. Sur TV, elles se trouvent dans la barre supérieure horizontale, avec la loupe et les réglages. Sur téléphone, les trois destinations restent dans la barre inférieure et la loupe dans les barres supérieures.
 - La déconnexion Google Drive doit conserver la dernière Bibliothèque connue et Ma liste ; elle ne doit pas convertir la Bibliothèque en éléments de Ma liste.
+- Le profil partagé utilise le même compte Google sur téléphone et TV. Le téléphone initialise le profil avec Ma liste et la progression locales, même lorsqu'elles sont vides. La TV attend ce profil et adopte son état à la première synchronisation. Les changements suivants circulent dans les deux sens.
+- La synchronisation du profil conserve les entrées indexées de la Bibliothèque et les téléchargements locaux. Elle enregistre aussi les retraits et associe chaque progression à son film ou à sa saison et son épisode.
+- Afficher le badge « Vu » sur les films terminés dans la Bibliothèque, Ma liste et leurs rangées d'accueil. Dans une saison, afficher le badge sur chaque épisode terminé. Utiliser la même règle de fin de lecture que pour la reprise.
 
 ## Accueil
 
 - Conserver l'ordre logique suivant : bannière, Continuer la lecture, Sur votre Drive, Ma liste, séparateur À découvrir, Tendances de la semaine, Actuellement au cinéma, puis Disponibles en streaming en France. Toute section vide disparaît, sauf la bannière lorsqu'un candidat valable existe.
 - La bannière privilégie un média présent sur le Drive. Un média externe doit porter un libellé « Au cinéma » ou indiquer sa plateforme française ; toute donnée de plateforme conserve l'attribution JustWatch.
-- La bannière utilise une grande affiche TMDB verticale `2:3` inspirée de Netflix, sans arrière-plan flouté ni carte imbriquée. Le titre, le type, l'année, la note et l'origine sont superposés sur un dégradé ; son bouton « Voir la fiche » conserve la navigation vers les détails du média.
+- La bannière utilise une grande affiche TMDB verticale `2:3` sur téléphone et un visuel de fond TMDB en paysage sur TV. Le titre, le type, l'année, la note et l'origine sont superposés sur un dégradé. Le bouton « Voir la fiche » ouvre les détails du média.
 - Continuer la lecture affiche uniquement une lecture réellement commencée, non terminée et encore associée à une source Drive ou hors ligne. Un épisode doit conserver la référence du fichier exact utilisé pour la lecture.
 - Sur votre Drive est trié par date d'ajout et exclut les médias déjà affichés dans Continuer la lecture. Ma liste contient uniquement les médias enregistrés qui ne sont présents ni sur le Drive ni hors ligne.
 - Les tendances TMDB sont mondiales et utilisent la fenêtre hebdomadaire avec des métadonnées françaises ; ne jamais les présenter comme des tendances spécifiquement françaises.
@@ -87,7 +91,7 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 ## Clés API, jetons et signature
 
 - TMDB et OMDb sont injectés depuis `local.properties` en local et depuis les secrets GitHub en CI.
-- La release doit rester signée avec la clé **Cursed Crew** pour pouvoir mettre à jour l'application installée.
+- La release téléphone doit rester signée avec la clé **Cursed Crew**. La release Fire TV doit conserver le certificat de la version Fire TV déjà installée.
 - Variables de signature attendues : `MOVYNEX_KEYSTORE_PATH`, `MOVYNEX_KEYSTORE_PASSWORD`, `MOVYNEX_KEY_ALIAS` et `MOVYNEX_KEY_PASSWORD`.
 - Ne jamais afficher, copier dans les journaux, committer ou remplacer une clé, un mot de passe ou un secret.
 - Dette de sécurité connue : certains appels `Log.d` historiques exposent le client OAuth ou les jetons dans les journaux de diagnostic. Les supprimer avant toute distribution plus large que le cercle familial.
@@ -101,8 +105,8 @@ Ce fichier contient les règles persistantes à respecter lors de toute modifica
 - Si Gradle est bloqué localement, une pull request vers `main` permet de valider les tests et l'APK debug sans produire de release signée. La livraison se fait ensuite seulement après validation et accord explicite pour intégrer ou pousser sur `main`.
 - Ne pas pousser une modification applicative sur `main` sans accord explicite de l'utilisateur pour lancer la construction.
 - Pour une modification exclusivement documentaire, un commit contenant `[skip ci]` peut être utilisé afin d'éviter une construction inutile.
-- Avant une livraison, exécuter les tests unitaires et une compilation debug, puis vérifier la release signée produite par GitHub Actions.
-- Vérifier au minimum le package, `versionCode`, `versionName`, le libellé Movynex, l'architecture ARM64, les clés API, l'alignement ZIP et la signature Cursed Crew.
+- Avant une livraison, exécuter les tests unitaires et vérifier la release signée. Livrer des APK de mise à jour en mode release pour le téléphone et le Fire TV.
+- Vérifier au minimum le package, `versionCode`, `versionName`, le libellé Movynex, l'architecture de l'appareil, les clés API, l'alignement ZIP et la signature de l'installation à remplacer.
 - Copier uniquement l'APK finale vérifiée dans `H:\Downloads` lorsque l'utilisateur demande une livraison.
 - Après la copie, vérifier que l'APK source et l'APK livrée possèdent exactement la même empreinte SHA-256.
 - Garder `dist/` hors de Git.

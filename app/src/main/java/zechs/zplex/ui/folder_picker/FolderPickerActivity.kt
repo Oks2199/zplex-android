@@ -10,6 +10,8 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import zechs.zplex.R
 import zechs.zplex.databinding.ActivityFolderPickerBinding
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.showTelevisionFocus
 
 @AndroidEntryPoint
 class FolderPickerActivity : AppCompatActivity() {
@@ -32,16 +34,19 @@ class FolderPickerActivity : AppCompatActivity() {
             R.id.folderPickerNavHostFragment
         ) as NavHostFragment
         navController = navHostFragment.navController
+        if (isTelevision) binding.root.showTelevisionFocus()
         ViewCompat.setOnApplyWindowInsetsListener(binding.linearLayout) { view, insets ->
             val bars = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars()
                         or WindowInsetsCompat.Type.displayCutout()
             )
+            val horizontal = if (isTelevision) resources.getDimensionPixelSize(R.dimen.tv_safe_horizontal) else 0
+            val vertical = if (isTelevision) resources.getDimensionPixelSize(R.dimen.tv_safe_vertical) else 0
             view.updatePadding(
-                left = bars.left,
-                top = bars.top,
-                right = bars.right,
-                bottom = bars.bottom,
+                left = maxOf(bars.left, horizontal),
+                top = maxOf(bars.top, vertical),
+                right = maxOf(bars.right, horizontal),
+                bottom = maxOf(bars.bottom, vertical),
             )
             WindowInsetsCompat.CONSUMED
         }

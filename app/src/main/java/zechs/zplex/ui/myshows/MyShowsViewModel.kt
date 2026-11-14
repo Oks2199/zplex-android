@@ -10,7 +10,9 @@ import zechs.zplex.data.local.offline.OfflineMovieDao
 import zechs.zplex.data.local.offline.OfflineShowDao
 import zechs.zplex.data.model.entities.Movie
 import zechs.zplex.data.model.entities.Show
+import zechs.zplex.data.model.entities.finishedMovieIds
 import zechs.zplex.data.repository.TmdbRepository
+import zechs.zplex.data.repository.WatchedRepository
 import zechs.zplex.ui.BaseAndroidViewModel
 import javax.inject.Inject
 
@@ -19,7 +21,8 @@ class MyShowsViewModel @Inject constructor(
     app: Application,
     private val tmdbRepository: TmdbRepository,
     offlineShowDao: OfflineShowDao,
-    offlineMovieDao: OfflineMovieDao
+    offlineMovieDao: OfflineMovieDao,
+    watchedRepository: WatchedRepository
 ) : BaseAndroidViewModel(app) {
 
     fun saveShow(show: Show) = viewModelScope.launch {
@@ -55,5 +58,7 @@ class MyShowsViewModel @Inject constructor(
 
     val watchlistShows: LiveData<List<Show>> =
         tmdbRepository.getWatchlistShowsAsLiveData()
+
+    val watchedMovieIds = watchedRepository.getAllWatchedMovies().map { it.finishedMovieIds() }
 
 }

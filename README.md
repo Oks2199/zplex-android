@@ -8,12 +8,13 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 
 ## Version actuelle
 
-- Version du code courant : `1.0.6` (`versionCode = 10`)
-- Dernière APK livrée et vérifiée : `H:\Downloads\Movynex-1.0.6.apk`
-- Package Android : `com.cursedcrew.movynex`
-- Android minimum : Android 12 / API 31
-- APK de référence : ARM64, signée avec la clé Cursed Crew
-- Accès Google Drive : lecture seule
+- Version livrée : `1.0.7` (code 12 sur téléphone, code 13 sur Fire TV)
+- Fonctionnement confirmé par l'utilisateur le 12 novembre 2026 sur son téléphone Android et son Fire TV Stick sous Fire OS 8.
+- APK téléphone livrée : `H:\Downloads\Movynex-1.0.7.apk`
+- APK Fire TV livrée : `H:\Downloads\Movynex-1.0.7-FireTV-ARMv7.apk`
+- Téléphone : Android 12 / API 31 minimum, ARM64, package `com.cursedcrew.movynex`, signature Cursed Crew.
+- Fire TV : Fire OS 8 (Android 11 / API 30), ARM 32 bits, package `com.cursedcrew.movynex.firetv.debug` conservé pour les mises à jour.
+- Google Drive : lecture des médias et synchronisation du profil dans l'espace privé de Movynex
 - Statut OAuth : externe, en production
 
 ## Fonctionnalités
@@ -22,7 +23,8 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 - Lecture en streaming avec MPV.
 - Téléchargement hors ligne dans l'espace privé de l'application.
 - Reprise de lecture et historique enregistrés localement.
-- Accueil organisé autour du contenu personnel : grande bannière verticale `2:3` inspirée de Netflix et prioritairement issue du Drive, lectures réellement commencées, ajouts Drive récents et Ma liste lorsqu'elle n'est pas vide. Les suggestions séparées affichent ensuite les tendances TMDB de la semaine, les films actuellement au cinéma et les films ou séries disponibles en streaming en France.
+- Le badge « Vu » identifie les films terminés dans la Bibliothèque, Ma liste et leurs rangées d'accueil. Les épisodes terminés portent le badge dans leur saison.
+- Accueil organisé autour du contenu personnel : grande bannière prioritairement issue du Drive, lectures réellement commencées, ajouts Drive récents et Ma liste lorsqu'elle n'est pas vide. La bannière utilise une affiche verticale `2:3` sur téléphone et un visuel en paysage sur TV. Les suggestions séparées affichent ensuite les tendances TMDB de la semaine, les films actuellement au cinéma et les films ou séries disponibles en streaming en France.
 - Affiches, titres, résumés, dates et autres métadonnées via TMDB et OMDb, demandés en français auprès de TMDB avec la région France. Les affiches sont présentées dans des cadres `2:3` uniformes sans déformation.
 - Disponibilités françaises des films via TMDB/JustWatch : sortie cinéma récente, streaming par abonnement, location et achat.
 - Le bouton principal d'une fiche ne propose la lecture que lorsqu'un fichier Drive ou hors ligne est réellement disponible ; sinon il indique le type de disponibilité externe.
@@ -33,7 +35,7 @@ Pour reprendre le développement dans une nouvelle conversation, lire intégrale
 - Les plateformes françaises sont affichées au niveau de la série puis de la saison consultée. Ces données TMDB/JustWatch décrivent les offres déclarées pour l'œuvre ou la saison en France et ne garantissent pas la disponibilité de chaque épisode.
 - Dans une saison, chaque épisode indique clairement s'il est téléchargé, présent sur le Drive ou absent du Drive. Un épisode absent reste consultable à titre informatif, mais ne lance pas le lecteur.
 - Interface française, y compris les réglages, le lecteur, les notifications, les téléchargements et les messages d'erreur à partir de la version 1.0.3.
-- Navigation principale à trois destinations : Accueil, Bibliothèque et Ma liste. La recherche est accessible par la loupe des barres supérieures.
+- Navigation principale à trois destinations : Accueil, Bibliothèque et Ma liste. Sur TV, la barre supérieure réunit les trois destinations, la loupe et les réglages. Sur téléphone, les destinations se trouvent en bas et la recherche dans les barres supérieures.
 - Les tendances hebdomadaires sont celles de TMDB à l'échelle mondiale, avec des métadonnées françaises. Les rangées cinéma et streaming sont en revanche filtrées sur la France ; les plateformes proviennent de TMDB/JustWatch et conservent leur attribution.
 - Mode image dans l'image pris en charge par le lecteur.
 
@@ -85,7 +87,14 @@ Règles importantes :
 
 ## Configuration de Google Drive
 
-Movynex n'intègre aucun identifiant OAuth dans le dépôt ou dans l'APK. Le Client ID et le Client Secret doivent être transmis de façon privée aux utilisateurs autorisés, puis saisis localement dans l'application.
+Pour compiler une APK privée préconfigurée, renseigner ces deux propriétés dans le fichier local `local.properties`, ignoré par Git.
+
+```properties
+MOVYNEX_DRIVE_CLIENT_ID=
+MOVYNEX_DRIVE_CLIENT_SECRET=
+```
+
+Ces valeurs sont le Client ID et le Client Secret de Movynex dans Google Cloud. La compilation les inclut dans l'APK privée. Réserver cette APK à l'usage personnel. Une compilation avec les deux propriétés vides propose de saisir ces deux valeurs dans l'application.
 
 La configuration Google Cloud utilisée par la famille est la suivante :
 
@@ -93,7 +102,7 @@ La configuration Google Cloud utilisée par la famille est la suivante :
 - application OAuth : **Movynex** ;
 - client : **Movynex Android** ;
 - type de client : application de bureau ;
-- scope : `https://www.googleapis.com/auth/drive.readonly` ;
+- scopes : `https://www.googleapis.com/auth/drive.readonly` pour la bibliothèque et `https://www.googleapis.com/auth/drive.appdata` pour les données privées de synchronisation ;
 - URI de redirection : `http://127.0.0.1:53682/` ;
 - audience : externe, statut **In production**.
 
@@ -105,33 +114,35 @@ Pages publiques associées à l'écran de consentement :
 
 ### Première connexion
 
-1. Ouvrir les paramètres Google Drive de Movynex.
-2. Saisir le Client ID, le Client Secret et `http://127.0.0.1:53682/`.
-3. Vérifier que le scope affiché est `https://www.googleapis.com/auth/drive.readonly`.
-4. Appuyer sur **Se connecter**, choisir le compte Google et accepter l'accès en lecture seule.
-5. Le navigateur finit sur une adresse `127.0.0.1` qui peut afficher « site inaccessible » : ce comportement est attendu.
-6. Copier l'adresse complète depuis la barre d'adresse du navigateur.
-7. Revenir dans Movynex, choisir **Saisir le code d'autorisation ?**, coller l'adresse complète puis valider.
-8. Sélectionner les dossiers de films et de séries, puis lancer l'indexation.
+1. Ouvrir **Réglages → Connexion Google Drive** sur le téléphone ou le Fire TV.
+2. Appuyer sur **Connecter Google Drive**. Si les champs s'affichent, renseigner le Client ID et le Client Secret de Movynex.
+3. Choisir le compte et autoriser la lecture de Drive et la synchronisation dans le navigateur de cet appareil. Les identifiants du compte se saisissent sur la page Google si elle les demande.
+4. Lorsque le navigateur affiche **Movynex**, revenir dans l'application. Elle récupère le code localement et enregistre la session.
+5. Sélectionner les dossiers de films et de séries, puis lancer l'indexation.
 
 Le statut OAuth en production évite l'expiration automatique au bout de sept jours propre au mode de test. Comme l'application familiale n'est pas validée publiquement par Google, un avertissement « application non validée » peut apparaître lors de la première connexion et le projet reste soumis à une limite de 100 utilisateurs OAuth.
 
+### Synchronisation entre téléphone et TV
+
+Movynex partage **Ma liste** (ajouts et retraits) et les progressions de lecture des films et épisodes avec un seul profil associé au compte Google. Cela permet de reprendre un titre et de retrouver son badge « Vu » sur l'autre appareil. Ouvrir **Réglages → Synchronisation du profil** sur le téléphone en premier. Sur une installation déjà connectée, choisir **Autoriser la synchronisation** et reprendre le même compte Google. Répéter sur la TV. Sa première synchronisation reprend Ma liste et les progressions du téléphone, puis les changements sont envoyés dans les deux sens. L'écran indique l'état de la synchronisation.
+
+Movynex conserve les données de synchronisation dans l'espace privé de l'application sur Drive (`appDataFolder`). Les modifications locales en attente sont envoyées au retour de la connexion. Les dossiers Drive sélectionnés, le catalogue indexé et les fichiers téléchargés restent propres à chaque appareil.
+
 ## Installation et mises à jour
 
-Une nouvelle APK doit conserver à la fois :
+Installer l'APK de l'appareil par-dessus la version existante. Pour que la mise à jour conserve la connexion Google Drive, les dossiers sélectionnés, l'historique et les téléchargements, elle doit garder le même package et le même certificat de signature :
 
-- le package `com.cursedcrew.movynex` ;
-- la signature Cursed Crew.
+- Téléphone : `com.cursedcrew.movynex` et certificat Cursed Crew.
+- Fire TV : `com.cursedcrew.movynex.firetv.debug` et certificat de l'installation Fire TV existante. Le suffixe `.debug` fait partie du package historique de la release Fire TV.
 
-Ces deux éléments permettent d'installer une mise à jour par-dessus la version existante sans effacer la connexion Google Drive, les dossiers sélectionnés, l'historique ou les téléchargements. Ne pas désinstaller l'application avant une mise à jour, car une désinstallation supprime ses données locales.
+Ne pas désinstaller l'application avant une mise à jour : une désinstallation supprime ses données locales. Pour envoyer et installer l'APK sur le Stick depuis un PC, voir la [procédure ADB](PROJECT_CONTEXT.md#installation-sur-le-fire-tv-stick-depuis-un-pc).
 
 ## Développement
 
 ### Prérequis
 
 - JDK 17
-- Android Studio récent
-- Android SDK 36
+- Android SDK 36 et outils en ligne de commande (Android Studio est facultatif)
 - Git
 
 ### Installation locale
@@ -144,7 +155,7 @@ cd zplex-android
 Créer ou compléter `local.properties` sans le committer :
 
 ```properties
-sdk.dir=C:/chemin/vers/Android/Sdk
+sdk.dir=C\:/chemin/vers/Android/Sdk
 TMDB_API_KEY=votre_cle_tmdb
 OMDB_API_KEY=votre_cle_omdb
 ```
@@ -178,6 +189,20 @@ MOVYNEX_KEY_PASSWORD
 
 Leurs valeurs ne doivent jamais être ajoutées au dépôt, à la documentation ou aux journaux.
 
+### Mise à jour Fire TV
+
+Pour un Fire TV Stick sous Fire OS 8 (Android 11) qui exécute les applications en ARM 32 bits, construire la release Fire TV.
+
+```powershell
+.\gradlew.bat -PmovynexFireTv=true :app:testFireTvReleaseUnitTest :app:assembleFireTvRelease :app:lintFireTvRelease
+```
+
+L'APK se trouve dans `app\build\outputs\apk\fireTv\release\`. Son identifiant et son certificat permettent de mettre à jour l'installation Fire TV existante et de conserver ses données.
+
+Sur téléviseur, la barre en haut regroupe Accueil, Bibliothèque, Ma liste, la recherche et les réglages. Les flèches déplacent la sélection, le bouton central ouvre le titre ou active la commande et Retour remonte à l'écran précédent. Dans le lecteur, Menu affiche ou masque les commandes et les touches de lecture permettent de mettre en pause ou de se déplacer dans la vidéo. Dans la Bibliothèque ou Ma liste, un appui long sur une affiche propose de la retirer.
+
+Dans les fenêtres de choix, utilise les flèches pour parcourir les options et le bouton central pour valider. Les confirmations placent la sélection sur le bouton d'annulation lorsqu'il est disponible.
+
 ## Intégration continue
 
 Le workflow [`.github/workflows/android.yml`](.github/workflows/android.yml) :
@@ -192,7 +217,7 @@ Un push sur `main` déclenche automatiquement ce workflow. Une pull request vers
 
 ## Confidentialité et sécurité
 
-- L'accès Google Drive est limité à la lecture : Movynex ne peut ni modifier ni supprimer les fichiers Drive.
+- Movynex accède aux médias Google Drive en lecture seule. La synchronisation du profil écrit dans l'espace Drive privé de l'application.
 - Les identifiants OAuth, jetons, préférences, index et progressions sont conservés dans l'espace privé de l'application sur l'appareil.
 - Les fichiers hors ligne sont enregistrés dans le dossier privé `movynex-downloads` de l'application et disparaissent lors de sa désinstallation.
 - Les titres et identifiants nécessaires peuvent être envoyés à TMDB et OMDb pour récupérer les métadonnées.

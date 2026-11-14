@@ -25,6 +25,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/watchedBadge"
+            style="@style/Widget.Movynex.WatchedBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/watched_badge_inset"
+            android:layout_marginBottom="@dimen/watched_badge_inset"
+            app:layout_constraintBottom_toBottomOf="@id/ivThumb"
+            app:layout_constraintEnd_toEndOf="@id/ivThumb" />
+
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/offlineBadge"
             style="?attr/textAppearanceOverline"
             android:layout_width="match_parent"

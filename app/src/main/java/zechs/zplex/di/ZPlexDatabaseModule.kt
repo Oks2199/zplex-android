@@ -14,6 +14,7 @@ import zechs.zplex.data.local.WatchedShowDao
 import zechs.zplex.data.local.WatchlistDatabase
 import zechs.zplex.utils.MIGRATION_1_2
 import zechs.zplex.utils.MIGRATION_2_3
+import zechs.zplex.utils.MIGRATION_3_4
 import javax.inject.Singleton
 
 @Module
@@ -31,7 +32,7 @@ object ZPlexDatabaseModule {
         WatchlistDatabase::class.java,
         DATABASE_NAME
     )
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
         .build()
 
     @Singleton

@@ -45,10 +45,10 @@ Un push applicatif sur `main` déclenche les tests et la construction. Il faut l
 ## Identité Android à préserver
 
 - Nom public : **Movynex**
-- Package installé : `com.cursedcrew.movynex`
+- Package téléphone installé : `com.cursedcrew.movynex`
 - Namespace Kotlin historique : `zechs.zplex`
 - Projet Gradle : `Movynex`
-- Version livrée : `versionCode = 10`, `versionName = 1.0.6`
+- Version livrée sur téléphone : `versionCode = 12`, `versionName = 1.0.7`
 - Android minimum : API 31
 - Android cible et compilation : API 36
 - Architecture distribuée : `arm64-v8a`
@@ -122,7 +122,7 @@ Set-Location 'F:\Developpement\zplex-android'
 Vérifier que `local.properties` contient, sans le committer :
 
 ```properties
-sdk.dir=C:/Users/Utilisateur/AppData/Local/Android/Sdk
+sdk.dir=C\:/Users/Utilisateur/AppData/Local/Android/Sdk
 TMDB_API_KEY=<valeur privée>
 OMDB_API_KEY=<valeur privée>
 ```
@@ -151,6 +151,35 @@ APK ARM64 release attendue :
 app\build\outputs\apk\release\app-arm64-v8a-release.apk
 ```
 
+### Mise à jour Fire TV sous Fire OS 8
+
+Le Fire TV Stick 4K Max de deuxième génération fonctionne sous Fire OS 8 (Android 11, API 30) et exécute les applications en ARM 32 bits. Compiler la variante release avec le même JDK et les paramètres OAuth locaux.
+
+```powershell
+.\gradlew.bat -PmovynexFireTv=true :app:testFireTvReleaseUnitTest :app:assembleFireTvRelease :app:lintFireTvRelease
+```
+
+La variante non débogable `fireTvRelease` produit une APK `armeabi-v7a` dans `app\build\outputs\apk\fireTv\release\`. Elle garde le package installé `com.cursedcrew.movynex.firetv.debug` et le certificat du keystore local utilisé pour les précédentes APK Fire TV. L'empreinte SHA-256 de ce certificat est `08c9155d9faffd5438f652b8f60ae066c30dadf1c71623d6203d31e579b91b72`. Le suffixe de l'identifiant est interne. La version affichée est `1.0.7` et le code 13 succède au code 12. L'APK conserve l'entrée pour le lanceur TV.
+
+Les APK livrées sont `H:\Downloads\Movynex-1.0.7.apk` pour le téléphone (code 12) et `H:\Downloads\Movynex-1.0.7-FireTV-ARMv7.apk` pour le Stick (code 13). Le 12 novembre 2026, l'utilisateur a confirmé que la version fonctionne sur les deux appareils. Voir `progress.md` pour les empreintes et le détail des validations.
+
+L'interface TV est sélectionnée par le mode télévision d'Android. Les ressources `layout-television` et `values-television` sont communes à la variante Fire TV et au debug standard lancé sur un émulateur Android TV. Une barre horizontale en haut regroupe Accueil, Bibliothèque, Ma liste, la recherche et les réglages. Le contour marque la cible de la télécommande et la pastille indique la destination ouverte. L'accueil TV utilise le visuel TMDB en paysage avec un dégradé et le bouton « Voir la fiche ». Le parcours de connexion 1.0.7 est décrit dans la section Google Cloud et OAuth.
+
+Les fenêtres de filtres, les confirmations, les options du lecteur, la liste de lecture et l'écran de récupération disposent également d'une présentation TV. Les destinations internes Découvrir et À venir sont testables depuis le graphe de navigation avec le build debug. La validation de l'interface est suivie dans `progress.md`.
+
+#### Installation sur le Fire TV Stick depuis un PC
+
+Relier le PC et le Stick au même réseau, activer le débogage ADB dans les options développeur du Stick et relever son adresse IP. Depuis PowerShell, remplacer `ADRESSE_IP_DU_STICK` par cette adresse. À la première connexion, accepter la demande de débogage affichée sur le téléviseur avant de lancer l'installation.
+
+```powershell
+$adbFireTv = 'C:\Users\Utilisateur\AppData\Local\Android\Sdk\platform-tools\adb.exe'
+$cibleFireTv = 'ADRESSE_IP_DU_STICK:5555'
+& $adbFireTv connect $cibleFireTv
+& $adbFireTv -s $cibleFireTv install --no-streaming -r 'H:\Downloads\Movynex-1.0.7-FireTV-ARMv7.apk'
+```
+
+L'option `-r` remplace la version installée en conservant ses données. Sur le Stick, cette commande a installé le code 13 en conservant la date de première installation. Le partage Web de X-plore avait refusé l'accès aux dossiers avec une erreur 403 « Fonction Premium » ; la mise à jour via ADB a fonctionné.
+
 ### Limite connue de Gradle dans l'environnement Codex Windows
 
 Le 12 septembre 2026, plusieurs lancements avec le runtime Android Studio, avec et sans daemon, puis dans un processus Windows séparé, ont tous échoué avec `Unable to establish loopback connection`. La trace montre un échec dans `java.nio.channels.Selector.open` pendant la connexion au daemon Gradle, avant la configuration et la compilation du projet. Ce résultat ne constitue donc pas une erreur de compilation du code Movynex.
@@ -158,9 +187,17 @@ Le 12 septembre 2026, plusieurs lancements avec le runtime Android Studio, avec 
 Procédure à suivre dans une nouvelle conversation :
 
 1. Vérifier une fois le diagnostic avec `--stacktrace`.
-2. Si la trace échoue encore avant la configuration du projet, ne pas modifier `gradle.properties`, le JDK ou le code applicatif pour contourner cette limite.
-3. Effectuer les contrôles statiques encore possibles localement. Pour les ressources Android, `aapt2` se trouve notamment dans `C:\Users\Utilisateur\AppData\Local\Android\Sdk\build-tools\35.0.0\aapt2.exe`.
-4. Utiliser ensuite GitHub Actions pour les tests unitaires et la compilation complète.
+2. Si la cause est `Invalid argument: connect` dans `UnixDomainSockets.connect0`, affecter un répertoire court dans `dist/` aux sockets Unix temporaires de Java pour la commande de compilation en cours.
+3. Relancer les commandes Gradle documentées. En cas d'échec persistant, utiliser GitHub Actions pour les tests et les compilations de validation. Les APK préconfigurées avec les valeurs OAuth de `local.properties` se construisent localement.
+
+Le 12 novembre 2026, le sélecteur Java et Gradle ont démarré avec ce réglage dans l'environnement de la commande. Les fichiers Gradle et l'installation Java ont été conservés.
+
+```powershell
+$socketDir = (New-Item -ItemType Directory -Force 'dist/tv-preview/sock').FullName
+$env:JAVA_TOOL_OPTIONS = (($env:JAVA_TOOL_OPTIONS, "-Djdk.net.unixdomain.tmpdir=$socketDir" | Where-Object { $_ }) -join ' ')
+```
+
+Voir la propriété `jdk.net.unixdomain.tmpdir` dans la [documentation Java](https://docs.oracle.com/en/java/javase/16/core/java-core-libraries-developer-guide.pdf).
 
 Le 12 septembre 2026, le nouveau `strings.xml` français a ainsi été compilé avec succès directement par `aapt2` 35.0.0. Les tests Gradle et les assemblages debug/release ont ensuite réussi dans GitHub Actions n°14.
 
@@ -178,6 +215,10 @@ La méthode de référence est le workflow **Android Build & Test** :
 8. Extraire `app-arm64-v8a-release.apk`, vérifier son identité et sa signature, puis seulement le renommer pour la livraison.
 
 Le bouton **Run workflow** (`workflow_dispatch`) peut aussi lancer la construction sur une branche distante existante. Il ne transmet pas le contenu du poste local : le commit à tester doit déjà avoir été poussé sur la branche sélectionnée. Comme cette exécution n'est pas une pull request, elle lance également les étapes de release signée.
+
+### Signature Cursed Crew des APK téléphone préconfigurées
+
+Compiler la release téléphone localement avec les paramètres OAuth et retenir l'APK ARM64 non signée. Le programme `dist/movynex-1.0.7-signature/DetachedApkSignature.java` prépare les données du bloc v2 depuis l'APK et le certificat public extrait d'une release Cursed Crew vérifiée. Le workflow ponctuel reprend `.github/workflows/android.yml` sur une branche temporaire issue de `origin/main` et signe uniquement ces données, figées avec leur empreinte SHA-256. Récupérer la signature, compléter le bloc v2 en local avec la commande `finish`, puis vérifier l'APK avec `apksigner` et `zipalign`. Supprimer la branche temporaire après vérification. L'APK préconfigurée et les paramètres OAuth restent sur le PC. La livraison des codes 12 et 13 est consignée dans `progress.md`.
 
 Le workflow utilise les six secrets suivants :
 
@@ -317,7 +358,7 @@ Configuration à conserver :
 - Google Drive API : activée
 - Audience : externe
 - Statut de publication : **In production**
-- Scope : `https://www.googleapis.com/auth/drive.readonly`
+- Scopes : `https://www.googleapis.com/auth/drive.readonly` et `https://www.googleapis.com/auth/drive.appdata`. Le second a été ajouté dans Google Auth Platform le 12 novembre 2026.
 - URI de redirection : `http://127.0.0.1:53682/`
 - Domaine autorisé pour Google Sites : `google.com`
 
@@ -344,24 +385,30 @@ Le titre public est **Movynex**. Il a remplacé l'ancien titre **Nothing - Void 
 
 ## Procédure de connexion Google dans l'application
 
-1. Ouvrir les paramètres Google Drive de Movynex.
-2. Saisir localement le Client ID et le Client Secret transmis en privé.
-3. Utiliser `http://127.0.0.1:53682/` comme URI de redirection.
-4. Vérifier le scope de lecture seule.
-5. Appuyer sur **Se connecter** et autoriser l'accès Google Drive.
-6. À la fin, la page `127.0.0.1` peut être inaccessible : c'est attendu, aucun serveur local n'écoute sur le téléphone.
-7. Copier l'URL complète affichée dans la barre d'adresse.
-8. Revenir dans Movynex, choisir **Saisir le code d'autorisation ?**, coller l'URL complète et valider.
-9. Sélectionner les dossiers Films et Séries puis lancer l'indexation.
+La version 1.0.7 utilise l'écran **Réglages → Connexion Google Drive** sur téléphone et Fire TV. **Connecter Google Drive** ouvre le navigateur système. Après autorisation, le navigateur affiche une page locale Movynex qui invite à revenir dans l'application. Sélectionner ensuite les dossiers Films et Séries et lancer l'indexation.
+
+Les clés facultatives `MOVYNEX_DRIVE_CLIENT_ID` et `MOVYNEX_DRIVE_CLIENT_SECRET` dans `local.properties` préconfigurent une APK locale privée. Elles doivent être renseignées ensemble. Avec les deux valeurs vides, l'écran permet de configurer le client dans l'application. Les builds GitHub Actions utilisent ce mode. Les identifiants personnels du compte se saisissent chez Google.
+
+Avant d'ouvrir le navigateur, Movynex écoute `127.0.0.1:53682` pour la tentative en cours. Il vérifie le paramètre `state` et échange le code avec PKCE S256. L'écoute se termine à réception d'une réponse valide, à l'annulation ou à l'expiration de la tentative. La session est enregistrée en une opération DataStore avec les clés historiques. Les APK des codes 12 et 13 demandent les deux scopes. Une connexion existante sans `drive.appdata` peut être étendue depuis **Réglages → Synchronisation du profil** avec le client stocké et le même compte Google. L'enregistrement de la nouvelle session conserve les clés des dossiers.
 
 Les identifiants et jetons sont conservés dans l'espace privé de l'application. Une mise à jour avec le même package et la même signature les conserve ; une désinstallation les efface.
 
 ## Accès Drive et stockage
 
-- Movynex demande uniquement `drive.readonly` : elle peut lister et télécharger les fichiers, mais pas les modifier ni les supprimer sur Drive.
+- `drive.readonly` permet de lister et lire les médias. `drive.appdata` autorise l'écriture dans l'espace Drive privé de Movynex.
 - Les téléchargements hors ligne sont enregistrés dans le stockage interne privé, dans `movynex-downloads`.
 - Désinstaller l'application supprime ses réglages, bases locales et téléchargements.
 - Les vidéos distantes doivent continuer à être lues par le lecteur OAuth direct.
+
+## Profil partagé
+
+Le téléphone initialise le profil avec Ma liste et les progressions disponibles. L'initialisation peut publier une liste vide. La TV attend le fichier du téléphone et applique l'état partagé dans une transaction Room au premier import. Les ajouts et retraits suivants ainsi que la progression sont synchronisés dans les deux sens. Le contrôle de compte utilise l'identifiant de permission de Google Drive et protège un profil déjà associé à un compte.
+
+Dans `appDataFolder`, le fichier initial est `movynex-profile-v1.json`. Chaque installation qui modifie le profil conserve son propre document de changements. Les révisions par titre ou épisode et les suppressions explicites permettent une fusion déterministe entre appareils. Room version 4 ajoute `profile_sync_state` avec une migration additive depuis la version 3. WorkManager reprend les synchronisations après une interruption réseau. Le profil contient les entrées de Ma liste, les positions de lecture et les références de fichiers Drive associées à ces lectures.
+
+La sélection des dossiers Films et Séries, l'indexation de la Bibliothèque et le stockage des téléchargements restent propres à chaque appareil. Le profil partagé ne copie pas ces données.
+
+Le badge « Vu » et la reprise s'appuient sur la progression locale ou reçue du profil. Une progression supérieure à 90 % sur une durée connue indique une lecture terminée. Les affiches de films portent le repère dans la Bibliothèque, Ma liste et les rangées correspondantes de l'accueil. Dans la liste d'une saison, chaque épisode porte son propre état.
 
 ## Conventions de nommage des médias
 
@@ -406,7 +453,7 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## Dette connue et précautions
 
-- Des appels `Log.d` historiques dans `SessionManager.kt` et `DriveRepository.kt` peuvent exposer le Client ID, des codes ou des jetons OAuth dans les journaux de diagnostic. Les retirer avant toute diffusion plus large que la famille.
+- Le parcours de connexion 1.0.7 retire les journaux qui affichaient les identifiants OAuth et les jetons. La validation sur le Fire TV Stick et dans le navigateur du téléphone est suivie dans `progress.md`.
 - Ne jamais afficher ou committer les valeurs de `local.properties`, des secrets GitHub ou des variables de signature.
 - Ne pas modifier le package, la signature, les clés de stockage ou les bases locales sans migration.
 - Ne pas annoncer une APK comme livrée ou testée sans avoir vérifié l'artefact correspondant.
@@ -414,7 +461,9 @@ La migration SAF a été abandonnée pour la release : le fournisseur Google Dri
 
 ## État à reprendre
 
-Movynex 1.0.6 est publiée sur `origin/main` au commit de fusion `fdf4e01` et son APK vérifiée est livrée dans `H:\Downloads\Movynex-1.0.6.apk`. Elle ajoute la séparation entre Bibliothèque et Ma liste, la nouvelle navigation à trois boutons, l'accueil restructuré, la bannière verticale inspirée de Netflix et le cadrage uniforme des affiches TMDB en `2:3`. Le 14 septembre 2026, l'utilisateur a confirmé que la mise à jour installée fonctionne correctement.
+La version livrée de référence est Movynex 1.0.7, code 12 sur téléphone et code 13 sur Fire TV. Le 12 novembre 2026, l'utilisateur a confirmé son fonctionnement sur les deux appareils. Elle ajoute l'interface TV, la connexion Drive via le navigateur, la synchronisation du profil et le badge « Vu ». Les APK privées et leurs validations sont consignées dans `progress.md`. La [pull request n°4](https://github.com/Oks2199/zplex-android/pull/4) suit l'intégration de son code.
+
+La 1.0.6 a été intégrée à `main` au commit `fdf4e01`. Elle ajoute la séparation entre Bibliothèque et Ma liste, la navigation à trois boutons, l'accueil restructuré et le cadrage uniforme des affiches TMDB en `2:3`. Le 14 septembre 2026, l'utilisateur a confirmé le bon fonctionnement de cette mise à jour.
 
 Lors de la livraison 1.0.3, les deux premières exécutions ont détecté des erreurs simples : GitHub Actions n°12 a échoué à cause d'un import `R` manquant dans `CastViewModel`, puis n°13 à cause d'une attente anglaise obsolète dans `ConverterUtilsTest`. Les commits `4643428` et `2fae67b` ont corrigé ces deux points. GitHub Actions n°14 a ensuite réussi l'intégralité des tests, la compilation debug et la release ARM64 signée.
 

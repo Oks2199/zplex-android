@@ -11,7 +11,7 @@ data class TokenResponse(
     val expiresIn: Long,
     @Json(name = "token_type")
     val tokenType: String,
-    val scope: String
+    val scope: String? = null
 )
 
 @Keep

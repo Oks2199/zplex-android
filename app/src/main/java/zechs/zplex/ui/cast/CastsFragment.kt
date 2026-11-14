@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialFadeThrough
 import zechs.zplex.R
@@ -22,7 +23,11 @@ import zechs.zplex.data.model.tmdb.entities.Media
 import zechs.zplex.databinding.FragmentListBinding
 import zechs.zplex.ui.cast.adapter.CastDataAdapter
 import zechs.zplex.ui.image.BigImageViewModel
+import zechs.zplex.utils.ext.TvListFocus
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 class CastsFragment : Fragment() {
@@ -36,11 +41,18 @@ class CastsFragment : Fragment() {
     private val castViewModel by activityViewModels<CastViewModel>()
 
     private var hasLoaded: Boolean = false
+    private var televisionFocus: TvListFocus? = null
 
     private val castDataAdapter by lazy {
         CastDataAdapter(
             setOnClickListener = { navigateMedia(it) },
-            expandBiography = {},
+            expandBiography = { biography ->
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.tv_biography)
+                    .setMessage(biography)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .showWithTelevisionFocus()
+            },
             setOnImageClick = { url, iv ->
                 openImageFullSize(url, iv)
             }
@@ -69,6 +81,7 @@ class CastsFragment : Fragment() {
     }
 
     private fun openImageFullSize(posterPath: String?, imageView: ImageView) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         imageView.transitionName = posterPath
         this.exitTransition = null
         bigImageViewModel.setImagePath(posterPath)
@@ -82,6 +95,7 @@ class CastsFragment : Fragment() {
     }
 
     private fun navigateMedia(media: Media) {
+        televisionFocus = binding.rvList.rememberTelevisionFocus()
         val action = CastsFragmentDirections.actionCastsFragmentToFragmentMedia(
             media.copy(media_type = media.media_type ?: MediaType.movie)
         )
@@ -131,6 +145,8 @@ class CastsFragment : Fragment() {
             layoutManager = LinearLayoutManager(
                 activity, LinearLayoutManager.VERTICAL, false
             )
+            televisionFocus?.let(::restoreTelevisionFocus)
+            televisionFocus = null
         }
     }
 

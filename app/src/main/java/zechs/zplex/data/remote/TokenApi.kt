@@ -1,9 +1,10 @@
 package zechs.zplex.data.remote
 
 import retrofit2.http.Body
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 import zechs.zplex.data.model.drive.AuthorizationResponse
-import zechs.zplex.data.model.drive.AuthorizationTokenRequest
 import zechs.zplex.data.model.drive.RefreshTokenRequest
 import zechs.zplex.data.model.drive.TokenResponse
 
@@ -14,9 +15,15 @@ interface TokenApi {
         @Body request: RefreshTokenRequest
     ): TokenResponse
 
-    @POST("/o/oauth2/token")
+    @FormUrlEncoded
+    @POST("https://oauth2.googleapis.com/token")
     suspend fun getRefreshToken(
-        @Body request: AuthorizationTokenRequest
+        @Field("client_id") clientId: String,
+        @Field("client_secret") clientSecret: String,
+        @Field("redirect_uri") redirectUri: String,
+        @Field("code") authorizationCode: String,
+        @Field("code_verifier") codeVerifier: String,
+        @Field("grant_type") grantType: String = "authorization_code"
     ): AuthorizationResponse
 
 }

@@ -32,6 +32,11 @@ import zechs.zplex.databinding.FragmentFilesBinding
 import zechs.zplex.ui.files.adapter.FilesAdapter
 import zechs.zplex.ui.files.adapter.FilesDataModel
 import zechs.zplex.ui.folder_picker.FolderPickerActivity
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.enableTelevisionAppBarFocus
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.FolderPickerResultContract
 import zechs.zplex.utils.FolderType
 import zechs.zplex.utils.state.Resource
@@ -47,6 +52,7 @@ class FilesFragment : Fragment() {
 
     private var _binding: FragmentFilesBinding? = null
     private val binding get() = _binding!!
+    private var televisionFocus: TvListFocus? = null
 
     private val viewModel by lazy {
         ViewModelProvider(this)[FilesViewModel::class.java]
@@ -105,6 +111,7 @@ class FilesFragment : Fragment() {
         // https://github.com/material-components/material-components-android/issues/1984
         val colorBackground = MaterialColors.getColor(view, android.R.attr.colorBackground)
         view.setBackgroundColor(colorBackground)
+        if (view.context.isTelevision) view.enableTelevisionAppBarFocus()
 
         binding.toolbar.apply {
             title = args.name
@@ -193,6 +200,7 @@ class FilesFragment : Fragment() {
             binding.error.apply {
                 root.isVisible = true
                 errorTxt.text = getString(R.string.no_files_found)
+                if (root.context.isTelevision) retryBtn.isGone = true
             }
         } else {
             binding.error.root.apply {
@@ -202,7 +210,11 @@ class FilesFragment : Fragment() {
             }
         }
 
-        filesAdapter.submitList(files.toMutableList())
+        filesAdapter.submitList(files.toMutableList()) {
+            val list = _binding?.rvList ?: return@submitList
+            televisionFocus?.let(list::restoreTelevisionFocus)
+            televisionFocus = null
+        }
     }
 
     private fun doTransition(transition: Transition) {
@@ -243,6 +255,7 @@ class FilesFragment : Fragment() {
     private fun handleFileOnClick(file: DriveFile) {
         Log.d(TAG, file.toString())
         if (file.isFolder && !file.isShortcut) {
+            televisionFocus = binding.rvList.rememberTelevisionFocus()
             val action = FilesFragmentDirections.actionFilesFragmentSelf(
                 id = file.id,
                 name = file.name,
@@ -253,6 +266,7 @@ class FilesFragment : Fragment() {
             )
             findNavController().navigate(action)
         } else if (file.isShortcut && file.isShortcutFolder) {
+            televisionFocus = binding.rvList.rememberTelevisionFocus()
             val action = FilesFragmentDirections.actionFilesFragmentSelf(
                 id = file.shortcutDetails.targetId!!,
                 name = file.name,
@@ -277,7 +291,8 @@ class FilesFragment : Fragment() {
             val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
             val isLastPage = viewModel.isLastPage
 
-            if (isAtLastItem && !isLoading && !isLastPage && isScrolling) {
+            val scrollingWithRemote = recyclerView.context.isTelevision && dy > 0
+            if (isAtLastItem && !isLoading && !isLastPage && (isScrolling || scrollingWithRemote)) {
                 Log.d(TAG, "Paginating...")
                 viewModel.queryFiles(args.query)
                 isScrolling = false
@@ -301,9 +316,9 @@ class FilesFragment : Fragment() {
         binding.rvList.apply {
             adapter = filesAdapter
             layoutManager = linearLayoutManager
-            addItemDecoration(
-                DividerItemDecoration(context, linearLayoutManager.orientation)
-            )
+            if (!context.isTelevision) {
+                addItemDecoration(DividerItemDecoration(context, linearLayoutManager.orientation))
+            }
             addOnScrollListener(this@FilesFragment.scrollListener)
         }
     }

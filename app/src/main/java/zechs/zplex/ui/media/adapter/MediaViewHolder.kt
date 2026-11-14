@@ -33,6 +33,8 @@ import zechs.zplex.ui.shared_adapters.casts.CastAdapter
 import zechs.zplex.ui.shared_adapters.media.MediaAdapter
 import zechs.zplex.ui.shared_adapters.video.VideoAdapter
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.televisionCarousel
 import zechs.zplex.utils.util.SpannableTextView.spannablePlotText
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -326,6 +328,10 @@ sealed class MediaViewHolder(
             }
         }
 
+        private fun posterLayoutManager(): LinearLayoutManager =
+            if (context.isTelevision) context.televisionCarousel(R.dimen.tv_home_poster_width)
+            else linearLayoutManager
+
         private val mediaAdapter by lazy {
             MediaAdapter {
                 mediaDataAdapter.mediaClickListener.onClickMedia(it)
@@ -348,7 +354,7 @@ sealed class MediaViewHolder(
                 }
                 rvList.apply {
                     adapter = mediaAdapter
-                    layoutManager = linearLayoutManager
+                    layoutManager = posterLayoutManager()
                 }
             }
 
@@ -371,7 +377,7 @@ sealed class MediaViewHolder(
                 }
                 rvList.apply {
                     adapter = mediaAdapter
-                    layoutManager = linearLayoutManager
+                    layoutManager = posterLayoutManager()
                 }
             }
 
@@ -397,7 +403,8 @@ sealed class MediaViewHolder(
                 }
                 rvList.apply {
                     adapter = castAdapter
-                    layoutManager = linearLayoutManager
+                    layoutManager = if (context.isTelevision) LinearLayoutManager(context, HORIZONTAL, false)
+                    else linearLayoutManager
                 }
             }
             castAdapter.submitList(item.casts)
@@ -422,7 +429,8 @@ sealed class MediaViewHolder(
                 }
                 rvList.apply {
                     adapter = videoAdapter
-                    layoutManager = LinearLayoutManager(this.context, HORIZONTAL, false)
+                    layoutManager = if (context.isTelevision) context.televisionCarousel(R.dimen.tv_video_tile_width)
+                    else LinearLayoutManager(context, HORIZONTAL, false)
                 }
             }
 

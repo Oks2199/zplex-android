@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/tv_grid_gutter">
+
+        <ImageView
+            android:id="@+id/error_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@null"
+            app:srcCompat="@drawable/ic_error"
+            app:tint="@color/textColor_74" />
+
+        <TextView
+            android:id="@+id/error_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tv_grid_gutter"
+            android:text="@string/something_went_wrong"
+            android:textAlignment="center"
+            android:textColor="@color/textColor_87"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retry_btn"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tv_grid_gutter"
+            android:minHeight="48dp"
+            android:text="@string/retry"
+            android:textSize="16sp" />
+    </LinearLayout>
+</RelativeLayout>

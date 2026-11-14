@@ -30,11 +30,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import zechs.zplex.utils.ext.isTelevision
+import zechs.zplex.utils.ext.TelevisionFocusNavigation
+import zechs.zplex.utils.ext.isInFirstTelevisionRow
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import coil.load
 import coil.size.Precision
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import zechs.zplex.utils.ext.showWithTelevisionFocus
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.gson.Gson
@@ -53,10 +57,13 @@ import zechs.zplex.ui.shared_viewmodels.SeasonViewModel
 import zechs.zplex.utils.Constants.TMDB_IMAGE_PREFIX
 import zechs.zplex.utils.ext.dpToPx
 import zechs.zplex.utils.ext.navigateSafe
+import zechs.zplex.utils.ext.TvListFocus
+import zechs.zplex.utils.ext.rememberTelevisionFocus
+import zechs.zplex.utils.ext.restoreTelevisionFocus
 import zechs.zplex.utils.state.Resource
 
 @AndroidEntryPoint
-class EpisodesFragment : Fragment() {
+class EpisodesFragment : Fragment(), TelevisionFocusNavigation {
 
     private var _binding: FragmentEpisodesBinding? = null
     private val binding get() = _binding!!
@@ -85,6 +92,7 @@ class EpisodesFragment : Fragment() {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }.also { startActivity(it) }
                 } else {
+                    televisionFocus = binding.rvList.rememberTelevisionFocus()
                     episodeViewModel.setShowEpisode(
                         episodesViewModel.tmdbId,
                         episode.season_number,
@@ -104,6 +112,8 @@ class EpisodesFragment : Fragment() {
             }
         )
     }
+
+    private var televisionFocus: TvListFocus? = null
 
     private fun showEpisodeOptionsDialog(episode: Episode) {
         val message = getString(
@@ -133,7 +143,7 @@ class EpisodesFragment : Fragment() {
             .setNegativeButton(getString(R.string.no)) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
 
@@ -152,7 +162,7 @@ class EpisodesFragment : Fragment() {
             .setNegativeButton(R.string.no) { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+            .showWithTelevisionFocus()
     }
 
     override fun onCreateView(
@@ -243,7 +253,11 @@ class EpisodesFragment : Fragment() {
                                 binding.root,
                                 MaterialFadeThrough()
                             )
-                            episodeAdapter.submitList(it)
+                            episodeAdapter.submitList(it) {
+                                val list = _binding?.rvList ?: return@submitList
+                                televisionFocus?.let(list::restoreTelevisionFocus)
+                                televisionFocus = null
+                            }
                             isLoading(false)
                             episodesViewModel.hasLoaded = true
                         }
@@ -502,7 +516,8 @@ class EpisodesFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        val spanCount = resources.getInteger(R.integer.episodes_span_count)
+        val spanCount = if (requireContext().isTelevision) 2
+            else resources.getInteger(R.integer.episodes_span_count)
         binding.rvList.apply {
             adapter = episodeAdapter
             layoutManager = GridLayoutManager(activity, spanCount, RecyclerView.VERTICAL, false)
@@ -515,6 +530,13 @@ class EpisodesFragment : Fragment() {
             message ?: resources.getString(R.string.something_went_wrong),
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    override fun moveTelevisionFocusUp(focused: View): Boolean {
+        val current = _binding ?: return false
+        val columns = (current.rvList.layoutManager as? GridLayoutManager)?.spanCount ?: return false
+        return current.rvList.isInFirstTelevisionRow(focused, columns) &&
+            current.toolbar.findViewById<View>(R.id.action_all_seasons)?.requestFocus() == true
     }
 
     override fun onDestroyView() {

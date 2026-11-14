@@ -14,15 +14,21 @@ interface WatchedShowDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertWatchedShow(watchedShow: WatchedShow): Long
 
-    @Query("SELECT * FROM `watched_shows`")
+    @Query("SELECT * FROM `watched_shows` ORDER BY createdAt DESC, id DESC")
     fun getAllWatchedShows(): LiveData<List<WatchedShow>>
+
+    @Query("SELECT * FROM watched_shows ORDER BY createdAt DESC, id DESC")
+    suspend fun getProfileProgress(): List<WatchedShow>
+
+    @Query("DELETE FROM watched_shows WHERE tmdbId = :tmdbId AND seasonNumber = :season AND episodeNumber = :episode")
+    suspend fun deleteEpisodeProgress(tmdbId: Int, season: Int, episode: Int)
 
     @Query(
         "SELECT * FROM `watched_shows` " +
                 "WHERE tmdbId = :tmdbId " +
                 "AND seasonNumber = :season " +
                 "AND episodeNumber = :episode " +
-                "ORDER BY createdAt DESC " +
+                "ORDER BY createdAt DESC, id DESC " +
                 "LIMIT 1"
     )
     suspend fun getWatchedShow(tmdbId: Int, season: Int, episode: Int): WatchedShow?
@@ -33,7 +39,7 @@ interface WatchedShowDao {
     @Query(
         "SELECT * FROM `watched_shows` " +
                 "WHERE tmdbId = :tmdbId " +
-                "AND seasonNumber = :season"
+                "AND seasonNumber = :season ORDER BY createdAt DESC, id DESC"
     )
     fun getWatchedSeasonAsFlow(tmdbId: Int, season: Int): Flow<List<WatchedShow>>
 
